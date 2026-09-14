@@ -3,47 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KP-Logistics | Driver Onboarding</title>
+    <title>KP-Logistics | Driver Onboarding & Vetting</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Paystack Checkout Inline Script -->
+    <script src="https://js.paystack.co/v1/inline.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-900">
-    <nav class="bg-slate-900 text-white p-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold tracking-wider">KP-LOGISTICS <span class="text-xs text-orange-500 font-normal">Partner Network</span></h1>
-        <div class="space-x-4">
-            <a href="index.html" class="hover:text-orange-400">Book a Truck</a>
-            <a href="driver.html" class="text-orange-400 font-semibold">Driver Onboarding</a>
+<body class="bg-slate-50 text-slate-900 font-sans">
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="bg-orange-600 text-white p-2 rounded-lg font-black tracking-tighter">KP</div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-wider leading-tight">KP-LOGISTICS</h1>
+                    <span class="text-[10px] text-orange-400 font-medium uppercase tracking-widest">Partner Network</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex space-x-6 text-sm font-medium">
+                <a href="index.html" class="text-slate-300 hover:text-orange-400 transition">Book a Truck</a>
+                <a href="driver.html" class="text-orange-400 font-semibold transition">Driver Onboarding</a>
+                <a href="admin.html" class="text-slate-300 hover:text-orange-400 transition">Admin Panel</a>
+            </nav>
         </div>
-    </nav>
+    </header>
 
-    <main class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md border border-slate-200">
-        <h2 class="text-2xl font-bold mb-2 text-slate-800">Register Your Vehicle</h2>
-        <p class="text-sm text-slate-500 mb-6">Get connected with clients needing transport. Earn on every trip.</p>
-        
-        <form id="driverForm" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium mb-1">Full Name</label>
-                <input type="text" id="driverName" required class="w-full p-3 border rounded-lg outline-none" placeholder="Mpho Mahlaba">
+    <main class="max-w-xl mx-auto my-12 px-6">
+        <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 to-amber-500"></div>
+            
+            <div class="mb-6">
+                <span class="text-xs font-bold uppercase tracking-widest text-orange-600">Partner Application</span>
+                <h2 class="text-2xl font-extxl font-bold text-slate-900 mt-1">Register Your Vehicle</h2>
+                <p class="text-sm text-slate-500 mt-1">Join Kasiplus (PTY) Ltd to receive work. Includes a one-time R150 vehicle verification and vetting fee.</p>
             </div>
-            <div>
-                <label class="block text-sm font-medium mb-1">Vehicle Make & Model</label>
-                <input type="text" id="vehicleModel" required class="w-full p-3 border rounded-lg outline-none" placeholder="e.g., Toyota Hilux / Ford Ranger">
-            </div>
-            <div>
-                <label class="block text-sm font-medium mb-1">Vehicle Category</label>
-                <select id="regVehicleType" class="w-full p-3 border rounded-lg outline-none">
-                    <option value="bakkie">Bakkie</option>
-                    <option value="panelvan">Panel Van</option>
-                    <option value="medtruck">Medium Truck</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium mb-1">Mobile Number</label>
-                <input type="tel" id="driverPhone" required class="w-full p-3 border rounded-lg outline-none" placeholder="071 234 5678">
-            </div>
-            <button type="submit" class="w-full bg-slate-900 text-white font-bold p-3 rounded-lg hover:bg-slate-800 transition">Submit Application</button>
-        </form>
+            
+            <form id="driverForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Full Legal Name</label>
+                    <input type="text" id="driverName" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="Mpho Mahlaba">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Email Address (For Payment Receipt)</label>
+                    <input type="email" id="driverEmail" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="mpho@kasiplus.site">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle Make & Model</label>
+                        <input type="text" id="vehicleModel" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="Toyota Hilux">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle Category</label>
+                        <select id="regVehicleType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
+                            <option value="bakkie">Light Bakkie (1-Ton)</option>
+                            <option value="panelvan">Panel Van</option>
+                            <option value="medtruck">Medium Truck (4-Ton)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Mobile Number</label>
+                    <input type="tel" id="driverPhone" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="071 234 5678">
+                </div>
+
+                <!-- Fee Display Notice -->
+                <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-orange-800 font-medium">Onboarding & Vetting Fee</p>
+                        <p class="text-xl font-black text-orange-600">R 150.00 <span class="text-xs font-normal text-slate-500">(Once-off)</span></p>
+                    </div>
+                    <i class="fa-solid fa-shield-check text-orange-500 text-2xl"></i>
+                </div>
+
+                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg flex items-center justify-center space-x-2">
+                    <span>Proceed to Secure Payment & Register</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
     </main>
 
-    <script type="module" src="app.js"></script>
+    <!-- Payment & Database Integration Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "SENDER_ID",
+            appId: "APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const driverForm = document.getElementById('driverForm');
+        driverForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('driverName').value;
+            const email = document.getElementById('driverEmail').value;
+            const vehicleModel = document.getElementById('vehicleModel').value;
+            const vehicleType = document.getElementById('regVehicleType').value;
+            const phone = document.getElementById('driverPhone').value;
+
+            // Initialize Paystack Popup Checkout for R150 (15000 cents)
+            let handler = PaystackPop.setup({
+                key: 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY', // Replace with your live or test Paystack public key
+                email: email,
+                amount: 15000, // Amount in cents (R150.00)
+                currency: 'ZAR',
+                ref: 'KP_DRV_' + Math.floor((Math.random() * 1000000) + 1),
+                metadata: {
+                    custom_fields: [
+                        { display_name: "Driver Name", variable_name: "driver_name", value: name },
+                        { display_name: "Vehicle Model", variable_name: "vehicle_model", value: vehicleModel },
+                        { display_name: "Phone Number", variable_name: "phone", value: phone }
+                    ]
+                },
+                callback: async function(response) {
+                    // Payment successful, now write data to Firebase database
+                    try {
+                        await addDoc(collection(db, "drivers"), {
+                            name: name,
+                            email: email,
+                            vehicleModel: vehicleModel,
+                            vehicleType: vehicleType,
+                            phone: phone,
+                            paymentReference: response.reference,
+                            status: "Paid & Pending Document Review",
+                            createdAt: new Date()
+                        });
+                        alert("Payment successful! Reference: " + response.reference + "\nYour driver application has been submitted to Kasiplus.");
+                        driverForm.reset();
+                    } catch (error) {
+                        console.error("Error saving driver after payment: ", error);
+                        alert("Payment was successful, but there was an error saving your profile. Please contact support with ref: " + response.reference);
+                    }
+                },
+                onClose: function() {
+                    alert('Payment window closed. Onboarding fee is required to complete registration.');
+                }
+            });
+            handler.openIframe();
+        });
+    </script>
 </body>
 </html>
