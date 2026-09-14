@@ -1,21 +1,23 @@
-// Import Firebase SDK from CDN
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Replace with your free Firebase project credentials
+// Your web app's Firebase configuration for KP-Logistics
 const firebaseConfig = {
-    apiKey: "YOUR_FIREBASE_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "SENDER_ID",
-    appId: "APP_ID"
+    apiKey: "AIzaSyABtMzUk8hZ0fJgPG3Osz2lQ64RkmBS3kw",
+    authDomain: "kp-logistics-1a015.firebaseapp.com",
+    projectId: "kp-logistics-1a015",
+    storageBucket: "kp-logistics-1a015.firebasestorage.app",
+    messagingSenderId: "334125590321",
+    appId: "1:334125590321:web:2adf74f76c7a68c6ddb210",
+    measurementId: "G-DD5MCVTC81"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Handle Customer Booking
+// Handle Customer Booking (for index.html)
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
@@ -34,29 +36,6 @@ if (bookingForm) {
         } catch (error) {
             console.error("Error adding booking: ", error);
             alert("Error submitting booking. Try again.");
-        }
-    });
-}
-
-// Handle Driver Registration
-const driverForm = document.getElementById('driverForm');
-if (driverForm) {
-    driverForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        try {
-            await addDoc(collection(db, "drivers"), {
-                name: document.getElementById('driverName').value,
-                vehicleModel: document.getElementById('vehicleModel').value,
-                vehicleType: document.getElementById('regVehicleType').value,
-                phone: document.getElementById('driverPhone').value,
-                status: "Approved Pending Review",
-                createdAt: new Date()
-            });
-            alert("Application submitted successfully! Welcome to Kasiplus.");
-            driverForm.reset();
-        } catch (error) {
-            console.error("Error adding driver: ", error);
-            alert("Error registering driver. Try again.");
         }
     });
 }
