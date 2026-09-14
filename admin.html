@@ -5,58 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KP-Logistics | Admin Command Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-100 text-slate-900">
+<body class="bg-slate-100 text-slate-900 font-sans">
     <!-- Navigation -->
-    <nav class="bg-slate-900 text-white p-4 flex justify-between items-center shadow-md">
-        <h1 class="text-xl font-bold tracking-wider">KP-ADMIN <span class="text-xs text-orange-500 font-normal">Kasiplus (PTY) Ltd</span></h1>
-        <div class="space-x-4">
-            <a href="index.html" class="hover:text-orange-400">Book a Truck</a>
-            <a href="driver.html" class="hover:text-orange-400">Driver Onboarding</a>
-            <a href="admin.html" class="text-orange-400 font-semibold">Admin Panel</a>
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="bg-orange-600 text-white p-2 rounded-lg font-black tracking-tighter">KP</div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-wider leading-tight">KP-ADMIN</h1>
+                    <span class="text-[10px] text-orange-400 font-medium uppercase tracking-widest">Kasiplus (PTY) Ltd</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex space-x-6 text-sm font-medium">
+                <a href="index.html" class="text-slate-300 hover:text-orange-400 transition">Book a Truck</a>
+                <a href="driver.html" class="text-slate-300 hover:text-orange-400 transition">Driver Onboarding</a>
+                <a href="admin.html" class="text-orange-400 font-semibold transition">Admin Panel</a>
+            </nav>
         </div>
-    </nav>
+    </header>
 
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto mt-8 p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Main Container (Hidden until authenticated) -->
+    <main id="adminContent" class="max-w-7xl mx-auto mt-8 p-6 grid grid-cols-1 md:grid-cols-2 gap-8 hidden">
         
         <!-- Live Bookings Section -->
-        <section class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+        <section class="bg-white p-6 rounded-2xl shadow-xl border border-slate-200">
             <h2 class="text-xl font-bold mb-4 text-slate-800 flex items-center justify-between">
                 <span>Incoming Customer Bookings</span>
                 <span id="bookingCount" class="text-xs bg-orange-100 text-orange-600 px-2.5 py-1 rounded-full font-semibold">0 Active</span>
             </h2>
             <div id="bookingsList" class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
-                <p class="text-sm text-slate-400">Connecting to database...</p>
+                <p class="text-sm text-slate-400">Loading bookings...</p>
             </div>
         </section>
 
         <!-- Driver Onboarding Requests Section -->
-        <section class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+        <section class="bg-white p-6 rounded-2xl shadow-xl border border-slate-200">
             <h2 class="text-xl font-bold mb-4 text-slate-800 flex items-center justify-between">
-                <span>Driver Registrations</span>
-                <span id="driverCount" class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-semibold">0 Pending</span>
+                <span>Driver Registrations (Paid)</span>
+                <span id="driverCount" class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-semibold">0 Registered</span>
             </h2>
             <div id="driversList" class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
-                <p class="text-sm text-slate-400">Connecting to database...</p>
+                <p class="text-sm text-slate-400">Loading drivers...</p>
             </div>
         </section>
 
     </main>
 
-    <!-- Admin Script -->
+    <!-- Admin Security & Data Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Use the exact same Firebase configuration credentials you put in app.js
+        // Simple security passcode check before showing the dashboard
+        const ADMIN_PIN = "2026"; // Change this to whatever 4-digit PIN you prefer
+        const enteredPin = prompt("Enter Admin Passcode to Access Kasiplus Dashboard:");
+
+        if (enteredPin !== ADMIN_PIN) {
+            alert("Access Denied. Incorrect passcode.");
+            window.location.href = "index.html"; // Redirect unauthorized visitors away
+        } else {
+            // Unlock dashboard view if PIN is correct
+            document.getElementById('adminContent').classList.remove('hidden');
+        }
+
+        // Your Live Firebase Configuration
         const firebaseConfig = {
-            apiKey: "YOUR_FIREBASE_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "SENDER_ID",
-            appId: "APP_ID"
+            apiKey: "AIzaSyABtMzUk8hZ0fJgPG3Osz2lQ64RkmBS3kw",
+            authDomain: "kp-logistics-1a015.firebaseapp.com",
+            projectId: "kp-logistics-1a015",
+            storageBucket: "kp-logistics-1a015.firebasestorage.app",
+            messagingSenderId: "334125590321",
+            appId: "1:334125590321:web:2adf74f76c7a68c6ddb210",
+            measurementId: "G-DD5MCVTC81"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -75,11 +97,11 @@
                     bCount++;
                     const data = doc.data();
                     const card = document.createElement('div');
-                    card.className = "p-4 border border-slate-100 bg-slate-50 rounded-lg shadow-sm";
+                    card.className = "p-4 border border-slate-100 bg-slate-50 rounded-xl shadow-sm";
                     card.innerHTML = `
                         <div class="flex justify-between items-start mb-2">
                             <span class="text-xs font-bold uppercase bg-orange-500 text-white px-2 py-0.5 rounded">${data.vehicleType}</span>
-                            <span class="text-xs text-slate-500">${data.status}</span>
+                            <span class="text-xs font-semibold text-orange-600">${data.status}</span>
                         </div>
                         <p class="text-sm font-semibold text-slate-700">📍 From: ${data.pickup}</p>
                         <p class="text-sm font-semibold text-slate-700">🏁 To: ${data.dropoff}</p>
@@ -88,11 +110,11 @@
                     bookingsContainer.appendChild(card);
                 });
                 document.getElementById('bookingCount').innerText = `${bCount} Total`;
-                if(bCount === 0) bookingsContainer.innerHTML = `<p class="text-sm text-slate-500">No bookings found yet.</p>`;
+                if(bCount === 0) bookingsContainer.innerHTML = `<p class="text-sm text-slate-500">No customer bookings found yet.</p>`;
 
             } catch (error) {
                 console.error("Error loading bookings:", error);
-                bookingsContainer.innerHTML = `<p class="text-sm text-red-500">Error loading data. Check Firebase config.</p>`;
+                bookingsContainer.innerHTML = `<p class="text-sm text-red-500">Error loading bookings data.</p>`;
             }
 
             // Fetch Drivers
@@ -107,24 +129,26 @@
                     dCount++;
                     const data = doc.data();
                     const card = document.createElement('div');
-                    card.className = "p-4 border border-slate-100 bg-slate-50 rounded-lg shadow-sm";
+                    card.className = "p-4 border border-slate-100 bg-slate-50 rounded-xl shadow-sm";
                     card.innerHTML = `
                         <div class="flex justify-between items-start mb-2">
                             <span class="text-xs font-bold uppercase bg-slate-900 text-white px-2 py-0.5 rounded">${data.vehicleType}</span>
-                            <span class="text-xs text-orange-600 font-medium">${data.status}</span>
+                            <span class="text-xs text-emerald-600 font-semibold">${data.status}</span>
                         </div>
                         <p class="text-base font-bold text-slate-800">${data.name}</p>
                         <p class="text-sm text-slate-600">🚚 Vehicle: ${data.vehicleModel}</p>
-                        <p class="text-xs text-slate-500 mt-2">📞 Driver Tel: ${data.phone}</p>
+                        <p class="text-xs text-slate-500 mt-1">✉️ Email: ${data.email}</p>
+                        <p class="text-xs text-slate-500 mt-1">📞 Tel: ${data.phone}</p>
+                        <p class="text-[11px] text-slate-400 mt-2 font-mono">Ref: ${data.paymentReference}</p>
                     `;
                     driversContainer.appendChild(card);
                 });
                 document.getElementById('driverCount').innerText = `${dCount} Registered`;
-                if(dCount === 0) driversContainer.innerHTML = `<p class="text-sm text-slate-500">No driver applications yet.</p>`;
+                if(dCount === 0) driversContainer.innerHTML = `<p class="text-sm text-slate-500">No driver registrations yet.</p>`;
 
             } catch (error) {
                 console.error("Error loading drivers:", error);
-                driversContainer.innerHTML = `<p class="text-sm text-red-500">Error loading data. Check Firebase config.</p>`;
+                driversContainer.innerHTML = `<p class="text-sm text-red-500">Error loading driver data.</p>`;
             }
         }
 
