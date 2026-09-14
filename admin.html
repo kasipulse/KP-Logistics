@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KP-Logistics | Admin Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-900">
+    <!-- Navigation -->
+    <nav class="bg-slate-900 text-white p-4 flex justify-between items-center shadow-md">
+        <h1 class="text-xl font-bold tracking-wider">KP-ADMIN <span class="text-xs text-orange-500 font-normal">Kasiplus (PTY) Ltd</span></h1>
+        <div class="space-x-4">
+            <a href="index.html" class="hover:text-orange-400">Book a Truck</a>
+            <a href="driver.html" class="hover:text-orange-400">Driver Onboarding</a>
+            <a href="admin.html" class="text-orange-400 font-semibold">Admin Panel</a>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto mt-8 p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- Live Bookings Section -->
+        <section class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+            <h2 class="text-xl font-bold mb-4 text-slate-800 flex items-center justify-between">
+                <span>Incoming Customer Bookings</span>
+                <span id="bookingCount" class="text-xs bg-orange-100 text-orange-600 px-2.5 py-1 rounded-full font-semibold">0 Active</span>
+            </h2>
+            <div id="bookingsList" class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                <p class="text-sm text-slate-400">Connecting to database...</p>
+            </div>
+        </section>
+
+        <!-- Driver Onboarding Requests Section -->
+        <section class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+            <h2 class="text-xl font-bold mb-4 text-slate-800 flex items-center justify-between">
+                <span>Driver Registrations</span>
+                <span id="driverCount" class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-semibold">0 Pending</span>
+            </h2>
+            <div id="driversList" class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                <p class="text-sm text-slate-400">Connecting to database...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Admin Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Use the exact same Firebase configuration credentials you put in app.js
+        const firebaseConfig = {
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "SENDER_ID",
+            appId: "APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function loadAdminData() {
+            // Fetch Bookings
+            const bookingsContainer = document.getElementById('bookingsList');
+            try {
+                const qBookings = query(collection(db, "bookings"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(qBookings);
+                bookingsContainer.innerHTML = "";
+                let bCount = 0;
+
+                querySnapshot.forEach((doc) => {
+                    bCount++;
+                    const data = doc.data();
+                    const card = document.createElement('div');
+                    card.className = "p-4 border border-slate-100 bg-slate-50 rounded-lg shadow-sm";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-bold uppercase bg-orange-500 text-white px-2 py-0.5 rounded">${data.vehicleType}</span>
+                            <span class="text-xs text-slate-500">${data.status}</span>
+                        </div>
+                        <p class="text-sm font-semibold text-slate-700">📍 From: ${data.pickup}</p>
+                        <p class="text-sm font-semibold text-slate-700">🏁 To: ${data.dropoff}</p>
+                        <p class="text-xs text-slate-500 mt-2">📞 Customer Tel: ${data.phone}</p>
+                    `;
+                    bookingsContainer.appendChild(card);
+                });
+                document.getElementById('bookingCount').innerText = `${bCount} Total`;
+                if(bCount === 0) bookingsContainer.innerHTML = `<p class="text-sm text-slate-500">No bookings found yet.</p>`;
+
+            } catch (error) {
+                console.error("Error loading bookings:", error);
+                bookingsContainer.innerHTML = `<p class="text-sm text-red-500">Error loading data. Check Firebase config.</p>`;
+            }
+
+            // Fetch Drivers
+            const driversContainer = document.getElementById('driversList');
+            try {
+                const qDrivers = query(collection(db, "drivers"), orderBy("createdAt", "desc"));
+                const driverSnapshot = await getDocs(qDrivers);
+                driversContainer.innerHTML = "";
+                let dCount = 0;
+
+                driverSnapshot.forEach((doc) => {
+                    dCount++;
+                    const data = doc.data();
+                    const card = document.createElement('div');
+                    card.className = "p-4 border border-slate-100 bg-slate-50 rounded-lg shadow-sm";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-bold uppercase bg-slate-900 text-white px-2 py-0.5 rounded">${data.vehicleType}</span>
+                            <span class="text-xs text-orange-600 font-medium">${data.status}</span>
+                        </div>
+                        <p class="text-base font-bold text-slate-800">${data.name}</p>
+                        <p class="text-sm text-slate-600">🚚 Vehicle: ${data.vehicleModel}</p>
+                        <p class="text-xs text-slate-500 mt-2">📞 Driver Tel: ${data.phone}</p>
+                    `;
+                    driversContainer.appendChild(card);
+                });
+                document.getElementById('driverCount').innerText = `${dCount} Registered`;
+                if(dCount === 0) driversContainer.innerHTML = `<p class="text-sm text-slate-500">No driver applications yet.</p>`;
+
+            } catch (error) {
+                console.error("Error loading drivers:", error);
+                driversContainer.innerHTML = `<p class="text-sm text-red-500">Error loading data. Check Firebase config.</p>`;
+            }
+        }
+
+        loadAdminData();
+    </script>
+</body>
+</html>
