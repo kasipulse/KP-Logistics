@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KP-Logistics | Driver Onboarding</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <nav class="bg-slate-900 text-white p-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold tracking-wider">KP-LOGISTICS <span class="text-xs text-orange-500 font-normal">Partner Network</span></h1>
+        <div class="space-x-4">
+            <a href="index.html" class="hover:text-orange-400">Book a Truck</a>
+            <a href="driver.html" class="text-orange-400 font-semibold">Driver Onboarding</a>
+        </div>
+    </nav>
+
+    <main class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md border border-slate-200">
+        <h2 class="text-2xl font-bold mb-2 text-slate-800">Register Your Vehicle</h2>
+        <p class="text-sm text-slate-500 mb-6">Get connected with clients needing transport. Earn on every trip.</p>
+        
+        <form id="driverForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">Full Name</label>
+                <input type="text" id="driverName" required class="w-full p-3 border rounded-lg outline-none" placeholder="Mpho Mahlaba">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Vehicle Make & Model</label>
+                <input type="text" id="vehicleModel" required class="w-full p-3 border rounded-lg outline-none" placeholder="e.g., Toyota Hilux / Ford Ranger">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Vehicle Category</label>
+                <select id="regVehicleType" class="w-full p-3 border rounded-lg outline-none">
+                    <option value="bakkie">Bakkie</option>
+                    <option value="panelvan">Panel Van</option>
+                    <option value="medtruck">Medium Truck</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Mobile Number</label>
+                <input type="tel" id="driverPhone" required class="w-full p-3 border rounded-lg outline-none" placeholder="071 234 5678">
+            </div>
+            <button type="submit" class="w-full bg-slate-900 text-white font-bold p-3 rounded-lg hover:bg-slate-800 transition">Submit Application</button>
+        </form>
+    </main>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
