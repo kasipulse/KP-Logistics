@@ -76,6 +76,31 @@
                     </div>
                 </div>
 
+                <!-- Document Upload Section -->
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-700">Required Vetting Documents</p>
+                    
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">South African ID Document / Card</label>
+                        <input type="file" id="idDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Driver's License (Front)</label>
+                        <input type="file" id="licenseDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Vehicle License Disc</label>
+                        <input type="file" id="discDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">PDP (Public Driving Permit) <span class="text-slate-400 font-normal">(Optional - unlocks heavy/commercial enterprise loads)</span></label>
+                        <input type="file" id="pdpDoc" accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 hover:file:bg-slate-300">
+                    </div>
+                </div>
+
                 <!-- Fee Display Notice -->
                 <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-between">
                     <div>
@@ -121,6 +146,12 @@
             const vehicleType = document.getElementById('regVehicleType').value;
             const phone = document.getElementById('driverPhone').value;
             const fuelType = document.getElementById('fuelType').value;
+            
+            // Check file presence
+            const idFile = document.getElementById('idDoc').files[0]?.name || "Not Uploaded";
+            const licenseFile = document.getElementById('licenseDoc').files[0]?.name || "Not Uploaded";
+            const discFile = document.getElementById('discDoc').files[0]?.name || "Not Uploaded";
+            const pdpFile = document.getElementById('pdpDoc').files[0]?.name || "None Provided";
 
             // Initialize Paystack Popup Checkout for R150 (15000 cents)
             let handler = PaystackPop.setup({
@@ -138,7 +169,7 @@
                     ]
                 },
                 callback: async function(response) {
-                    // Payment successful, now write data to Firebase database
+                    // Payment successful, now write driver metadata & document references to Firebase
                     try {
                         await addDoc(collection(db, "drivers"), {
                             name: name,
@@ -147,11 +178,17 @@
                             vehicleType: vehicleType,
                             phone: phone,
                             fuelType: fuelType,
+                            documents: {
+                                idDocument: idFile,
+                                driversLicense: licenseFile,
+                                vehicleDisc: discFile,
+                                pdpPermit: pdpFile
+                            },
                             paymentReference: response.reference,
                             status: "Paid & Pending Document Review",
                             createdAt: new Date()
                         });
-                        alert("Payment successful! Reference: " + response.reference + "\nYour driver application has been submitted to Kasiplus.");
+                        alert("Payment successful! Reference: " + response.reference + "\nYour driver application and documents have been submitted to Kasiplus.");
                         driverForm.reset();
                     } catch (error) {
                         console.error("Error saving driver after payment: ", error);
