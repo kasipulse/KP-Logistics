@@ -22,7 +22,6 @@
             <nav class="hidden md:flex space-x-6 text-sm font-medium">
                 <a href="index.html" class="text-slate-300 hover:text-orange-400 transition">Book a Truck</a>
                 <a href="driver.html" class="text-orange-400 font-semibold transition">Driver Onboarding</a>
-                <a href="admin.html" class="text-slate-300 hover:text-orange-400 transition">Admin Panel</a>
             </nav>
         </div>
     </header>
@@ -33,7 +32,7 @@
             
             <div class="mb-6">
                 <span class="text-xs font-bold uppercase tracking-widest text-orange-600">Partner Application</span>
-                <h2 class="text-2xl font-extxl font-bold text-slate-900 mt-1">Register Your Vehicle</h2>
+                <h2 class="text-2xl font-bold text-slate-900 mt-1">Register Your Vehicle</h2>
                 <p class="text-sm text-slate-500 mt-1">Join Kasiplus (PTY) Ltd to receive work. Includes a one-time R150 vehicle verification and vetting fee.</p>
             </div>
             
@@ -63,9 +62,18 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Mobile Number</label>
-                    <input type="tel" id="driverPhone" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="071 234 5678">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Mobile Number</label>
+                        <input type="tel" id="driverPhone" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="071 234 5678">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle Fuel Type</label>
+                        <select id="fuelType" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
+                            <option value="petrol">Petrol</option>
+                            <option value="diesel">Diesel</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Fee Display Notice -->
@@ -91,12 +99,13 @@
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "YOUR_FIREBASE_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "SENDER_ID",
-            appId: "APP_ID"
+            apiKey: "AIzaSyABtMzUk8hZ0fJgPG3Osz2lQ64RkmBS3kw",
+            authDomain: "kp-logistics-1a015.firebaseapp.com",
+            projectId: "kp-logistics-1a015",
+            storageBucket: "kp-logistics-1a015.firebasestorage.app",
+            messagingSenderId: "334125590321",
+            appId: "1:334125590321:web:2adf74f76c7a68c6ddb210",
+            measurementId: "G-DD5MCVTC81"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -111,10 +120,11 @@
             const vehicleModel = document.getElementById('vehicleModel').value;
             const vehicleType = document.getElementById('regVehicleType').value;
             const phone = document.getElementById('driverPhone').value;
+            const fuelType = document.getElementById('fuelType').value;
 
             // Initialize Paystack Popup Checkout for R150 (15000 cents)
             let handler = PaystackPop.setup({
-                key: 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY', // Replace with your live or test Paystack public key
+                key: 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY', // Replace with your live or test Paystack public key when ready
                 email: email,
                 amount: 15000, // Amount in cents (R150.00)
                 currency: 'ZAR',
@@ -123,6 +133,7 @@
                     custom_fields: [
                         { display_name: "Driver Name", variable_name: "driver_name", value: name },
                         { display_name: "Vehicle Model", variable_name: "vehicle_model", value: vehicleModel },
+                        { display_name: "Fuel Type", variable_name: "fuel_type", value: fuelType },
                         { display_name: "Phone Number", variable_name: "phone", value: phone }
                     ]
                 },
@@ -135,6 +146,7 @@
                             vehicleModel: vehicleModel,
                             vehicleType: vehicleType,
                             phone: phone,
+                            fuelType: fuelType,
                             paymentReference: response.reference,
                             status: "Paid & Pending Document Review",
                             createdAt: new Date()
