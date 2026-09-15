@@ -27,6 +27,11 @@ if (bookingForm) {
         const dropoff = document.getElementById('dropoff').value;
         const vehicleType = document.getElementById('vehicleType').value;
         const phone = document.getElementById('phone').value;
+        
+        // Check if the extra driver assistant checkbox is checked (Optional R200 fee)
+        const extraLoaderCheckbox = document.getElementById('extraLoader');
+        const wantsAssistant = extraLoaderCheckbox ? extraLoaderCheckbox.checked : false;
+        const loaderFee = wantsAssistant ? 200 : 0;
 
         // Automated Pricing Calculation Parameters
         const estimatedDistanceKm = 15; // Default average town trip radius (can be swapped with Map API later)
@@ -44,7 +49,9 @@ if (bookingForm) {
         const rate = consumptionRates[assumedFuel]?.[vehicleType] || 0.11;
         
         const estimatedFuelCost = estimatedDistanceKm * rate * currentFuelPriceZAR;
-        const subtotal = baseFee + estimatedFuelCost;
+        
+        // Subtotal = Base Fee + Fuel Cost + Optional Assistant Fee (R200)
+        const subtotal = baseFee + estimatedFuelCost + loaderFee;
         
         // Add 12% Platform Commission
         const commission = subtotal * 0.12;
@@ -56,11 +63,12 @@ if (bookingForm) {
                 dropoff: dropoff,
                 vehicleType: vehicleType,
                 phone: phone,
+                extraAssistant: wantsAssistant ? "Yes (1 Person - R200)" : "No",
                 estimatedFare: `R ${finalCalculatedFare}.00`,
                 status: "Pending",
                 createdAt: new Date()
             });
-            alert(`Booking submitted successfully! Estimated Fare calculated at R ${finalCalculatedFare}.00. A driver will be assigned shortly.`);
+            alert(`Booking submitted successfully! Estimated Fare calculated at R ${finalCalculatedFare}.00 ${wantsAssistant ? '(Includes R200 assistant fee)' : ''}. A driver will be assigned shortly.`);
             bookingForm.reset();
         } catch (error) {
             console.error("Error adding booking: ", error);
