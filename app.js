@@ -22,16 +22,45 @@ const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        const pickup = document.getElementById('pickup').value;
+        const dropoff = document.getElementById('dropoff').value;
+        const vehicleType = document.getElementById('vehicleType').value;
+        const phone = document.getElementById('phone').value;
+
+        // Automated Pricing Calculation Parameters
+        const estimatedDistanceKm = 15; // Default average town trip radius (can be swapped with Map API later)
+        const currentFuelPriceZAR = 23.50; // Current baseline South African fuel price per liter
+        const baseFee = 180; // Mandatory flag-drop / base labor fee
+
+        // Consumption mapping based on fuel types & vehicle categories
+        const consumptionRates = {
+            petrol: { bakkie: 0.11, panelvan: 0.13, medtruck: 0.21 },
+            diesel: { bakkie: 0.08, panelvan: 0.10, medtruck: 0.16 }
+        };
+
+        // Assume standard mixed fuel baseline if not specified at booking, or default to petrol
+        const assumedFuel = 'petrol'; 
+        const rate = consumptionRates[assumedFuel]?.[vehicleType] || 0.11;
+        
+        const estimatedFuelCost = estimatedDistanceKm * rate * currentFuelPriceZAR;
+        const subtotal = baseFee + estimatedFuelCost;
+        
+        // Add 12% Platform Commission
+        const commission = subtotal * 0.12;
+        const finalCalculatedFare = Math.round(subtotal + commission);
+
         try {
             await addDoc(collection(db, "bookings"), {
-                pickup: document.getElementById('pickup').value,
-                dropoff: document.getElementById('dropoff').value,
-                vehicleType: document.getElementById('vehicleType').value,
-                phone: document.getElementById('phone').value,
+                pickup: pickup,
+                dropoff: dropoff,
+                vehicleType: vehicleType,
+                phone: phone,
+                estimatedFare: `R ${finalCalculatedFare}.00`,
                 status: "Pending",
                 createdAt: new Date()
             });
-            alert("Booking submitted successfully! A driver will be assigned shortly.");
+            alert(`Booking submitted successfully! Estimated Fare calculated at R ${finalCalculatedFare}.00. A driver will be assigned shortly.`);
             bookingForm.reset();
         } catch (error) {
             console.error("Error adding booking: ", error);
