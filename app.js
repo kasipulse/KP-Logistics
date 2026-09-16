@@ -28,10 +28,10 @@ if (bookingForm) {
         const vehicleType = document.getElementById('vehicleType').value;
         const phone = document.getElementById('phone').value;
         
-        // Check if the extra driver assistant checkbox is checked (Optional R200 fee)
-        const extraLoaderCheckbox = document.getElementById('extraLoader');
-        const wantsAssistant = extraLoaderCheckbox ? extraLoaderCheckbox.checked : false;
-        const loaderFee = wantsAssistant ? 200 : 0;
+        // Get selected assistant quantity from dropdown (R200 each)
+        const assistantCountSelect = document.getElementById('assistantCount');
+        const assistantCount = assistantCountSelect ? parseInt(assistantCountSelect.value) || 0 : 0;
+        const loaderFee = assistantCount * 200;
 
         // Automated Pricing Calculation Parameters
         const estimatedDistanceKm = 15; // Default average town trip radius (can be swapped with Map API later)
@@ -50,7 +50,7 @@ if (bookingForm) {
         
         const estimatedFuelCost = estimatedDistanceKm * rate * currentFuelPriceZAR;
         
-        // Subtotal = Base Fee + Fuel Cost + Optional Assistant Fee (R200)
+        // Subtotal = Base Fee + Fuel Cost + Multi-loader Fee (R200 per assistant)
         const subtotal = baseFee + estimatedFuelCost + loaderFee;
         
         // Add 12% Platform Commission
@@ -63,12 +63,13 @@ if (bookingForm) {
                 dropoff: dropoff,
                 vehicleType: vehicleType,
                 phone: phone,
-                extraAssistant: wantsAssistant ? "Yes (1 Person - R200)" : "No",
+                assistantsRequested: assistantCount,
+                assistantFeeTotal: `R ${loaderFee}.00`,
                 estimatedFare: `R ${finalCalculatedFare}.00`,
                 status: "Pending",
                 createdAt: new Date()
             });
-            alert(`Booking submitted successfully! Estimated Fare calculated at R ${finalCalculatedFare}.00 ${wantsAssistant ? '(Includes R200 assistant fee)' : ''}. A driver will be assigned shortly.`);
+            alert(`Booking submitted successfully! Estimated Fare calculated at R ${finalCalculatedFare}.00 ${assistantCount > 0 ? `(Includes ${assistantCount} assistant(s) - R ${loaderFee})` : ''}. A driver will be assigned shortly.`);
             bookingForm.reset();
         } catch (error) {
             console.error("Error adding booking: ", error);
