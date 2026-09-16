@@ -6,6 +6,8 @@
     <title>KP-Logistics | Fast & Reliable Truck & Van Bookings</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Places Autocomplete SDK -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBO20O0U8J3-wQI-YLBQy09pdtpYpNCGrM&libraries=places"></script>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
 
@@ -101,14 +103,10 @@
                         </div>
                     </div>
 
-                    <!-- Driver Assistants Quantity Selector -->
+                    <!-- Driver Assistants Numeric Input (Unlimited quantity) -->
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Driver Assistants / Loaders (R200 each)</label>
-                        <select id="assistantCount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
-                            <option value="0">No Assistant (Driver Only)</option>
-                            <option value="1">1 Assistant (+R200.00)</option>
-                            <option value="2">2 Assistants (+R400.00)</option>
-                        </select>
+                        <input type="number" id="assistantCount" min="0" max="10" value="0" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
                     </div>
 
                     <!-- Price Estimate Box -->
@@ -191,6 +189,18 @@
     <!-- Firebase Connection Script -->
     <script type="module" src="app.js"></script>
     <script>
+        // Initialize Google Places Autocomplete restricted to South Africa
+        window.addEventListener('load', function() {
+            const pickupInput = document.getElementById('pickup');
+            const dropoffInput = document.getElementById('dropoff');
+            const options = { componentRestrictions: { country: "za" } };
+            
+            if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+                new google.maps.places.Autocomplete(pickupInput, options);
+                new google.maps.places.Autocomplete(dropoffInput, options);
+            }
+        });
+
         // Dynamic price feedback simulation based on vehicle selection & assistant quantity
         function updateEstimate() {
             const vehicleType = document.getElementById('vehicleType').value;
@@ -206,6 +216,7 @@
         }
 
         document.getElementById('vehicleType').addEventListener('change', updateEstimate);
+        document.getElementById('assistantCount').addEventListener('input', updateEstimate);
         document.getElementById('assistantCount').addEventListener('change', updateEstimate);
     </script>
 </body>
