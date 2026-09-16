@@ -101,12 +101,14 @@
                         </div>
                     </div>
 
-                    <!-- Driver Assistant Checkbox Add-on -->
-                    <div class="flex items-center space-x-3 p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-                        <input type="checkbox" id="extraLoader" class="w-4 h-4 text-orange-600 rounded focus:ring-orange-500 border-slate-300">
-                        <label for="extraLoader" class="text-xs font-semibold text-slate-700 cursor-pointer select-none">
-                            Add 1 Driver Assistant / Loader <span class="text-orange-600 font-bold">(+R200.00)</span>
-                        </label>
+                    <!-- Driver Assistants Quantity Selector -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Driver Assistants / Loaders (R200 each)</label>
+                        <select id="assistantCount" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
+                            <option value="0">No Assistant (Driver Only)</option>
+                            <option value="1">1 Assistant (+R200.00)</option>
+                            <option value="2">2 Assistants (+R400.00)</option>
+                        </select>
                     </div>
 
                     <!-- Price Estimate Box -->
@@ -189,23 +191,22 @@
     <!-- Firebase Connection Script -->
     <script type="module" src="app.js"></script>
     <script>
-        // Dynamic price feedback simulation based on vehicle selection & assistant checkbox
+        // Dynamic price feedback simulation based on vehicle selection & assistant quantity
         function updateEstimate() {
             const vehicleType = document.getElementById('vehicleType').value;
-            const wantsAssistant = document.getElementById('extraLoader').checked;
+            const assistantCount = parseInt(document.getElementById('assistantCount').value) || 0;
             
             const basePrices = { bakkie: 350, panelvan: 520, medtruck: 890 };
             let currentTotal = basePrices[vehicleType] || 350;
             
-            if (wantsAssistant) {
-                currentTotal += 200;
-            }
+            // Add R200 for each selected assistant
+            currentTotal += assistantCount * 200;
             
             document.getElementById('priceEstimate').innerText = `R ${currentTotal}.00`;
         }
 
         document.getElementById('vehicleType').addEventListener('change', updateEstimate);
-        document.getElementById('extraLoader').addEventListener('change', updateEstimate);
+        document.getElementById('assistantCount').addEventListener('change', updateEstimate);
     </script>
 </body>
 </html>
