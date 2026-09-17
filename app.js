@@ -17,7 +17,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Handle Customer Booking (for index.html)
+// Handle Customer Booking (for index.html) with Paystack Gateway
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
@@ -28,13 +28,16 @@ if (bookingForm) {
         const vehicleType = document.getElementById('vehicleType').value;
         const phone = document.getElementById('phone').value;
         
+        // Generate a clean customer email using the phone number for Paystack
+        const customerEmail = `client_${phone.replace(/\s+/g, '')}@kp-logistics.site`;
+        
         // Get selected assistant quantity from numeric input (R200 each)
         const assistantInput = document.getElementById('assistantCount');
         const assistantCount = assistantInput ? parseInt(assistantInput.value) || 0 : 0;
         const loaderFee = assistantCount * 200;
 
         // Automated Pricing Calculation Parameters (Updated for Light & Heavy Commercial)
-        const estimatedDistanceKm = 15; // Default average town trip radius (can be swapped with Map API later)
+        const estimatedDistanceKm = 15; // Default average town trip radius
         const currentFuelPriceZAR = 23.50; // Current baseline South African fuel price per liter
         
         // Base fares reflecting vehicle tiers
@@ -89,24 +92,50 @@ if (bookingForm) {
         // Add 12% Platform Commission
         const commission = subtotal * 0.12;
         const finalCalculatedFare = Math.round(subtotal + commission);
+        const amountInCents = finalCalculatedFare * 100; // Paystack expects amount in cents
 
-        try {
-            await addDoc(collection(db, "bookings"), {
-                pickup: pickup,
-                dropoff: dropoff,
-                vehicleType: vehicleType,
-                phone: phone,
-                assistantsRequested: assistantCount,
-                assistantFeeTotal: `R ${loaderFee}.00`,
-                estimatedFare: `R ${finalCalculatedFare}.00`,
-                status: "Pending",
-                createdAt: new Date()
-            });
-            alert(`Booking submitted successfully! Estimated Fare calculated at R ${finalCalculatedFare}.00 ${assistantCount > 0 ? `(Includes ${assistantCount} assistant(s) - R ${loaderFee})` : ''}. A driver will be assigned shortly.`);
-            bookingForm.reset();
-        } catch (error) {
-            console.error("Error adding booking: ", error);
-            alert("Error submitting booking. Try again.");
-        }
+        // Initialize Paystack Popup Checkout for Customer Trip
+        let handler = PaystackPop.setup({
+            key: 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY', // Replace with your actual Paystack Public Key when ready
+            email: customerEmail,
+            amount: amountInCents,
+            currency: 'ZAR',
+            ref: 'KP_TRIP_' + Math.floor((Math.random() * 1000000) + 1),
+            metadata: {
+                custom_fields: [
+                    { display_name: "Pickup Location", variable_name: "pickup", value: pickup },
+                    { display_name: "Dropoff Location", variable_name: "dropoff", value: dropoff },
+                    { display_name: "Vehicle Category", variable_name: "vehicle_type", value: vehicleType },
+                    { display_name: "Assistants", variable_name: "assistants", value: assistantCount },
+                    { display_name: "Contact Phone", variable_name: "phone", value: phone }
+                ]
+            },
+            callback: async function(response) {
+                // Payment successful, now save verified booking to Firebase
+                try {
+                    await addDoc(collection(db, "bookings"), {
+                        pickup: pickup,
+                        dropoff: dropoff,
+                        vehicleType: vehicleType,
+                        phone: phone,
+                        assistantsRequested: assistantCount,
+                        assistantFeeTotal: `R ${loaderFee}.00`,
+                        estimatedFare: `R ${finalCalculatedFare}.00`,
+                        paymentReference: response.reference,
+                        status: "Paid - Pending Driver Assignment",
+                        createdAt: new Date()
+                    });
+                    alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${response.reference}\nYour trip has been paid and dispatched to available drivers.`);
+                    bookingForm.reset();
+                } catch (error) {
+                    console.error("Error saving paid booking: ", error);
+                    alert("Payment received successfully, but booking save failed. Please contact support with reference: " + response.reference);
+                }
+            },
+            onClose: function() {
+                alert('Payment window closed. Trip dispatch requires completed payment.');
+            }
+        });
+        handler.openIframe();
     });
 }
