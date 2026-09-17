@@ -33,7 +33,7 @@
             <div class="mb-6">
                 <span class="text-xs font-bold uppercase tracking-widest text-orange-600">Partner Application</span>
                 <h2 class="text-2xl font-bold text-slate-900 mt-1">Register Your Vehicle</h2>
-                <p class="text-sm text-slate-500 mt-1">Join Kasiplus (PTY) Ltd to receive work. Includes a one-time R150 vehicle verification and vetting fee.</p>
+                <p class="text-sm text-slate-500 mt-1">Join Kasiplus (PTY) Ltd to receive commercial transport jobs. Vetting fees scale by vehicle class.</p>
             </div>
             
             <form id="driverForm" class="space-y-4">
@@ -55,9 +55,15 @@
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle Category</label>
                         <select id="regVehicleType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
-                            <option value="bakkie">Light Bakkie (1-Ton)</option>
-                            <option value="panelvan">Panel Van</option>
-                            <option value="medtruck">Medium Truck (4-Ton)</option>
+                            <option value="sedan">Light Sedan / Hatchback (R150)</option>
+                            <option value="bakkie" selected>Light Bakkie 1-Ton (R150)</option>
+                            <option value="closedbakkie">Canopy Bakkie (R150)</option>
+                            <option value="panelvan">Panel Van (R200)</option>
+                            <option value="medtruck">Medium Truck 4-Ton (R350)</option>
+                            <option value="8ton">8-Ton Heavy Truck (R500)</option>
+                            <option value="8tonside">8-Ton Open Side/Curtain (R500)</option>
+                            <option value="flatbed">Flatbed Truck (R600)</option>
+                            <option value="towtruck">Tow Truck / Breakdown (R450)</option>
                         </select>
                     </div>
                 </div>
@@ -96,7 +102,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">PDP (Public Driving Permit) <span class="text-slate-400 font-normal">(Optional - unlocks heavy/commercial enterprise loads)</span></label>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">PDP (Public Driving Permit) <span id="pdpLabel" class="text-slate-400 font-normal">(Optional for light vehicles)</span></label>
                         <input type="file" id="pdpDoc" accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 hover:file:bg-slate-300">
                     </div>
                 </div>
@@ -104,8 +110,8 @@
                 <!-- Fee Display Notice -->
                 <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-orange-800 font-medium">Onboarding & Vetting Fee</p>
-                        <p class="text-xl font-black text-orange-600">R 150.00 <span class="text-xs font-normal text-slate-500">(Once-off)</span></p>
+                        <p class="text-xs text-orange-800 font-medium">Dynamic Onboarding & Vetting Fee</p>
+                        <p id="feeDisplay" class="text-xl font-black text-orange-600">R 150.00 <span class="text-xs font-normal text-slate-500">(Once-off)</span></p>
                     </div>
                     <i class="fa-solid fa-shield-check text-orange-500 text-2xl"></i>
                 </div>
@@ -136,6 +142,41 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Tiered Vetting Fee Mapping (in ZAR)
+        const vettingFees = {
+            sedan: 150,
+            bakkie: 150,
+            closedbakkie: 150,
+            panelvan: 200,
+            medtruck: 350,
+            "8ton": 500,
+            "8tonside": 500,
+            flatbed: 600,
+            towtruck: 450
+        };
+
+        const vehicleSelect = document.getElementById('regVehicleType');
+        const feeDisplay = document.getElementById('feeDisplay');
+        const pdpInput = document.getElementById('pdpDoc');
+        const pdpLabel = document.getElementById('pdpLabel');
+
+        // Dynamic fee update and PDP enforcement when vehicle category changes
+        vehicleSelect.addEventListener('change', function() {
+            const selectedVehicle = this.value;
+            const fee = vettingFees[selectedVehicle] || 150;
+            feeDisplay.innerHTML = `R ${fee}.00 <span class="text-xs font-normal text-slate-500">(Once-off)</span>`;
+
+            // Heavy commercial classes legally require a PDP in SA
+            const heavyClasses = ["medtruck", "8ton", "8tonside", "flatbed", "towtruck"];
+            if (heavyClasses.includes(selectedVehicle)) {
+                pdpInput.required = true;
+                pdpLabel.innerHTML = "(<span class='text-red-600 font-bold'>Required for Heavy/Commercial Class</span>)";
+            } else {
+                pdpInput.required = false;
+                pdpLabel.innerHTML = "(Optional for light vehicles)";
+            }
+        });
+
         const driverForm = document.getElementById('driverForm');
         driverForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -143,33 +184,36 @@
             const name = document.getElementById('driverName').value;
             const email = document.getElementById('driverEmail').value;
             const vehicleModel = document.getElementById('vehicleModel').value;
-            const vehicleType = document.getElementById('regVehicleType').value;
+            const vehicleType = vehicleSelect.value;
             const phone = document.getElementById('driverPhone').value;
             const fuelType = document.getElementById('fuelType').value;
+            
+            const currentFeeZAR = vettingFees[vehicleType] || 150;
+            const amountInCents = currentFeeZAR * 100; // Paystack takes cents
             
             // Check file presence
             const idFile = document.getElementById('idDoc').files[0]?.name || "Not Uploaded";
             const licenseFile = document.getElementById('licenseDoc').files[0]?.name || "Not Uploaded";
             const discFile = document.getElementById('discDoc').files[0]?.name || "Not Uploaded";
-            const pdpFile = document.getElementById('pdpDoc').files[0]?.name || "None Provided";
+            const pdpFile = pdpInput.files[0]?.name || "None Provided";
 
-            // Initialize Paystack Popup Checkout for R150 (15000 cents)
+            // Initialize Paystack Popup Checkout with dynamic fee
             let handler = PaystackPop.setup({
-                key: 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY', // Replace with your live or test Paystack public key when ready
+                key: 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY', // Replace with your test/live public key
                 email: email,
-                amount: 15000, // Amount in cents (R150.00)
+                amount: amountInCents, 
                 currency: 'ZAR',
                 ref: 'KP_DRV_' + Math.floor((Math.random() * 1000000) + 1),
                 metadata: {
                     custom_fields: [
                         { display_name: "Driver Name", variable_name: "driver_name", value: name },
                         { display_name: "Vehicle Model", variable_name: "vehicle_model", value: vehicleModel },
-                        { display_name: "Fuel Type", variable_name: "fuel_type", value: fuelType },
+                        { display_name: "Vehicle Tier", variable_name: "vehicle_type", value: vehicleType },
+                        { display_name: "Fee Paid", variable_name: "fee_paid", value: `R ${currentFeeZAR}.00` },
                         { display_name: "Phone Number", variable_name: "phone", value: phone }
                     ]
                 },
                 callback: async function(response) {
-                    // Payment successful, now write driver metadata & document references to Firebase
                     try {
                         await addDoc(collection(db, "drivers"), {
                             name: name,
@@ -178,6 +222,7 @@
                             vehicleType: vehicleType,
                             phone: phone,
                             fuelType: fuelType,
+                            vettingFeePaid: `R ${currentFeeZAR}.00`,
                             documents: {
                                 idDocument: idFile,
                                 driversLicense: licenseFile,
@@ -188,11 +233,11 @@
                             status: "Paid & Pending Document Review",
                             createdAt: new Date()
                         });
-                        alert("Payment successful! Reference: " + response.reference + "\nYour driver application and documents have been submitted to Kasiplus.");
+                        alert(`Payment of R ${currentFeeZAR}.00 successful! Reference: ${response.reference}\nYour application has been submitted to Kasiplus.`);
                         driverForm.reset();
                     } catch (error) {
                         console.error("Error saving driver after payment: ", error);
-                        alert("Payment was successful, but there was an error saving your profile. Please contact support with ref: " + response.reference);
+                        alert("Payment successful, but saving profile failed. Contact support with ref: " + response.reference);
                     }
                 },
                 onClose: function() {
