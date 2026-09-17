@@ -95,47 +95,54 @@ if (bookingForm) {
         const amountInCents = finalCalculatedFare * 100; // Paystack expects amount in cents
 
         // Initialize Paystack Popup Checkout for Customer Trip
-        let handler = PaystackPop.setup({
-            key: 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY', // Replace with your actual Paystack Public Key when ready
-            email: customerEmail,
-            amount: amountInCents,
-            currency: 'ZAR',
-            ref: 'KP_TRIP_' + Math.floor((Math.random() * 1000000) + 1),
-            metadata: {
-                custom_fields: [
-                    { display_name: "Pickup Location", variable_name: "pickup", value: pickup },
-                    { display_name: "Dropoff Location", variable_name: "dropoff", value: dropoff },
-                    { display_name: "Vehicle Category", variable_name: "vehicle_type", value: vehicleType },
-                    { display_name: "Assistants", variable_name: "assistants", value: assistantCount },
-                    { display_name: "Contact Phone", variable_name: "phone", value: phone }
-                ]
-            },
-            callback: async function(response) {
-                // Payment successful, now save verified booking to Firebase
-                try {
-                    await addDoc(collection(db, "bookings"), {
-                        pickup: pickup,
-                        dropoff: dropoff,
-                        vehicleType: vehicleType,
-                        phone: phone,
-                        assistantsRequested: assistantCount,
-                        assistantFeeTotal: `R ${loaderFee}.00`,
-                        estimatedFare: `R ${finalCalculatedFare}.00`,
-                        paymentReference: response.reference,
-                        status: "Paid - Pending Driver Assignment",
-                        createdAt: new Date()
-                    });
-                    alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${response.reference}\nYour trip has been paid and dispatched to available drivers.`);
-                    bookingForm.reset();
-                } catch (error) {
-                    console.error("Error saving paid booking: ", error);
-                    alert("Payment received successfully, but booking save failed. Please contact support with reference: " + response.reference);
+        try {
+            let handler = PaystackPop.setup({
+                key: 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY', // Replace with your actual Paystack Public Key when ready
+                email: customerEmail,
+                amount: amountInCents,
+                currency: 'ZAR',
+                ref: 'KP_TRIP_' + Math.floor((Math.random() * 1000000) + 1),
+                metadata: {
+                    custom_fields: [
+                        { display_name: "Pickup Location", variable_name: "pickup", value: pickup },
+                        { display_name: "Dropoff Location", variable_name: "dropoff", value: dropoff },
+                        { display_name: "Vehicle Category", variable_name: "vehicle_type", value: vehicleType },
+                        { display_name: "Assistants", variable_name: "assistants", value: assistantCount },
+                        { display_name: "Contact Phone", variable_name: "phone", value: phone }
+                    ]
+                },
+                callback: function(response) {
+                    // Payment successful, wrap async Firestore write safely
+                    (async () => {
+                        try {
+                            await addDoc(collection(db, "bookings"), {
+                                pickup: pickup,
+                                dropoff: dropoff,
+                                vehicleType: vehicleType,
+                                phone: phone,
+                                assistantsRequested: assistantCount,
+                                assistantFeeTotal: `R ${loaderFee}.00`,
+                                estimatedFare: `R ${finalCalculatedFare}.00`,
+                                paymentReference: response.reference,
+                                status: "Paid - Pending Driver Assignment",
+                                createdAt: new Date()
+                            });
+                            alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${response.reference}\nYour trip has been paid and dispatched to available drivers.`);
+                            bookingForm.reset();
+                        } catch (error) {
+                            console.error("Error saving paid booking: ", error);
+                            alert("Payment received successfully, but booking save failed. Please contact support with reference: " + response.reference);
+                        }
+                    })();
+                },
+                onClose: function() {
+                    console.log('Payment window closed by user.');
                 }
-            },
-            onClose: function() {
-                alert('Payment window closed. Trip dispatch requires completed payment.');
-            }
-        });
-        handler.openIframe();
+            });
+            handler.openIframe();
+        } catch (paystackError) {
+            console.error("Paystack initialization error: ", paystackError);
+            alert("Could not open payment gateway. Please check your network connection.");
+        }
     });
 }
