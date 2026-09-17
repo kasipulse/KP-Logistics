@@ -28,24 +28,57 @@ if (bookingForm) {
         const vehicleType = document.getElementById('vehicleType').value;
         const phone = document.getElementById('phone').value;
         
-        // Get selected assistant quantity from dropdown (R200 each)
-        const assistantCountSelect = document.getElementById('assistantCount');
-        const assistantCount = assistantCountSelect ? parseInt(assistantCountSelect.value) || 0 : 0;
+        // Get selected assistant quantity from numeric input (R200 each)
+        const assistantInput = document.getElementById('assistantCount');
+        const assistantCount = assistantInput ? parseInt(assistantInput.value) || 0 : 0;
         const loaderFee = assistantCount * 200;
 
-        // Automated Pricing Calculation Parameters
+        // Automated Pricing Calculation Parameters (Updated for Light & Heavy Commercial)
         const estimatedDistanceKm = 15; // Default average town trip radius (can be swapped with Map API later)
         const currentFuelPriceZAR = 23.50; // Current baseline South African fuel price per liter
-        const baseFee = 180; // Mandatory flag-drop / base labor fee
+        
+        // Base fares reflecting vehicle tiers
+        const basePrices = {
+            sedan: 250,
+            bakkie: 350,
+            closedbakkie: 400,
+            panelvan: 520,
+            medtruck: 890,
+            "8ton": 2200,
+            "8tonside": 2500,
+            flatbed: 3000,
+            towtruck: 1800
+        };
+        const baseFee = basePrices[vehicleType] || 350;
 
-        // Consumption mapping based on fuel types & vehicle categories
+        // Consumption mapping based on fuel types & expanded vehicle categories (liters per km)
         const consumptionRates = {
-            petrol: { bakkie: 0.11, panelvan: 0.13, medtruck: 0.21 },
-            diesel: { bakkie: 0.08, panelvan: 0.10, medtruck: 0.16 }
+            petrol: { 
+                sedan: 0.08, 
+                bakkie: 0.11, 
+                closedbakkie: 0.12, 
+                panelvan: 0.13, 
+                medtruck: 0.21,
+                "8ton": 0.35,
+                "8tonside": 0.38,
+                flatbed: 0.42,
+                towtruck: 0.30
+            },
+            diesel: { 
+                sedan: 0.06, 
+                bakkie: 0.08, 
+                closedbakkie: 0.09, 
+                panelvan: 0.10, 
+                medtruck: 0.16, 
+                "8ton": 0.35, 
+                "8tonside": 0.38, 
+                flatbed: 0.42, 
+                towtruck: 0.30 
+            }
         };
 
-        // Assume standard mixed fuel baseline if not specified at booking, or default to petrol
-        const assumedFuel = 'petrol'; 
+        // Assume standard diesel/petrol mixed baseline or default lookup
+        const assumedFuel = ['8ton', '8tonside', 'flatbed', 'towtruck'].includes(vehicleType) ? 'diesel' : 'petrol';
         const rate = consumptionRates[assumedFuel]?.[vehicleType] || 0.11;
         
         const estimatedFuelCost = estimatedDistanceKm * rate * currentFuelPriceZAR;
