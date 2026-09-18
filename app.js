@@ -97,7 +97,7 @@ if (bookingForm) {
         // Initialize Paystack Popup Checkout for Customer Trip
         try {
             let handler = PaystackPop.setup({
-                key: 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY', // Replace with your actual Paystack Public Key when ready
+                key: 'pk_test_6290ff57c3a32a8e42de333bcba740801e72774c', // Replace with your actual Paystack Public Key when ready
                 email: customerEmail,
                 amount: amountInCents,
                 currency: 'ZAR',
