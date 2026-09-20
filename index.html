@@ -112,8 +112,8 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Phone Number</label>
-                            <input type="tel" id="phone" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm" placeholder="082 123 4567">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Phone Number (10 Digits)</label>
+                            <input type="tel" id="phone" required maxlength="10" placeholder="0821234567" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
                         </div>
                     </div>
 
@@ -141,16 +141,16 @@
         </div>
     </main>
 
-    <!-- Takealot & Amazon Reseller Dedicated Section -->
+    <!-- Takealot & Amazon Reseller Dedicated Section with Address & Phone Inputs -->
     <section class="max-w-7xl mx-auto px-6 py-12">
-        <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-8 md:p-12 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-8 border border-slate-700">
-            <div class="space-y-4 max-w-2xl">
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-8 md:p-12 text-white shadow-xl flex flex-col lg:flex-row items-center justify-between gap-8 border border-slate-700">
+            <div class="space-y-4 max-w-xl">
                 <span class="bg-orange-500/20 text-orange-400 border border-orange-500/30 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-widest inline-block">
                     E-Commerce Reseller Solutions
                 </span>
                 <h3 class="text-2xl md:text-3xl font-black tracking-tight">Stop Queuing at Takealot & Amazon Hubs.</h3>
                 <p class="text-slate-300 text-sm leading-relaxed">
-                    We collect your stock directly from your door and deliver next-day straight to the fulfillment centers. Skip the traffic, bypass the queues, and let our daily commercial bakkies handle your distribution.
+                    We collect your stock directly from your door and deliver next-day straight to fulfillment centers. Skip the traffic and let our commercial bakkies handle your distribution.
                 </p>
                 <div class="flex flex-wrap gap-4 pt-2">
                     <div class="bg-slate-800/80 border border-slate-700 px-4 py-3 rounded-xl flex items-center space-x-3">
@@ -169,12 +169,35 @@
                     </div>
                 </div>
             </div>
-            <div class="w-full md:w-auto flex flex-col space-y-3">
-                <a href="https://wa.me/27821234567?text=Hi%20KP%20Logistics,%20I%20want%20to%20book%20a%20Takealot/Amazon%20parcel%20collection%20from%20my%20address." target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3.5 rounded-xl text-xs transition inline-flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/20 whitespace-nowrap">
+
+            <!-- WhatsApp Collection Form Widget -->
+            <div class="w-full lg:w-96 bg-slate-950/80 p-6 rounded-2xl border border-slate-700 space-y-3">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400">Quick WhatsApp Booking</h4>
+                
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Your Exact Collection Address</label>
+                    <input type="text" id="resellerAddress" placeholder="e.g., 24 Vilakazi St, Orlando West" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Zone</label>
+                        <select id="resellerZone" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500">
+                            <option value="Urban (R90)">Urban (R90)</option>
+                            <option value="Outlying (R120)">Outlying (R120)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Phone Number</label>
+                        <input type="tel" id="resellerPhone" maxlength="10" placeholder="0821234567" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+                </div>
+
+                <button id="resellerWaBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-xs transition inline-flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/20">
                     <i class="fa-brands fa-whatsapp text-base"></i>
-                    <span>Book Collection via WhatsApp</span>
-                </a>
-                <p class="text-[11px] text-slate-400 text-center">Daily cut-off: 4:00 PM for next-day DC delivery</p>
+                    <span>Send Collection to WhatsApp</span>
+                </button>
+                <p class="text-[10px] text-slate-400 text-center">Cut-off: 1:00 PM (Late collections accommodated if driver is in area)</p>
             </div>
         </div>
     </section>
@@ -191,7 +214,6 @@
             </p>
         </div>
 
-        <!-- Feature Cards Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
                 <div class="w-12 h-12 bg-slate-900 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4">
@@ -240,12 +262,54 @@
         window.addEventListener('load', function() {
             const pickupInput = document.getElementById('pickup');
             const dropoffInput = document.getElementById('dropoff');
+            const resellerAddressInput = document.getElementById('resellerAddress');
             const options = { componentRestrictions: { country: "za" } };
             
             if (typeof google !== 'undefined' && google.maps && google.maps.places) {
                 new google.maps.places.Autocomplete(pickupInput, options);
                 new google.maps.places.Autocomplete(dropoffInput, options);
+                new google.maps.places.Autocomplete(resellerAddressInput, options);
             }
+        });
+
+        // Strict 10-digit South African Phone Validation helper
+        function validatePhone(phoneValue) {
+            const phoneRegex = /^0[0-9]{9}$/;
+            return phoneRegex.test(phoneValue);
+        }
+
+        // Intercept main booking form submission to validate 10-digit phone
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            const phoneInput = document.getElementById('phone').value.trim();
+            if (!validatePhone(phoneInput)) {
+                e.preventDefault();
+                alert("Please enter a valid 10-digit South African mobile number starting with 0 (e.g., 0821234567).");
+                document.getElementById('phone').focus();
+            }
+        });
+
+        // Dynamic WhatsApp Reseller Dispatch Builder
+        document.getElementById('resellerWaBtn').addEventListener('click', function() {
+            const address = document.getElementById('resellerAddress').value.trim();
+            const zone = document.getElementById('resellerZone').value;
+            const phone = document.getElementById('resellerPhone').value.trim();
+
+            if (!address) {
+                alert("Please enter your collection address.");
+                document.getElementById('resellerAddress').focus();
+                return;
+            }
+            if (!validatePhone(phone)) {
+                alert("Please enter a valid 10-digit mobile number starting with 0 for the collection contact.");
+                document.getElementById('resellerPhone').focus();
+                return;
+            }
+
+            const message = `📦 *TAKEALOT / AMAZON COLLECTION REQUEST*%0A%0A*Collection Address:* ${encodeURIComponent(address)}%0A*Zone:* ${encodeURIComponent(zone)}%0A*Contact Phone:* ${encodeURIComponent(phone)}%0A%0APlease dispatch driver for next-day DC delivery.`;
+            
+            // Replace with your business WhatsApp number
+            const whatsappUrl = `https://wa.me/27821234567?text=${message}`;
+            window.open(whatsappUrl, '_blank');
         });
 
         // Dynamic price feedback simulation based on vehicle selection & assistant quantity
@@ -265,8 +329,6 @@
             };
             
             let currentTotal = basePrices[vehicleType] || 350;
-            
-            // Add R200 for each selected assistant
             currentTotal += assistantCount * 200;
             
             document.getElementById('priceEstimate').innerText = `R ${currentTotal}.00`;
