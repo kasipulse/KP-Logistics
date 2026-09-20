@@ -90,7 +90,7 @@
 
                 <!-- Payout Banking Details Section -->
                 <div class="space-y-3 pt-2 border-t border-slate-200">
-                    <p class="text-xs font-bold uppercase tracking-wider text-slate-700">Payout Banking Details (For your 88% trip earnings)</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-700">Payout Banking Details</p>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -118,12 +118,17 @@
                             <input type="text" id="accountNumber" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="1234567890">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Account Type</label>
-                            <select id="accountType" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
-                                <option value="Current/Cheque">Current / Cheque Account</option>
-                                <option value="Savings">Savings Account</option>
-                            </select>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Branch Code</label>
+                            <input type="text" id="branchCode" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="250655 or Universal">
                         </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Account Type</label>
+                        <select id="accountType" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
+                            <option value="Current/Cheque">Current / Cheque Account</option>
+                            <option value="Savings">Savings Account</option>
+                        </select>
                     </div>
                 </div>
 
@@ -237,6 +242,7 @@
             const bankName = document.getElementById('bankName').value;
             const accountHolder = document.getElementById('accountHolder').value;
             const accountNumber = document.getElementById('accountNumber').value;
+            const branchCode = document.getElementById('branchCode').value;
             const accountType = document.getElementById('accountType').value;
             
             const currentFeeZAR = vettingFees[vehicleType] || 150;
@@ -277,6 +283,7 @@
                                 bankName: bankName,
                                 accountHolder: accountHolder,
                                 accountNumber: accountNumber,
+                                branchCode: branchCode,
                                 accountType: accountType
                             },
                             vettingFeePaid: `R ${currentFeeZAR}.00`,
