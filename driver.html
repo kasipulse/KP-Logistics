@@ -28,6 +28,7 @@
                 <a href="index.html" class="text-slate-300 hover:text-orange-400 transition">Book a Truck</a>
                 <a href="driver.html" class="text-orange-400 font-semibold transition">Driver Onboarding</a>
                 <a href="driver-portal.html" class="text-slate-300 hover:text-orange-400 transition">Driver Portal</a>
+                <a href="admin.html" class="text-slate-300 hover:text-orange-400 transition">Admin Panel</a>
             </nav>
         </div>
     </header>
@@ -61,23 +62,22 @@
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle Category</label>
                         <select id="regVehicleType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
-                            <option value="sedan">Light Sedan / Hatchback (R150)</option>
-                            <option value="bakkie" selected>Light Bakkie 1-Ton (R150)</option>
-                            <option value="closedbakkie">Canopy Bakkie (R150)</option>
+                            <option value="bakkie" selected>Light Bakkie (1-Ton) (R150)</option>
+                            <option value="closedbakkie">Canopy Bakkie (Protected) (R150)</option>
                             <option value="panelvan">Panel Van (R200)</option>
-                            <option value="medtruck">Medium Truck 4-Ton (R350)</option>
-                            <option value="8ton">8-Ton Heavy Truck (R500)</option>
-                            <option value="8tonside">8-Ton Open Side/Curtain (R500)</option>
+                            <option value="medtruck">Medium Truck (4-Ton) (R350)</option>
+                            <option value="8ton">8-Ton Heavy Truck (Box) (R500)</option>
+                            <option value="8tonside">8-Ton Open Side / Curtain (R500)</option>
                             <option value="flatbed">Flatbed Truck (R600)</option>
-                            <option value="towtruck">Tow Truck / Breakdown (R450)</option>
+                            <option value="towtruck">Tow Truck / Breakdown Recovery (R450)</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Mobile Number</label>
-                        <input type="tel" id="driverPhone" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="071 234 5678">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Mobile Number (10 Digits)</label>
+                        <input type="tel" id="driverPhone" required maxlength="10" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="0821234567">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle Fuel Type</label>
@@ -134,7 +134,7 @@
 
                 <!-- Document Upload Section -->
                 <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3 pt-2 border-t border-slate-200">
-                    <p class="text-xs font-bold uppercase tracking-wider text-slate-700">Required Vetting Documents</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-700">Required Vetting Documents & Photos</p>
                     
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">South African ID Document / Card</label>
@@ -149,6 +149,11 @@
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Vehicle License Disc</label>
                         <input type="file" id="discDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Vehicle 360 Photos (Front, Rear, Cargo Area)</label>
+                        <input type="file" id="vehiclePhotos" accept="image/*" multiple required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
                     </div>
 
                     <div>
@@ -194,7 +199,6 @@
 
         // Tiered Vetting Fee Mapping (in ZAR)
         const vettingFees = {
-            sedan: 150,
             bakkie: 150,
             closedbakkie: 150,
             panelvan: 200,
@@ -227,15 +231,27 @@
             }
         });
 
+        // Strict 10-digit phone validator
+        function validatePhone(phoneValue) {
+            const phoneRegex = /^0[0-9]{9}$/;
+            return phoneRegex.test(phoneValue);
+        }
+
         const driverForm = document.getElementById('driverForm');
         driverForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
+            const phone = document.getElementById('driverPhone').value.trim();
+            if (!validatePhone(phone)) {
+                alert("Please enter a valid 10-digit South African mobile number starting with 0 (e.g., 0821234567).");
+                document.getElementById('driverPhone').focus();
+                return;
+            }
+
             const name = document.getElementById('driverName').value;
             const email = document.getElementById('driverEmail').value;
             const vehicleModel = document.getElementById('vehicleModel').value;
             const vehicleType = vehicleSelect.value;
-            const phone = document.getElementById('driverPhone').value;
             const fuelType = document.getElementById('fuelType').value;
             
             // Payout banking details
@@ -252,6 +268,8 @@
             const idFile = document.getElementById('idDoc').files[0]?.name || "Not Uploaded";
             const licenseFile = document.getElementById('licenseDoc').files[0]?.name || "Not Uploaded";
             const discFile = document.getElementById('discDoc').files[0]?.name || "Not Uploaded";
+            const photoCount = document.getElementById('vehiclePhotos').files.length;
+            const vehiclePhotosSummary = photoCount > 0 ? `${photoCount} Photo(s) Uploaded` : "Not Uploaded";
             const pdpFile = pdpInput.files[0]?.name || "None Provided";
 
             // Initialize Paystack Popup Checkout with dynamic fee
@@ -291,6 +309,7 @@
                                 idDocument: idFile,
                                 driversLicense: licenseFile,
                                 vehicleDisc: discFile,
+                                vehiclePhotos: vehiclePhotosSummary,
                                 pdpPermit: pdpFile
                             },
                             paymentReference: response.reference,
