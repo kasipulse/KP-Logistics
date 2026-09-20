@@ -26,6 +26,7 @@
             <nav class="hidden md:flex space-x-6 text-sm font-medium">
                 <a href="index.html" class="text-slate-300 hover:text-orange-400 transition">Book a Truck</a>
                 <a href="driver.html" class="text-slate-300 hover:text-orange-400 transition">Driver Onboarding</a>
+                <a href="driver-portal.html" class="text-slate-300 hover:text-orange-400 transition">Driver Portal</a>
                 <a href="admin.html" class="text-orange-400 font-semibold transition">Admin Panel</a>
             </nav>
         </div>
@@ -101,7 +102,6 @@
                     bCount++;
                     const data = docSnap.data();
                     
-                    // Format WhatsApp Broadcast text payload
                     const waMessage = `🚨 *NEW KP LOGISTICS TRIP*%0A%0A*Pickup:* ${encodeURIComponent(data.pickup)}%0A*Dropoff:* ${encodeURIComponent(data.dropoff)}%0A*Vehicle Class:* ${encodeURIComponent(data.vehicleType.toUpperCase())}%0A*Loaders:* ${data.assistantsRequested || 0}%0A*Total Escrow Fare:* ${encodeURIComponent(data.estimatedFare)}%0A%0A*Claim now in Driver Portal:* https://kp-logistics-1a015.web.app/driver-portal.html`;
                     const waLink = `https://wa.me/?text=${waMessage}`;
 
@@ -143,18 +143,28 @@
                 driverSnapshot.forEach((docSnap) => {
                     dCount++;
                     const data = docSnap.data();
+                    const bank = data.bankingDetails || {};
+
                     const card = document.createElement('div');
-                    card.className = "p-4 border border-slate-100 bg-slate-50 rounded-xl shadow-sm space-y-1";
+                    card.className = "p-4 border border-slate-100 bg-slate-50 rounded-xl shadow-sm space-y-2";
                     card.innerHTML = `
-                        <div class="flex justify-between items-start mb-2">
+                        <div class="flex justify-between items-start">
                             <span class="text-xs font-bold uppercase bg-slate-900 text-white px-2 py-0.5 rounded">${data.vehicleType}</span>
                             <span class="text-xs text-emerald-600 font-semibold">${data.status}</span>
                         </div>
                         <p class="text-base font-bold text-slate-800">${data.name}</p>
                         <p class="text-sm text-slate-600">🚚 Vehicle: ${data.vehicleModel}</p>
-                        <p class="text-xs text-slate-500 mt-1">✉️ Email: ${data.email}</p>
-                        <p class="text-xs text-slate-500 mt-1">📞 Tel: ${data.phone}</p>
-                        <p class="text-[11px] text-slate-400 mt-2 font-mono">Ref: ${data.paymentReference}</p>
+                        <p class="text-xs text-slate-500">✉️ Email: ${data.email} | 📞 Tel: ${data.phone}</p>
+                        
+                        <!-- Payout Banking Details Box -->
+                        <div class="p-3 bg-white rounded-lg border border-slate-200 mt-2 space-y-1 text-xs">
+                            <p class="font-bold text-slate-700 uppercase tracking-wide text-[10px] text-orange-600">Payout Bank Details:</p>
+                            <p class="text-slate-600"><b>Bank:</b> ${bank.bankName || 'N/A'} (${bank.accountType || 'N/A'})</p>
+                            <p class="text-slate-600"><b>Holder:</b> ${bank.accountHolder || 'N/A'}</p>
+                            <p class="text-slate-600 font-mono"><b>Acc No:</b> ${bank.accountNumber || 'N/A'} | <b>Branch:</b> ${bank.branchCode || 'N/A'}</p>
+                        </div>
+
+                        <p class="text-[11px] text-slate-400 font-mono pt-1">Ref: ${data.paymentReference}</p>
                     `;
                     driversContainer.appendChild(card);
                 });
