@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KP Logistics | Driver Onboarding & Vetting</title>
+    <title>KP Logistics | Driver Onboarding</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Paystack Checkout Inline Script -->
@@ -38,9 +38,9 @@
             <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 to-amber-500"></div>
             
             <div class="mb-6">
-                <span class="text-xs font-bold uppercase tracking-widest text-orange-600">Partner Application</span>
+                <span class="text-xs font-bold uppercase tracking-widest text-orange-600">Quick Partner Application</span>
                 <h2 class="text-2xl font-bold text-slate-900 mt-1">Register Your Vehicle</h2>
-                <p class="text-sm text-slate-500 mt-1">Join Kasiplus (PTY) Ltd to receive commercial transport jobs. Vetting fees scale by vehicle class.</p>
+                <p class="text-sm text-slate-500 mt-1">Join Kasiplus (PTY) Ltd to receive commercial transport loads. Takes less than 1 minute.</p>
             </div>
             
             <form id="driverForm" class="space-y-4">
@@ -85,80 +85,6 @@
                             <option value="petrol">Petrol</option>
                             <option value="diesel">Diesel</option>
                         </select>
-                    </div>
-                </div>
-
-                <!-- Payout Banking Details Section -->
-                <div class="space-y-3 pt-2 border-t border-slate-200">
-                    <p class="text-xs font-bold uppercase tracking-wider text-slate-700">Payout Banking Details</p>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Bank Name</label>
-                            <select id="bankName" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
-                                <option value="">Select Bank</option>
-                                <option value="Capitec">Capitec Bank</option>
-                                <option value="FNB">First National Bank (FNB)</option>
-                                <option value="ABSA">ABSA</option>
-                                <option value="Standard Bank">Standard Bank</option>
-                                <option value="Nedbank">Nedbank</option>
-                                <option value="TymeBank">TymeBank</option>
-                                <option value="Investec">Investec</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Account Holder Name</label>
-                            <input type="text" id="accountHolder" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="John M. Smith">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Account Number</label>
-                            <input type="text" id="accountNumber" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="1234567890">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Branch Code</label>
-                            <input type="text" id="branchCode" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="250655 or Universal">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Account Type</label>
-                        <select id="accountType" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
-                            <option value="Current/Cheque">Current / Cheque Account</option>
-                            <option value="Savings">Savings Account</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Document Upload Section -->
-                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3 pt-2 border-t border-slate-200">
-                    <p class="text-xs font-bold uppercase tracking-wider text-slate-700">Required Vetting Documents & Photos</p>
-                    
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">South African ID Document / Card</label>
-                        <input type="file" id="idDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Driver's License (Front)</label>
-                        <input type="file" id="licenseDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Vehicle License Disc</label>
-                        <input type="file" id="discDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Vehicle 360 Photos (Front, Rear, Cargo Area)</label>
-                        <input type="file" id="vehiclePhotos" accept="image/*" multiple required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">PDP (Public Driving Permit) <span id="pdpLabel" class="text-slate-400 font-normal">(Optional for light vehicles)</span></label>
-                        <input type="file" id="pdpDoc" accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 hover:file:bg-slate-300">
                     </div>
                 </div>
 
@@ -211,24 +137,12 @@
 
         const vehicleSelect = document.getElementById('regVehicleType');
         const feeDisplay = document.getElementById('feeDisplay');
-        const pdpInput = document.getElementById('pdpDoc');
-        const pdpLabel = document.getElementById('pdpLabel');
 
-        // Dynamic fee update and PDP enforcement when vehicle category changes
+        // Dynamic fee update when vehicle category changes
         vehicleSelect.addEventListener('change', function() {
             const selectedVehicle = this.value;
             const fee = vettingFees[selectedVehicle] || 150;
             feeDisplay.innerHTML = `R ${fee}.00 <span class="text-xs font-normal text-slate-500">(Once-off)</span>`;
-
-            // Heavy commercial classes legally require a PDP in SA
-            const heavyClasses = ["medtruck", "8ton", "8tonside", "flatbed", "towtruck"];
-            if (heavyClasses.includes(selectedVehicle)) {
-                pdpInput.required = true;
-                pdpLabel.innerHTML = "(<span class='text-red-600 font-bold'>Required for Heavy/Commercial Class</span>)";
-            } else {
-                pdpInput.required = false;
-                pdpLabel.innerHTML = "(Optional for light vehicles)";
-            }
         });
 
         // Strict 10-digit phone validator
@@ -254,23 +168,8 @@
             const vehicleType = vehicleSelect.value;
             const fuelType = document.getElementById('fuelType').value;
             
-            // Payout banking details
-            const bankName = document.getElementById('bankName').value;
-            const accountHolder = document.getElementById('accountHolder').value;
-            const accountNumber = document.getElementById('accountNumber').value;
-            const branchCode = document.getElementById('branchCode').value;
-            const accountType = document.getElementById('accountType').value;
-            
             const currentFeeZAR = vettingFees[vehicleType] || 150;
             const amountInCents = currentFeeZAR * 100; // Paystack takes cents
-            
-            // Check file presence
-            const idFile = document.getElementById('idDoc').files[0]?.name || "Not Uploaded";
-            const licenseFile = document.getElementById('licenseDoc').files[0]?.name || "Not Uploaded";
-            const discFile = document.getElementById('discDoc').files[0]?.name || "Not Uploaded";
-            const photoCount = document.getElementById('vehiclePhotos').files.length;
-            const vehiclePhotosSummary = photoCount > 0 ? `${photoCount} Photo(s) Uploaded` : "Not Uploaded";
-            const pdpFile = pdpInput.files[0]?.name || "None Provided";
 
             // Initialize Paystack Popup Checkout with dynamic fee
             let handler = PaystackPop.setup({
@@ -297,27 +196,13 @@
                             vehicleType: vehicleType,
                             phone: phone,
                             fuelType: fuelType,
-                            bankingDetails: {
-                                bankName: bankName,
-                                accountHolder: accountHolder,
-                                accountNumber: accountNumber,
-                                branchCode: branchCode,
-                                accountType: accountType
-                            },
                             vettingFeePaid: `R ${currentFeeZAR}.00`,
-                            documents: {
-                                idDocument: idFile,
-                                driversLicense: licenseFile,
-                                vehicleDisc: discFile,
-                                vehiclePhotos: vehiclePhotosSummary,
-                                pdpPermit: pdpFile
-                            },
                             paymentReference: response.reference,
-                            status: "Paid & Pending Document Review",
+                            status: "Registered - Profile Completion Pending",
                             createdAt: new Date()
                         });
-                        alert(`Payment of R ${currentFeeZAR}.00 successful! Reference: ${response.reference}\nYour application has been submitted to Kasiplus.`);
-                        driverForm.reset();
+                        alert(`Payment of R ${currentFeeZAR}.00 successful! Reference: ${response.reference}\nWelcome to KP Logistics! You can now access the Driver Portal.`);
+                        window.location.href = "driver-portal.html";
                     } catch (error) {
                         console.error("Error saving driver after payment: ", error);
                         alert("Payment successful, but saving profile failed. Contact support with ref: " + response.reference);
