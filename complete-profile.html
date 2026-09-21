@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KP Logistics | Complete Driver Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans">
+    
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="relative w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-700 rounded-xl flex items-center justify-center shadow-lg shadow-orange-600/30 text-white font-black tracking-tighter text-lg">
+                    <span>KP</span>
+                    <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-slate-900 border-2 border-white rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-truck text-[6px] text-orange-400"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-base font-extrabold tracking-wide leading-tight text-white">KP Logistics</h1>
+                    <span class="text-[9px] text-orange-400 font-semibold uppercase tracking-widest block">Profile Completion</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex space-x-6 text-sm font-medium">
+                <a href="driver.html" class="text-slate-300 hover:text-orange-400 transition">Onboarding</a>
+                <a href="driver-portal.html" class="text-slate-300 hover:text-orange-400 transition">Driver Portal</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-xl mx-auto my-12 px-6">
+        
+        <!-- Step 1: Lookup Box -->
+        <div id="lookupCard" class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 space-y-4">
+            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 to-amber-500"></div>
+            <div>
+                <span class="text-xs font-bold uppercase tracking-widest text-orange-600">Secure Access</span>
+                <h2 class="text-2xl font-bold text-slate-900 mt-1">Complete Your Profile</h2>
+                <p class="text-sm text-slate-500 mt-1">Enter your registered mobile number to unlock banking and vehicle verification uploads.</p>
+            </div>
+            
+            <div class="space-y-3">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Registered Phone Number</label>
+                <input type="tel" id="lookupPhone" maxlength="10" placeholder="0821234567" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
+                <button id="lookupBtn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg">
+                    Find My Profile
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Hidden Completion Form (Revealed after phone match) -->
+        <div id="completionCard" class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 relative overflow-hidden hidden space-y-6">
+            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 to-amber-500"></div>
+            
+            <div>
+                <span id="driverWelcomeTag" class="text-xs font-bold uppercase tracking-widest text-emerald-600">Verified Driver Found</span>
+                <h2 class="text-2xl font-bold text-slate-900 mt-1">Add Payout & Vehicle Info</h2>
+                <p class="text-sm text-slate-500 mt-1">Provide your banking details for your 88% trip payouts and upload vehicle verification photos.</p>
+            </div>
+
+            <form id="completionForm" class="space-y-4">
+                
+                <!-- Payout Banking Details -->
+                <div class="space-y-3 pt-2 border-t border-slate-200">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-700">Payout Banking Details</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Bank Name</label>
+                            <select id="bankName" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
+                                <option value="">Select Bank</option>
+                                <option value="Capitec">Capitec Bank</option>
+                                <option value="FNB">First National Bank (FNB)</option>
+                                <option value="ABSA">ABSA</option>
+                                <option value="Standard Bank">Standard Bank</option>
+                                <option value="Nedbank">Nedbank</option>
+                                <option value="TymeBank">TymeBank</option>
+                                <option value="Investec">Investec</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Account Holder Name</label>
+                            <input type="text" id="accountHolder" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="John M. Smith">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Account Number</label>
+                            <input type="text" id="accountNumber" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="1234567890">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Branch Code</label>
+                            <input type="text" id="branchCode" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="250655 or Universal">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Account Type</label>
+                        <select id="accountType" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
+                            <option value="Current/Cheque">Current / Cheque Account</option>
+                            <option value="Savings">Savings Account</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Document & Photo Upload Section -->
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3 pt-2 border-t border-slate-200">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-700">Required Vetting Documents & Photos</p>
+                    
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">South African ID Document / Card</label>
+                        <input type="file" id="idDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Driver's License (Front)</label>
+                        <input type="file" id="licenseDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Vehicle License Disc</label>
+                        <input type="file" id="discDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Vehicle 360 Photos (Front, Rear, Cargo Area)</label>
+                        <input type="file" id="vehiclePhotos" accept="image/*" multiple required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">PDP (Public Driving Permit) <span id="pdpLabel" class="text-slate-400 font-normal">(Optional for light bakkies/vans)</span></label>
+                        <input type="file" id="pdpDoc" accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 hover:file:bg-slate-300">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg flex items-center justify-center space-x-2">
+                    <span>Submit Complete Profile</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+
+    </main>
+
+    <!-- Script to query Firebase and update driver document -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, where, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyABtMzUk8hZ0fJgPG3Osz2lQ64RkmBS3kw",
+            authDomain: "kp-logistics-1a015.firebaseapp.com",
+            projectId: "kp-logistics-1a015",
+            storageBucket: "kp-logistics-1a015.firebasestorage.app",
+            messagingSenderId: "334125590321",
+            appId: "1:334125590321:web:2adf74f76c7a68c6ddb210",
+            measurementId: "G-DD5MCVTC81"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let activeDocId = null;
+
+        document.getElementById('lookupBtn').addEventListener('click', async () => {
+            const phone = document.getElementById('lookupPhone').value.trim();
+            if (!phone) {
+                alert("Please enter your registered phone number.");
+                return;
+            }
+
+            try {
+                const q = query(collection(db, "drivers"), where("phone", "==", phone));
+                const snapshot = await getDocs(q);
+
+                if (snapshot.empty) {
+                    alert("No registered driver profile found with this phone number. Please complete initial registration on the Onboarding page.");
+                    return;
+                }
+
+                snapshot.forEach((documentSnap) => {
+                    activeDocId = documentSnap.id;
+                    const data = documentSnap.data();
+                    document.getElementById('driverWelcomeTag').innerText = `Welcome back, ${data.name}! (${data.vehicleModel})`;
+                });
+
+                document.getElementById('lookupCard').classList.add('hidden');
+                document.getElementById('completionCard').classList.remove('hidden');
+
+            } catch (err) {
+                console.error("Error looking up driver profile:", err);
+                alert("Error searching database. Please try again.");
+            }
+        });
+
+        document.getElementById('completionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!activeDocId) {
+                alert("Session error. Please look up your phone number again.");
+                return;
+            }
+
+            const bankName = document.getElementById('bankName').value;
+            const accountHolder = document.getElementById('accountHolder').value;
+            const accountNumber = document.getElementById('accountNumber').value;
+            const branchCode = document.getElementById('branchCode').value;
+            const accountType = document.getElementById('accountType').value;
+
+            const idFile = document.getElementById('idDoc').files[0]?.name || "Not Uploaded";
+            const licenseFile = document.getElementById('licenseDoc').files[0]?.name || "Not Uploaded";
+            const discFile = document.getElementById('discDoc').files[0]?.name || "Not Uploaded";
+            const photoCount = document.getElementById('vehiclePhotos').files.length;
+            const vehiclePhotosSummary = photoCount > 0 ? `${photoCount} Photo(s) Uploaded` : "Not Uploaded";
+            const pdpFile = document.getElementById('pdpDoc').files[0]?.name || "None Provided";
+
+            try {
+                const driverRef = doc(db, "drivers", activeDocId);
+                await updateDoc(driverRef, {
+                    bankingDetails: {
+                        bankName: bankName,
+                        accountHolder: accountHolder,
+                        accountNumber: accountNumber,
+                        branchCode: branchCode,
+                        accountType: accountType
+                    },
+                    documents: {
+                        idDocument: idFile,
+                        driversLicense: licenseFile,
+                        vehicleDisc: discFile,
+                        vehiclePhotos: vehiclePhotosSummary,
+                        pdpPermit: pdpFile
+                    },
+                    status: "Profile Completed - Pending Review"
+                });
+
+                alert("Profile successfully completed! Your banking details and documents have been submitted to Kasiplus.");
+                window.location.href = "driver-portal.html";
+
+            } catch (error) {
+                console.error("Error updating profile: ", error);
+                alert("Failed to update profile. Please try again.");
+            }
+        });
+    </script>
+</body>
+</html>
