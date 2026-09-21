@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KP Logistics | Driver Onboarding</title>
+    <title>KP Logistics | Founding Fleet Driver Onboarding</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Paystack Checkout Inline Script -->
@@ -38,9 +38,11 @@
             <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 to-amber-500"></div>
             
             <div class="mb-6">
-                <span class="text-xs font-bold uppercase tracking-widest text-orange-600">Quick Partner Application</span>
+                <span class="inline-block bg-emerald-100 text-emerald-800 border border-emerald-200 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-widest mb-2">
+                    🚀 Pilot Promo: Founding Fleet (Free Entry)
+                </span>
                 <h2 class="text-2xl font-bold text-slate-900 mt-1">Register Your Vehicle</h2>
-                <p class="text-sm text-slate-500 mt-1">Join Kasiplus (PTY) Ltd to receive commercial transport loads. Takes less than 1 minute.</p>
+                <p class="text-sm text-slate-500 mt-1">Join Kasiplus (PTY) Ltd to receive commercial transport loads. Vetting fees are waived for our first wave of drivers.</p>
             </div>
             
             <form id="driverForm" class="space-y-4">
@@ -50,7 +52,7 @@
                 </div>
                 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Email Address (For Payment Receipt)</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Email Address</label>
                     <input type="email" id="driverEmail" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="john@kplogistics.co.za">
                 </div>
 
@@ -62,14 +64,14 @@
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle Category</label>
                         <select id="regVehicleType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
-                            <option value="bakkie" selected>Light Bakkie (1-Ton) (R150)</option>
-                            <option value="closedbakkie">Canopy Bakkie (Protected) (R150)</option>
-                            <option value="panelvan">Panel Van (R200)</option>
-                            <option value="medtruck">Medium Truck (4-Ton) (R350)</option>
-                            <option value="8ton">8-Ton Heavy Truck (Box) (R500)</option>
-                            <option value="8tonside">8-Ton Open Side / Curtain (R500)</option>
-                            <option value="flatbed">Flatbed Truck (R600)</option>
-                            <option value="towtruck">Tow Truck / Breakdown Recovery (R450)</option>
+                            <option value="bakkie" selected>Light Bakkie (1-Ton)</option>
+                            <option value="closedbakkie">Canopy Bakkie (Protected)</option>
+                            <option value="panelvan">Panel Van</option>
+                            <option value="medtruck">Medium Truck (4-Ton)</option>
+                            <option value="8ton">8-Ton Heavy Truck (Box)</option>
+                            <option value="8tonside">8-Ton Open Side / Curtain</option>
+                            <option value="flatbed">Flatbed Truck</option>
+                            <option value="towtruck">Tow Truck / Breakdown Recovery</option>
                         </select>
                     </div>
                 </div>
@@ -88,24 +90,24 @@
                     </div>
                 </div>
 
-                <!-- Fee Display Notice -->
-                <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-between">
+                <!-- Fee Display Notice (Waived to R0 for Pilot) -->
+                <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-orange-800 font-medium">Dynamic Onboarding & Vetting Fee</p>
-                        <p id="feeDisplay" class="text-xl font-black text-orange-600">R 150.00 <span class="text-xs font-normal text-slate-500">(Once-off)</span></p>
+                        <p class="text-xs text-emerald-800 font-medium">Founding Fleet Pilot Promotion</p>
+                        <p class="text-xl font-black text-emerald-600">R 0.00 <span class="text-xs font-normal text-slate-500">(Vetting Fee Waived)</span></p>
                     </div>
-                    <i class="fa-solid fa-shield-check text-orange-500 text-2xl"></i>
+                    <i class="fa-solid fa-circle-check text-emerald-500 text-2xl"></i>
                 </div>
 
                 <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg flex items-center justify-center space-x-2">
-                    <span>Proceed to Secure Payment & Register</span>
+                    <span>Complete Free Registration & Enter Portal</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </form>
         </div>
     </main>
 
-    <!-- Payment & Database Integration Script -->
+    <!-- Database Integration Script (Instant Firebase Submit) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -123,28 +125,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Tiered Vetting Fee Mapping (in ZAR)
-        const vettingFees = {
-            bakkie: 150,
-            closedbakkie: 150,
-            panelvan: 200,
-            medtruck: 350,
-            "8ton": 500,
-            "8tonside": 500,
-            flatbed: 600,
-            towtruck: 450
-        };
-
-        const vehicleSelect = document.getElementById('regVehicleType');
-        const feeDisplay = document.getElementById('feeDisplay');
-
-        // Dynamic fee update when vehicle category changes
-        vehicleSelect.addEventListener('change', function() {
-            const selectedVehicle = this.value;
-            const fee = vettingFees[selectedVehicle] || 150;
-            feeDisplay.innerHTML = `R ${fee}.00 <span class="text-xs font-normal text-slate-500">(Once-off)</span>`;
-        });
-
         // Strict 10-digit phone validator
         function validatePhone(phoneValue) {
             const phoneRegex = /^0[0-9]{9}$/;
@@ -152,7 +132,7 @@
         }
 
         const driverForm = document.getElementById('driverForm');
-        driverForm.addEventListener('submit', function(e) {
+        driverForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const phone = document.getElementById('driverPhone').value.trim();
@@ -165,54 +145,29 @@
             const name = document.getElementById('driverName').value;
             const email = document.getElementById('driverEmail').value;
             const vehicleModel = document.getElementById('vehicleModel').value;
-            const vehicleType = vehicleSelect.value;
+            const vehicleType = document.getElementById('regVehicleType').value;
             const fuelType = document.getElementById('fuelType').value;
             
-            const currentFeeZAR = vettingFees[vehicleType] || 150;
-            const amountInCents = currentFeeZAR * 100; // Paystack takes cents
-
-            // Initialize Paystack Popup Checkout with dynamic fee
-            let handler = PaystackPop.setup({
-                key: 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY', // Replace with your test public key
-                email: email,
-                amount: amountInCents, 
-                currency: 'ZAR',
-                ref: 'KP_DRV_' + Math.floor((Math.random() * 1000000) + 1),
-                metadata: {
-                    custom_fields: [
-                        { display_name: "Driver Name", variable_name: "driver_name", value: name },
-                        { display_name: "Vehicle Model", variable_name: "vehicle_model", value: vehicleModel },
-                        { display_name: "Vehicle Tier", variable_name: "vehicle_type", value: vehicleType },
-                        { display_name: "Fee Paid", variable_name: "fee_paid", value: `R ${currentFeeZAR}.00` },
-                        { display_name: "Phone Number", variable_name: "phone", value: phone }
-                    ]
-                },
-                callback: async function(response) {
-                    try {
-                        await addDoc(collection(db, "drivers"), {
-                            name: name,
-                            email: email,
-                            vehicleModel: vehicleModel,
-                            vehicleType: vehicleType,
-                            phone: phone,
-                            fuelType: fuelType,
-                            vettingFeePaid: `R ${currentFeeZAR}.00`,
-                            paymentReference: response.reference,
-                            status: "Registered - Profile Completion Pending",
-                            createdAt: new Date()
-                        });
-                        alert(`Payment of R ${currentFeeZAR}.00 successful! Reference: ${response.reference}\nWelcome to KP Logistics! You can now access the Driver Portal.`);
-                        window.location.href = "driver-portal.html";
-                    } catch (error) {
-                        console.error("Error saving driver after payment: ", error);
-                        alert("Payment successful, but saving profile failed. Contact support with ref: " + response.reference);
-                    }
-                },
-                onClose: function() {
-                    alert('Payment window closed. Onboarding fee is required to complete registration.');
-                }
-            });
-            handler.openIframe();
+            try {
+                await addDoc(collection(db, "drivers"), {
+                    name: name,
+                    email: email,
+                    vehicleModel: vehicleModel,
+                    vehicleType: vehicleType,
+                    phone: phone,
+                    fuelType: fuelType,
+                    vettingFeePaid: "R 0.00 (Founding Fleet Waiver)",
+                    paymentReference: "PILOT_WAIVER_2026",
+                    status: "Active - Founding Fleet",
+                    createdAt: new Date()
+                });
+                
+                alert(`Registration successful! Welcome to the KP Logistics Founding Fleet.`);
+                window.location.href = "driver-portal.html";
+            } catch (error) {
+                console.error("Error saving driver profile: ", error);
+                alert("Registration failed. Please check your connection and try again.");
+            }
         });
     </script>
 </body>
