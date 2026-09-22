@@ -8,6 +8,7 @@
     <!-- Custom App Favicon & Icons -->
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#f97316">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -32,9 +33,16 @@
                 <a href="complete-profile.html" class="text-slate-300 hover:text-orange-400 transition">Complete Profile</a>
                 <a href="driver-portal.html" class="text-orange-400 transition">Available Jobs</a>
             </nav>
-            <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl transition border border-slate-700 uppercase tracking-wider">
-                Client App
-            </a>
+            <div class="flex items-center space-x-3">
+                <!-- Native PWA Install Button -->
+                <button id="installAppBtn" class="hidden bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition shadow-md shadow-orange-500/20 uppercase tracking-wider items-center space-x-1.5">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Install App</span>
+                </button>
+                <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl transition border border-slate-700 uppercase tracking-wider">
+                    Client App
+                </a>
+            </div>
         </div>
     </header>
 
@@ -72,6 +80,29 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, where, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // PWA Install Prompt Handler
+        let deferredPrompt;
+        const installBtn = document.getElementById('installAppBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.remove('hidden');
+            installBtn.classList.add('flex');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            }
+            deferredPrompt = null;
+            installBtn.classList.add('hidden');
+            installBtn.classList.remove('flex');
+        });
 
         const firebaseConfig = {
             apiKey: "AIzaSyABtMzUk8hZ0fJgPG3Osz2lQ64RkmBS3kw",
