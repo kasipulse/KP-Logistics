@@ -9,10 +9,10 @@
     <!-- Paystack Checkout Inline Script -->
     <script src="https://js.paystack.co/v1/inline.js"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans selection:bg-orange-500 selection:text-white">
+<body class="bg-slate-50 text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
     
     <!-- Navigation Header -->
-    <header class="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 text-white">
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <div class="w-9 h-9 bg-orange-600 rounded-lg flex items-center justify-center text-white font-black tracking-tighter text-base shadow-md shadow-orange-600/30">
@@ -24,45 +24,45 @@
                 </div>
             </div>
             <nav class="hidden md:flex space-x-6 text-xs font-semibold tracking-wide uppercase">
-                <a href="index.html" class="text-slate-400 hover:text-orange-400 transition">Book a Truck</a>
+                <a href="index.html" class="text-slate-300 hover:text-orange-400 transition">Book a Truck</a>
                 <a href="driver.html" class="text-orange-400 transition">Driver Onboarding</a>
-                <a href="driver-portal.html" class="text-slate-400 hover:text-orange-400 transition">Driver Portal</a>
-                <a href="admin.html" class="text-slate-400 hover:text-orange-400 transition">Admin Panel</a>
+                <a href="driver-portal.html" class="text-slate-300 hover:text-orange-400 transition">Driver Portal</a>
+                <a href="admin.html" class="text-slate-300 hover:text-orange-400 transition">Admin Panel</a>
             </nav>
         </div>
     </header>
 
     <main class="max-w-xl mx-auto my-12 px-6">
-        <div class="bg-slate-950 p-8 rounded-3xl shadow-2xl border border-slate-800 relative overflow-hidden">
+        <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 relative overflow-hidden">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500"></div>
             
             <div class="mb-8">
-                <div class="inline-block bg-orange-500/10 text-orange-400 border border-orange-500/20 text-[10px] font-bold uppercase px-3 py-1 rounded-full tracking-widest mb-3">
+                <div class="inline-block bg-orange-100 text-orange-800 border border-orange-200 text-[10px] font-bold uppercase px-3 py-1 rounded-full tracking-widest mb-3">
                     Commercial Fleet Onboarding
                 </div>
-                <h2 class="text-2xl font-black text-white tracking-tight">Register Your Vehicle</h2>
-                <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Join Kasiplus (PTY) Ltd to receive commercial transport and delivery loads in your local operating zone.</p>
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Register Your Vehicle</h2>
+                <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Join Kasiplus (PTY) Ltd to receive commercial transport and delivery loads in your local operating zone.</p>
             </div>
             
             <form id="driverForm" class="space-y-4">
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Full Legal Name</label>
-                    <input type="text" id="driverName" required class="w-full p-3.5 bg-slate-900 border border-slate-800 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-slate-950 outline-none text-xs text-white transition" placeholder="John Smith">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Full Legal Name</label>
+                    <input type="text" id="driverName" required class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="John Smith">
                 </div>
                 
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Email Address</label>
-                    <input type="email" id="driverEmail" required class="w-full p-3.5 bg-slate-900 border border-slate-800 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-slate-950 outline-none text-xs text-white transition" placeholder="john@kplogistics.co.za">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Email Address</label>
+                    <input type="email" id="driverEmail" required class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="john@kplogistics.co.za">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Vehicle Make & Model</label>
-                        <input type="text" id="vehicleModel" required class="w-full p-3.5 bg-slate-900 border border-slate-800 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-slate-950 outline-none text-xs text-white transition" placeholder="Toyota Hilux">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Vehicle Make & Model</label>
+                        <input type="text" id="vehicleModel" required class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="Toyota Hilux">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Vehicle Category</label>
-                        <select id="regVehicleType" class="w-full p-3.5 bg-slate-900 border border-slate-800 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-slate-950 outline-none text-xs text-white transition">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Vehicle Category</label>
+                        <select id="regVehicleType" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition">
                             <option value="bakkie" selected>Light Bakkie (1-Ton)</option>
                             <option value="closedbakkie">Canopy Bakkie (Protected)</option>
                             <option value="panelvan">Panel Van</option>
@@ -77,12 +77,12 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Mobile Number (10 Digits)</label>
-                        <input type="tel" id="driverPhone" required maxlength="10" class="w-full p-3.5 bg-slate-900 border border-slate-800 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-slate-950 outline-none text-xs text-white transition" placeholder="0821234567">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Mobile Number (10 Digits)</label>
+                        <input type="tel" id="driverPhone" required maxlength="10" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="0821234567">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Vehicle Fuel Type</label>
-                        <select id="fuelType" required class="w-full p-3.5 bg-slate-900 border border-slate-800 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-slate-950 outline-none text-xs text-white transition">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Vehicle Fuel Type</label>
+                        <select id="fuelType" required class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition">
                             <option value="petrol">Petrol</option>
                             <option value="diesel">Diesel</option>
                         </select>
@@ -91,8 +91,8 @@
 
                 <!-- Primary Operating Region / Zone -->
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Primary Operating Region / Zone</label>
-                    <select id="driverZone" required class="w-full p-3.5 bg-slate-900 border border-slate-800 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-slate-950 outline-none text-xs text-white transition">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Primary Operating Region / Zone</label>
+                    <select id="driverZone" required class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition">
                         <option value="East Rand">East Rand (Benoni, Springs, Boksburg, Kempton Park, Germiston)</option>
                         <option value="Johannesburg">Johannesburg Central & Surrounds</option>
                         <option value="Pretoria">Pretoria / Tshwane</option>
@@ -103,8 +103,8 @@
 
                 <!-- Voucher / Promo Code Input -->
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Voucher / Promo Code <span class="text-slate-500 font-normal">(Optional)</span></label>
-                    <input type="text" id="voucherCode" class="w-full p-3.5 bg-slate-900 border border-slate-800 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-slate-950 outline-none text-xs text-white transition uppercase" placeholder="">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Voucher / Promo Code <span class="text-slate-400 font-normal">(Optional)</span></label>
+                    <input type="text" id="voucherCode" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition uppercase" placeholder="">
                 </div>
 
                 <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 px-4 rounded-xl transition shadow-lg shadow-orange-600/30 flex items-center justify-center space-x-2 text-xs uppercase tracking-wider mt-2">
