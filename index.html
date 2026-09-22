@@ -97,6 +97,18 @@
                         </div>
                     </div>
 
+                    <!-- Operating Region / Zone Selector -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Operating Region / Zone</label>
+                        <select id="bookingZone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
+                            <option value="East Rand">East Rand (Benoni, Springs, Boksburg, Kempton Park, Germiston)</option>
+                            <option value="Johannesburg">Johannesburg Central & Surrounds</option>
+                            <option value="Pretoria">Pretoria / Tshwane</option>
+                            <option value="West Rand">West Rand (Roodepoort, Krugersdorp, Randfontein)</option>
+                            <option value="Vaal">Vaal Triangle (Vereeniging, Vanderbijlpark)</option>
+                        </select>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle Category</label>
@@ -307,7 +319,6 @@
 
             const message = `📦 *TAKEALOT / AMAZON COLLECTION REQUEST*%0A%0A*Collection Address:* ${encodeURIComponent(address)}%0A*Zone:* ${encodeURIComponent(zone)}%0A*Contact Phone:* ${encodeURIComponent(phone)}%0A%0APlease dispatch driver for next-day DC delivery.`;
             
-            // Replace with your business WhatsApp number
             const whatsappUrl = `https://wa.me/27821234567?text=${message}`;
             window.open(whatsappUrl, '_blank');
         });
