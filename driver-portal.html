@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KP Logistics | Driver Job Feed</title>
+    <title>KP Logistics | Driver - Job Feed</title>
     
-    <!-- Custom App Favicon & Icons -->
-    <link rel="icon" type="image/png" href="logo.png">
-    <link rel="apple-touch-icon" href="logo.png">
+    <!-- Blue Driver App Favicon & Icons -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232563eb'/><text x='50%' y='57%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='42' fill='%23ffffff'>KP</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232563eb'/><text x='50%' y='57%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='42' fill='%23ffffff'>KP</text></svg>">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
 
@@ -78,7 +78,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, where, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // PWA Install Prompt Handler
         let deferredPrompt;
         const installBtn = document.getElementById('installAppBtn');
 
@@ -93,9 +92,6 @@
             if (!deferredPrompt) return;
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                console.log('User accepted the install prompt');
-            }
             deferredPrompt = null;
             installBtn.classList.add('hidden');
             installBtn.classList.remove('flex');
@@ -127,7 +123,6 @@
             tripFeed.innerHTML = `<div class="bg-white p-8 rounded-3xl border border-slate-200 text-center text-slate-400 text-xs"><i class="fa-solid fa-spinner fa-spin text-blue-600 text-2xl mb-2 block"></i> Verifying driver profile & zone...</div>`;
 
             try {
-                // 1. Look up the driver's registered profile to find their zone
                 const driverQuery = query(collection(db, "drivers"), where("phone", "==", driverPhone));
                 const driverSnapshot = await getDocs(driverQuery);
 
@@ -136,7 +131,7 @@
                     return;
                 }
 
-                let driverZone = "East Rand"; // Default fallback
+                let driverZone = "East Rand"; 
                 driverSnapshot.forEach(docSnap => {
                     const data = docSnap.data();
                     if (data.zone) driverZone = data.zone;
@@ -145,7 +140,6 @@
                 document.getElementById('portalTitle').innerText = `Jobs in Zone: ${driverZone}`;
                 document.getElementById('portalSubtitle').innerText = `Showing paid escrow loads filtered specifically for your region.`;
 
-                // 2. Query bookings matching both pending status AND driver's zone
                 const q = query(
                     collection(db, "bookings"), 
                     where("status", "==", "Paid - Pending Driver Assignment"),
@@ -199,7 +193,6 @@
                     tripFeed.appendChild(card);
                 });
 
-                // Attach event listeners to claim buttons
                 document.querySelectorAll('.accept-trip-btn').forEach(button => {
                     button.addEventListener('click', async (e) => {
                         const targetId = e.currentTarget.getAttribute('data-id');
@@ -211,7 +204,7 @@
                                     claimedAt: new Date()
                                 });
                                 alert("Trip successfully claimed! Proceed to pickup.");
-                                loadJobsBtn.click(); // Refresh list
+                                loadJobsBtn.click();
                             } catch (err) {
                                 console.error("Error claiming trip: ", err);
                                 alert("Failed to claim trip. It may have already been taken.");
