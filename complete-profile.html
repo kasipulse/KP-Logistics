@@ -4,61 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KP Logistics | Complete Driver Profile</title>
+    
+    <!-- Custom App Favicon & Icons -->
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <meta name="theme-color" content="#f97316">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans">
+<body class="bg-slate-50 text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
     
     <!-- Navigation Header -->
     <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="relative w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-700 rounded-xl flex items-center justify-center shadow-lg shadow-orange-600/30 text-white font-black tracking-tighter text-lg">
-                    <span>KP</span>
-                    <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-slate-900 border-2 border-white rounded-full flex items-center justify-center">
-                        <i class="fa-solid fa-truck text-[6px] text-orange-400"></i>
-                    </div>
+                <div class="w-9 h-9 bg-orange-600 rounded-lg flex items-center justify-center text-white font-black tracking-tighter text-base shadow-md shadow-orange-600/30">
+                    KP
                 </div>
                 <div>
-                    <h1 class="text-base font-extrabold tracking-wide leading-tight text-white">KP Logistics</h1>
-                    <span class="text-[9px] text-orange-400 font-semibold uppercase tracking-widest block">Profile Completion</span>
+                    <h1 class="text-sm font-extrabold tracking-wider uppercase leading-none text-white">KP Logistics</h1>
+                    <span class="text-[9px] text-orange-400 font-semibold uppercase tracking-widest block mt-0.5">Profile Completion</span>
                 </div>
             </div>
-            <nav class="hidden md:flex space-x-6 text-sm font-medium">
+            <nav class="hidden md:flex space-x-6 text-xs font-semibold tracking-wide uppercase">
                 <a href="driver.html" class="text-slate-300 hover:text-orange-400 transition">Onboarding</a>
                 <a href="driver-portal.html" class="text-slate-300 hover:text-orange-400 transition">Driver Portal</a>
+                <a href="complete-profile.html" class="text-orange-400 transition">Complete Profile</a>
             </nav>
+            <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl transition border border-slate-700 uppercase tracking-wider">
+                Client App
+            </a>
         </div>
     </header>
 
     <main class="max-w-xl mx-auto my-12 px-6">
         
         <!-- Step 1: Lookup Box -->
-        <div id="lookupCard" class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 space-y-4">
-            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 to-amber-500"></div>
+        <div id="lookupCard" class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 space-y-4 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500"></div>
             <div>
-                <span class="text-xs font-bold uppercase tracking-widest text-orange-600">Secure Access</span>
-                <h2 class="text-2xl font-bold text-slate-900 mt-1">Complete Your Profile</h2>
-                <p class="text-sm text-slate-500 mt-1">Enter your registered mobile number to unlock banking and vehicle verification uploads.</p>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-orange-600">Secure Access</span>
+                <h2 class="text-2xl font-black text-slate-900 mt-1 tracking-tight">Complete Your Profile</h2>
+                <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Enter your registered mobile number to unlock banking and vehicle verification uploads.</p>
             </div>
             
             <div class="space-y-3">
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Registered Phone Number</label>
-                <input type="tel" id="lookupPhone" maxlength="10" placeholder="0821234567" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
-                <button id="lookupBtn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600">Registered Phone Number</label>
+                <input type="tel" id="lookupPhone" maxlength="10" placeholder="0821234567" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition">
+                <button id="lookupBtn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg text-xs uppercase tracking-wider">
                     Find My Profile
                 </button>
             </div>
         </div>
 
         <!-- Step 2: Hidden Completion Form (Revealed after phone match) -->
-        <div id="completionCard" class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 relative overflow-hidden hidden space-y-6">
-            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 to-amber-500"></div>
+        <div id="completionCard" class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 relative overflow-hidden hidden space-y-6">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500"></div>
             
             <div>
-                <span id="driverWelcomeTag" class="text-xs font-bold uppercase tracking-widest text-emerald-600">Verified Driver Found</span>
-                <h2 class="text-2xl font-bold text-slate-900 mt-1">Add Payout & Vehicle Info</h2>
-                <p class="text-sm text-slate-500 mt-1">Provide your banking details for your 88% trip payouts and upload vehicle verification photos.</p>
+                <span id="driverWelcomeTag" class="text-[10px] font-bold uppercase tracking-widest text-emerald-600">Verified Driver Found</span>
+                <h2 class="text-2xl font-black text-slate-900 mt-1 tracking-tight">Add Payout & Vehicle Info</h2>
+                <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Provide your banking details for your 88% trip payouts and upload vehicle verification photos.</p>
             </div>
 
             <form id="completionForm" class="space-y-4">
@@ -69,8 +76,8 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Bank Name</label>
-                            <select id="bankName" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Bank Name</label>
+                            <select id="bankName" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition">
                                 <option value="">Select Bank</option>
                                 <option value="Capitec">Capitec Bank</option>
                                 <option value="FNB">First National Bank (FNB)</option>
@@ -82,25 +89,25 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Account Holder Name</label>
-                            <input type="text" id="accountHolder" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="John M. Smith">
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Account Holder Name</label>
+                            <input type="text" id="accountHolder" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="John M. Smith">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Account Number</label>
-                            <input type="text" id="accountNumber" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="1234567890">
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Account Number</label>
+                            <input type="text" id="accountNumber" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="1234567890">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Branch Code</label>
-                            <input type="text" id="branchCode" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm" placeholder="250655 or Universal">
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Branch Code</label>
+                            <input type="text" id="branchCode" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="250655 or Universal">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Account Type</label>
-                        <select id="accountType" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Account Type</label>
+                        <select id="accountType" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition">
                             <option value="Current/Cheque">Current / Cheque Account</option>
                             <option value="Savings">Savings Account</option>
                         </select>
@@ -108,36 +115,36 @@
                 </div>
 
                 <!-- Document & Photo Upload Section -->
-                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3 pt-2 border-t border-slate-200">
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3 pt-3">
                     <p class="text-xs font-bold uppercase tracking-wider text-slate-700">Required Vetting Documents & Photos</p>
                     
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">South African ID Document / Card</label>
-                        <input type="file" id="idDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">South African ID Document / Card</label>
+                        <input type="file" id="idDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Driver's License (Front)</label>
-                        <input type="file" id="licenseDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Driver's License (Front)</label>
+                        <input type="file" id="licenseDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Vehicle License Disc</label>
-                        <input type="file" id="discDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle License Disc</label>
+                        <input type="file" id="discDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Vehicle 360 Photos (Front, Rear, Cargo Area)</label>
-                        <input type="file" id="vehiclePhotos" accept="image/*" multiple required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle 360 Photos (Front, Rear, Cargo Area)</label>
+                        <input type="file" id="vehiclePhotos" accept="image/*" multiple required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">PDP (Public Driving Permit) <span id="pdpLabel" class="text-slate-400 font-normal">(Optional for light bakkies/vans)</span></label>
-                        <input type="file" id="pdpDoc" accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 hover:file:bg-slate-300">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">PDP (Public Driving Permit) <span id="pdpLabel" class="text-slate-400 font-normal">(Optional for light bakkies/vans)</span></label>
+                        <input type="file" id="pdpDoc" accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 hover:file:bg-slate-300">
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg flex items-center justify-center space-x-2">
+                <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 px-4 rounded-xl transition shadow-lg shadow-orange-600/30 flex items-center justify-center space-x-2 text-xs uppercase tracking-wider mt-2">
                     <span>Submit Complete Profile</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
@@ -237,7 +244,7 @@
                     status: "Profile Completed - Pending Review"
                 });
 
-                alert("Profile successfully completed! Your banking details and documents have been submitted to Kasiplus.");
+                alert("Profile successfully completed! Your banking details and documents have been submitted to KP Logistics.");
                 window.location.href = "driver-portal.html";
 
             } catch (error) {
