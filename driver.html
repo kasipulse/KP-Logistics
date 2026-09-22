@@ -90,6 +90,18 @@
                     </div>
                 </div>
 
+                <!-- Primary Operating Region / Zone -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Primary Operating Region / Zone</label>
+                    <select id="driverZone" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm">
+                        <option value="East Rand">East Rand (Benoni, Springs, Boksburg, Kempton Park, Germiston)</option>
+                        <option value="Johannesburg">Johannesburg Central & Surrounds</option>
+                        <option value="Pretoria">Pretoria / Tshwane</option>
+                        <option value="West Rand">West Rand (Roodepoort, Krugersdorp, Randfontein)</option>
+                        <option value="Vaal">Vaal Triangle (Vereeniging, Vanderbijlpark)</option>
+                    </select>
+                </div>
+
                 <!-- Fee Display Notice (Waived to R0 for Pilot) -->
                 <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center justify-between">
                     <div>
@@ -147,6 +159,7 @@
             const vehicleModel = document.getElementById('vehicleModel').value;
             const vehicleType = document.getElementById('regVehicleType').value;
             const fuelType = document.getElementById('fuelType').value;
+            const zone = document.getElementById('driverZone').value;
             
             try {
                 await addDoc(collection(db, "drivers"), {
@@ -156,6 +169,7 @@
                     vehicleType: vehicleType,
                     phone: phone,
                     fuelType: fuelType,
+                    zone: zone,
                     vettingFeePaid: "R 0.00 (Founding Fleet Waiver)",
                     paymentReference: "PILOT_WAIVER_2026",
                     status: "Active - Founding Fleet",
