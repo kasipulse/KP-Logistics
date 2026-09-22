@@ -25,6 +25,7 @@ if (bookingForm) {
         
         const pickup = document.getElementById('pickup').value;
         const dropoff = document.getElementById('dropoff').value;
+        const zone = document.getElementById('bookingZone') ? document.getElementById('bookingZone').value : "East Rand";
         const vehicleType = document.getElementById('vehicleType').value;
         const phone = document.getElementById('phone').value;
         
@@ -42,7 +43,6 @@ if (bookingForm) {
         
         // Base fares reflecting vehicle tiers
         const basePrices = {
-            sedan: 250,
             bakkie: 350,
             closedbakkie: 400,
             panelvan: 520,
@@ -57,7 +57,6 @@ if (bookingForm) {
         // Consumption mapping based on fuel types & expanded vehicle categories (liters per km)
         const consumptionRates = {
             petrol: { 
-                sedan: 0.08, 
                 bakkie: 0.11, 
                 closedbakkie: 0.12, 
                 panelvan: 0.13, 
@@ -68,7 +67,6 @@ if (bookingForm) {
                 towtruck: 0.30
             },
             diesel: { 
-                sedan: 0.06, 
                 bakkie: 0.08, 
                 closedbakkie: 0.09, 
                 panelvan: 0.10, 
@@ -97,7 +95,7 @@ if (bookingForm) {
         // Initialize Paystack Popup Checkout for Customer Trip
         try {
             let handler = PaystackPop.setup({
-                key: 'pk_test_6290ff57c3a32a8e42de333bcba740801e72774c', // Replace with your actual Paystack Public Key when ready
+                key: 'pk_test_6290ff57c3a32a8e42de333bcba740801e72774c', 
                 email: customerEmail,
                 amount: amountInCents,
                 currency: 'ZAR',
@@ -106,6 +104,7 @@ if (bookingForm) {
                     custom_fields: [
                         { display_name: "Pickup Location", variable_name: "pickup", value: pickup },
                         { display_name: "Dropoff Location", variable_name: "dropoff", value: dropoff },
+                        { display_name: "Operating Zone", variable_name: "zone", value: zone },
                         { display_name: "Vehicle Category", variable_name: "vehicle_type", value: vehicleType },
                         { display_name: "Assistants", variable_name: "assistants", value: assistantCount },
                         { display_name: "Contact Phone", variable_name: "phone", value: phone }
@@ -118,6 +117,7 @@ if (bookingForm) {
                             await addDoc(collection(db, "bookings"), {
                                 pickup: pickup,
                                 dropoff: dropoff,
+                                zone: zone,
                                 vehicleType: vehicleType,
                                 phone: phone,
                                 assistantsRequested: assistantCount,
@@ -127,7 +127,7 @@ if (bookingForm) {
                                 status: "Paid - Pending Driver Assignment",
                                 createdAt: new Date()
                             });
-                            alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${response.reference}\nYour trip has been paid and dispatched to available drivers.`);
+                            alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${response.reference}\nYour trip has been paid and dispatched to available drivers in ${zone}.`);
                             bookingForm.reset();
                         } catch (error) {
                             console.error("Error saving paid booking: ", error);
