@@ -28,11 +28,16 @@
                     <span class="text-[9px] text-blue-400 font-semibold uppercase tracking-widest block mt-0.5">Driver Portal</span>
                 </div>
             </div>
-            <nav class="hidden md:flex space-x-6 text-xs font-semibold tracking-wide uppercase">
-                <a href="driver.html" class="text-slate-300 hover:text-blue-400 transition">Onboarding Registration</a>
-                <a href="complete-profile.html" class="text-slate-300 hover:text-blue-400 transition">Complete Profile</a>
+            
+            <nav class="hidden md:flex space-x-6 text-xs font-semibold tracking-wide uppercase items-center">
                 <a href="driver-portal.html" class="text-blue-400 transition">Available Jobs</a>
+                <a href="complete-profile.html" class="text-slate-300 hover:text-blue-400 transition">Complete Profile</a>
+                <a href="driver.html" class="text-slate-300 hover:text-blue-400 transition">Onboarding</a>
+                <button id="logoutNavBtn" class="hidden bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white px-3 py-1.5 rounded-lg transition border border-red-500/30">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
+                </button>
             </nav>
+
             <div class="flex items-center space-x-3">
                 <button id="installAppBtn" class="hidden bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition shadow-md shadow-blue-600/20 uppercase tracking-wider items-center space-x-1.5">
                     <i class="fa-solid fa-download"></i>
@@ -53,11 +58,17 @@
                 <h2 id="portalTitle" class="text-xl font-black text-slate-900 tracking-tight mt-0.5">Local Paid Trips Feed</h2>
                 <p id="portalSubtitle" class="text-xs text-slate-500 mt-1 leading-relaxed">Enter your mobile number and security PIN to access regional loads.</p>
             </div>
-            <div class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full md:w-auto">
+            <div id="loginControlGroup" class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full md:w-auto">
                 <input type="tel" id="driverPhoneLogin" maxlength="10" placeholder="Mobile (082...)" class="p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white w-full sm:w-44 transition text-slate-900">
                 <input type="password" id="driverPinLogin" maxlength="6" placeholder="PIN" class="p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white w-full sm:w-28 transition text-slate-900">
                 <button id="loadJobsBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-3 rounded-xl text-xs transition whitespace-nowrap shadow-lg shadow-blue-600/20 uppercase tracking-wider w-full sm:w-auto">
                     Secure Login
+                </button>
+            </div>
+            <div id="logoutControlGroup" class="hidden flex items-center space-x-3">
+                <button id="logoutBtn" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-4 py-3 rounded-xl text-xs transition border border-red-200 uppercase tracking-wider flex items-center space-x-2">
+                    <i class="fa-solid fa-power-off"></i>
+                    <span>Log Out</span>
                 </button>
             </div>
         </div>
@@ -72,7 +83,7 @@
 
     </main>
 
-    <!-- Firebase & Portal Logic Script with PIN Verification -->
+    <!-- Firebase & Portal Logic Script with Session Persistence & Logout -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, where, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -115,24 +126,11 @@
         const loadJobsBtn = document.getElementById('loadJobsBtn');
         const tripFeed = document.getElementById('tripFeed');
 
-        loadJobsBtn.addEventListener('click', async () => {
-            const driverPhone = document.getElementById('driverPhoneLogin').value.trim();
-            const driverPin = document.getElementById('driverPinLogin').value.trim();
-
-            if (!driverPhone || driverPhone.length !== 10) {
-                alert("Please enter a valid 10-digit mobile number.");
-                return;
-            }
-            if (!driverPin) {
-                alert("Please enter your security PIN.");
-                return;
-            }
-
+        async function authenticateAndLoadJobs(phone, pin) {
             tripFeed.innerHTML = `<div class="bg-white p-8 rounded-3xl border border-slate-200 text-center text-slate-400 text-xs"><i class="fa-solid fa-spinner fa-spin text-blue-600 text-2xl mb-2 block"></i> Authenticating secure driver profile...</div>`;
 
             try {
-                // Query driver by phone number
-                const driverQuery = query(collection(db, "drivers"), where("phone", "==", driverPhone));
+                const driverQuery = query(collection(db, "drivers"), where("phone", "==", phone));
                 const driverSnapshot = await getDocs(driverQuery);
 
                 if (driverSnapshot.empty) {
@@ -146,15 +144,10 @@
 
                 driverSnapshot.forEach(docSnap => {
                     const data = docSnap.data();
-                    // Verify PIN (fallback to allow older accounts without a PIN if needed, or enforce strict check)
-                    if (data.pin && data.pin === driverPin) {
+                    if ((data.pin && data.pin === pin) || !data.pin) {
                         driverAuthenticated = true;
                         if (data.zone) driverZone = data.zone;
                         if (data.name) driverName = data.name;
-                    } else if (!data.pin) {
-                        // If an older account didn't set a pin yet, let them in but prompt them
-                        driverAuthenticated = true;
-                        if (data.zone) driverZone = data.zone;
                     }
                 });
 
@@ -163,10 +156,18 @@
                     return;
                 }
 
+                // Save session so they stay logged in
+                localStorage.setItem('kp_driver_phone', phone);
+                localStorage.setItem('kp_driver_pin', pin);
+
+                // Switch top UI to active session mode
+                document.getElementById('loginControlGroup').classList.add('hidden');
+                document.getElementById('logoutControlGroup').classList.remove('hidden');
+                document.getElementById('logoutNavBtn').classList.remove('hidden');
+
                 document.getElementById('portalTitle').innerText = `Welcome, ${driverName} (${driverZone})`;
                 document.getElementById('portalSubtitle').innerText = `Securely showing paid escrow loads filtered for your zone.`;
 
-                // Query bookings matching the driver's zone
                 const q = query(
                     collection(db, "bookings"), 
                     where("status", "==", "Paid - Pending Driver Assignment"),
@@ -227,11 +228,11 @@
                             try {
                                 const tripRef = doc(db, "bookings", targetId);
                                 await updateDoc(tripRef, {
-                                    status: `Assigned (Driver: ${driverPhone})`,
+                                    status: `Assigned (Driver: ${phone})`,
                                     claimedAt: new Date()
                                 });
                                 alert("Trip successfully claimed! Proceed to pickup.");
-                                loadJobsBtn.click();
+                                authenticateAndLoadJobs(phone, pin);
                             } catch (err) {
                                 console.error("Error claiming trip: ", err);
                                 alert("Failed to claim trip. It may have already been taken.");
@@ -243,6 +244,42 @@
             } catch (error) {
                 console.error("Error authenticating driver: ", error);
                 tripFeed.innerHTML = `<div class="bg-white p-8 rounded-3xl border border-red-200 text-center text-red-600 text-xs">Authentication error. Please check your connection.</div>`;
+            }
+        }
+
+        loadJobsBtn.addEventListener('click', () => {
+            const phone = document.getElementById('driverPhoneLogin').value.trim();
+            const pin = document.getElementById('driverPinLogin').value.trim();
+
+            if (!phone || phone.length !== 10) {
+                alert("Please enter a valid 10-digit mobile number.");
+                return;
+            }
+            if (!pin) {
+                alert("Please enter your security PIN.");
+                return;
+            }
+            authenticateAndLoadJobs(phone, pin);
+        });
+
+        // Logout handler
+        function handleLogout() {
+            localStorage.removeItem('kp_driver_phone');
+            localStorage.removeItem('kp_driver_pin');
+            window.location.reload();
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+        document.getElementById('logoutNavBtn').addEventListener('click', handleLogout);
+
+        // Auto-login on page load if session exists
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedPhone = localStorage.getItem('kp_driver_phone');
+            const savedPin = localStorage.getItem('kp_driver_pin');
+            if (savedPhone && savedPin) {
+                document.getElementById('driverPhoneLogin').value = savedPhone;
+                document.getElementById('driverPinLogin').value = savedPin;
+                authenticateAndLoadJobs(savedPhone, savedPin);
             }
         });
     </script>
