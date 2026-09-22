@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KP Logistics | Founding Fleet Driver Onboarding</title>
+    <title>KP Logistics | Partner Network Driver Onboarding</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Paystack Checkout Inline Script -->
@@ -38,11 +38,11 @@
             <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 to-amber-500"></div>
             
             <div class="mb-6">
-                <span class="inline-block bg-emerald-100 text-emerald-800 border border-emerald-200 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-widest mb-2">
-                    🚀 Pilot Promo: Founding Fleet (Free Entry)
+                <span class="inline-block bg-orange-100 text-orange-800 border border-orange-200 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-widest mb-2">
+                    🚚 Fleet Partner Registration
                 </span>
                 <h2 class="text-2xl font-bold text-slate-900 mt-1">Register Your Vehicle</h2>
-                <p class="text-sm text-slate-500 mt-1">Join Kasiplus (PTY) Ltd to receive commercial transport loads. Vetting fees are waived for our first wave of drivers.</p>
+                <p class="text-sm text-slate-500 mt-1">Join Kasiplus (PTY) Ltd to receive commercial transport and delivery loads in your local operating zone.</p>
             </div>
             
             <form id="driverForm" class="space-y-4">
@@ -102,24 +102,21 @@
                     </select>
                 </div>
 
-                <!-- Fee Display Notice (Waived to R0 for Pilot) -->
-                <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs text-emerald-800 font-medium">Founding Fleet Pilot Promotion</p>
-                        <p class="text-xl font-black text-emerald-600">R 0.00 <span class="text-xs font-normal text-slate-500">(Vetting Fee Waived)</span></p>
-                    </div>
-                    <i class="fa-solid fa-circle-check text-emerald-500 text-2xl"></i>
+                <!-- Voucher / Promo Code Input -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Voucher / Promo Code <span class="text-slate-400 font-normal">(Optional)</span></label>
+                    <input type="text" id="voucherCode" placeholder="e.g., FOUNDING2026" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm uppercase">
                 </div>
 
                 <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg flex items-center justify-center space-x-2">
-                    <span>Complete Free Registration & Enter Portal</span>
+                    <span>Complete Registration & Enter Portal</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </form>
         </div>
     </main>
 
-    <!-- Database Integration Script (Instant Firebase Submit) -->
+    <!-- Database Integration Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -160,6 +157,7 @@
             const vehicleType = document.getElementById('regVehicleType').value;
             const fuelType = document.getElementById('fuelType').value;
             const zone = document.getElementById('driverZone').value;
+            const voucher = document.getElementById('voucherCode').value.trim() || "None Provided";
             
             try {
                 await addDoc(collection(db, "drivers"), {
@@ -170,13 +168,12 @@
                     phone: phone,
                     fuelType: fuelType,
                     zone: zone,
-                    vettingFeePaid: "R 0.00 (Founding Fleet Waiver)",
-                    paymentReference: "PILOT_WAIVER_2026",
-                    status: "Active - Founding Fleet",
+                    voucherCode: voucher,
+                    status: "Active - Registered",
                     createdAt: new Date()
                 });
                 
-                alert(`Registration successful! Welcome to the KP Logistics Founding Fleet.`);
+                alert(`Registration successful! Welcome to the KP Logistics Partner Network.`);
                 window.location.href = "driver-portal.html";
             } catch (error) {
                 console.error("Error saving driver profile: ", error);
