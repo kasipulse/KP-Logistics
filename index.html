@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KP Logistics | Fast & Reliable Truck & Van Bookings</title>
     
-    <!-- Custom App Favicon & Icons (Removes Chrome default globe icon) -->
+    <!-- Custom App Favicon & PWA Manifest -->
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#f97316">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,13 +32,20 @@
                     <span class="text-[9px] text-orange-400 font-semibold uppercase tracking-widest block mt-0.5">Client Portal</span>
                 </div>
             </div>
-            <nav class="hidden md:flex space-x-6 text-xs font-semibold tracking-wide uppercase">
+            <nav class="hidden md:flex items-center space-x-6 text-xs font-semibold tracking-wide uppercase">
                 <a href="index.html" class="text-orange-400 transition">Book a Truck</a>
                 <a href="driver.html" class="text-slate-300 hover:text-orange-400 transition">Drive With Us</a>
             </nav>
-            <a href="driver.html" class="bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-md shadow-orange-600/20 uppercase tracking-wider">
-                Partner Fleet
-            </a>
+            <div class="flex items-center space-x-3">
+                <!-- Native PWA Install Button (Hidden until browser permits installation) -->
+                <button id="installAppBtn" class="hidden bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition shadow-md shadow-orange-500/20 uppercase tracking-wider items-center space-x-1.5">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Install App</span>
+                </button>
+                <a href="driver.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl transition border border-slate-700 uppercase tracking-wider">
+                    Partner Fleet
+                </a>
+            </div>
         </div>
     </header>
 
@@ -271,6 +279,29 @@
     <!-- Firebase Connection Script -->
     <script type="module" src="app.js"></script>
     <script>
+        // PWA Install Prompt Handler
+        let deferredPrompt;
+        const installBtn = document.getElementById('installAppBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.remove('hidden');
+            installBtn.classList.add('flex');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            }
+            deferredPrompt = null;
+            installBtn.classList.add('hidden');
+            installBtn.classList.remove('flex');
+        });
+
         // Initialize Google Places Autocomplete restricted to South Africa
         window.addEventListener('load', function() {
             const pickupInput = document.getElementById('pickup');
