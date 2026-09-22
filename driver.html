@@ -13,7 +13,6 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Paystack Checkout Inline Script -->
     <script src="https://js.paystack.co/v1/inline.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans selection:bg-blue-600 selection:text-white">
@@ -36,7 +35,6 @@
                 <a href="complete-profile.html" class="text-slate-300 hover:text-blue-400 transition">Complete Profile</a>
             </nav>
             <div class="flex items-center space-x-3">
-                <!-- Native PWA Install Button -->
                 <button id="installAppBtn" class="hidden bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition shadow-md shadow-blue-600/20 uppercase tracking-wider items-center space-x-1.5">
                     <i class="fa-solid fa-download"></i>
                     <span>Install App</span>
@@ -63,6 +61,17 @@
                     <input type="text" id="driverName" required class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="John Smith">
                 </div>
                 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Mobile Number (10 Digits)</label>
+                        <input type="tel" id="driverPhone" required maxlength="10" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="0821234567">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Create Login PIN (4-6 Digits)</label>
+                        <input type="password" id="driverPin" required minlength="4" maxlength="6" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="••••">
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Email Address</label>
                     <input type="email" id="driverEmail" required class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="john@kplogistics.co.za">
@@ -90,8 +99,14 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Mobile Number (10 Digits)</label>
-                        <input type="tel" id="driverPhone" required maxlength="10" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="0821234567">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Primary Operating Region</label>
+                        <select id="driverZone" required class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none text-xs text-slate-900 transition">
+                            <option value="East Rand">East Rand (Benoni, Springs, Boksburg, Germiston)</option>
+                            <option value="Johannesburg">Johannesburg Central & Surrounds</option>
+                            <option value="Pretoria">Pretoria / Tshwane</option>
+                            <option value="West Rand">West Rand (Roodepoort, Krugersdorp)</option>
+                            <option value="Vaal">Vaal Triangle (Vereeniging)</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Vehicle Fuel Type</label>
@@ -100,17 +115,6 @@
                             <option value="diesel">Diesel</option>
                         </select>
                     </div>
-                </div>
-
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Primary Operating Region / Zone</label>
-                    <select id="driverZone" required class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none text-xs text-slate-900 transition">
-                        <option value="East Rand">East Rand (Benoni, Springs, Boksburg, Kempton Park, Germiston)</option>
-                        <option value="Johannesburg">Johannesburg Central & Surrounds</option>
-                        <option value="Pretoria">Pretoria / Tshwane</option>
-                        <option value="West Rand">West Rand (Roodepoort, Krugersdorp, Randfontein)</option>
-                        <option value="Vaal">Vaal Triangle (Vereeniging, Vanderbijlpark)</option>
-                    </select>
                 </div>
 
                 <div>
@@ -126,28 +130,30 @@
         </div>
     </main>
 
-    <!-- Database & PWA Integration Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         let deferredPrompt;
         const installBtn = document.getElementById('installAppBtn');
+        installBtn.classList.remove('hidden');
+        installBtn.classList.add('flex');
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installBtn.classList.remove('hidden');
-            installBtn.classList.add('flex');
         });
 
         installBtn.addEventListener('click', async () => {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            deferredPrompt = null;
-            installBtn.classList.add('hidden');
-            installBtn.classList.remove('flex');
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS) {
+                alert("📱 To install on your iPhone:\n\n1. Tap the 'Share' button ⎋ below.\n2. Select 'Add to Home Screen ➕'.");
+            } else if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt = null;
+            } else {
+                alert("To install this app, open your browser menu and select 'Install App' or 'Add to Home Screen'.");
+            }
         });
 
         const firebaseConfig = {
@@ -164,39 +170,32 @@
         const db = getFirestore(app);
 
         function validatePhone(phoneValue) {
-            const phoneRegex = /^0[0-9]{9}$/;
-            return phoneRegex.test(phoneValue);
+            return /^0[0-9]{9}$/.test(phoneValue);
         }
 
-        const driverForm = document.getElementById('driverForm');
-        driverForm.addEventListener('submit', async function(e) {
+        document.getElementById('driverForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const phone = document.getElementById('driverPhone').value.trim();
+            const pin = document.getElementById('driverPin').value.trim();
+
             if (!validatePhone(phone)) {
-                alert("Please enter a valid 10-digit South African mobile number starting with 0 (e.g., 0821234567).");
+                alert("Please enter a valid 10-digit South African mobile number starting with 0.");
                 document.getElementById('driverPhone').focus();
                 return;
             }
 
-            const name = document.getElementById('driverName').value;
-            const email = document.getElementById('driverEmail').value;
-            const vehicleModel = document.getElementById('vehicleModel').value;
-            const vehicleType = document.getElementById('regVehicleType').value;
-            const fuelType = document.getElementById('fuelType').value;
-            const zone = document.getElementById('driverZone').value;
-            const voucher = document.getElementById('voucherCode').value.trim() || "None Provided";
-            
             try {
                 await addDoc(collection(db, "drivers"), {
-                    name: name,
-                    email: email,
-                    vehicleModel: vehicleModel,
-                    vehicleType: vehicleType,
+                    name: document.getElementById('driverName').value,
+                    email: document.getElementById('driverEmail').value,
+                    vehicleModel: document.getElementById('vehicleModel').value,
+                    vehicleType: document.getElementById('regVehicleType').value,
                     phone: phone,
-                    fuelType: fuelType,
-                    zone: zone,
-                    voucherCode: voucher,
+                    pin: pin, // Saved secure PIN
+                    fuelType: document.getElementById('fuelType').value,
+                    zone: document.getElementById('driverZone').value,
+                    voucherCode: document.getElementById('voucherCode').value.trim() || "None Provided",
                     status: "Active - Registered",
                     createdAt: new Date()
                 });
