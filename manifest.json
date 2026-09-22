@@ -1,1 +1,15 @@
-
+{
+  "name": "KP Logistics Fleet",
+  "short_name": "KP Logistics",
+  "start_url": "/driver-portal.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#f97316",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
