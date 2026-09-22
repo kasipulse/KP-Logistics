@@ -9,39 +9,36 @@
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#f97316">
+    <meta name="theme-color" content="#2563eb">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
+<body class="bg-slate-50 text-slate-900 font-sans selection:bg-blue-600 selection:text-white">
     
     <!-- Navigation Header -->
     <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 bg-orange-600 rounded-lg flex items-center justify-center text-white font-black tracking-tighter text-base shadow-md shadow-orange-600/30">
+                <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black tracking-tighter text-base shadow-md shadow-blue-600/30">
                     KP
                 </div>
                 <div>
                     <h1 class="text-sm font-extrabold tracking-wider uppercase leading-none text-white">KP Logistics</h1>
-                    <span class="text-[9px] text-orange-400 font-semibold uppercase tracking-widest block mt-0.5">Profile Completion</span>
+                    <span class="text-[9px] text-blue-400 font-semibold uppercase tracking-widest block mt-0.5">Profile Completion</span>
                 </div>
             </div>
             <nav class="hidden md:flex space-x-6 text-xs font-semibold tracking-wide uppercase">
-                <a href="driver.html" class="text-slate-300 hover:text-orange-400 transition">Onboarding</a>
-                <a href="driver-portal.html" class="text-slate-300 hover:text-orange-400 transition">Driver Portal</a>
-                <a href="complete-profile.html" class="text-orange-400 transition">Complete Profile</a>
+                <a href="driver.html" class="text-slate-300 hover:text-blue-400 transition">Onboarding</a>
+                <a href="driver-portal.html" class="text-slate-300 hover:text-blue-400 transition">Driver Portal</a>
+                <a href="complete-profile.html" class="text-blue-400 transition">Complete Profile</a>
             </nav>
             <div class="flex items-center space-x-3">
                 <!-- Native PWA Install Button -->
-                <button id="installAppBtn" class="hidden bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition shadow-md shadow-orange-500/20 uppercase tracking-wider items-center space-x-1.5">
+                <button id="installAppBtn" class="hidden bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition shadow-md shadow-blue-600/20 uppercase tracking-wider items-center space-x-1.5">
                     <i class="fa-solid fa-download"></i>
                     <span>Install App</span>
                 </button>
-                <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl transition border border-slate-700 uppercase tracking-wider">
-                    Client App
-                </a>
             </div>
         </div>
     </header>
@@ -50,16 +47,16 @@
         
         <!-- Step 1: Lookup Box -->
         <div id="lookupCard" class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 space-y-4 relative overflow-hidden">
-            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500"></div>
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-sky-400"></div>
             <div>
-                <span class="text-[10px] font-bold uppercase tracking-widest text-orange-600">Secure Access</span>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-blue-600">Secure Access</span>
                 <h2 class="text-2xl font-black text-slate-900 mt-1 tracking-tight">Complete Your Profile</h2>
                 <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Enter your registered mobile number to unlock banking and vehicle verification uploads.</p>
             </div>
             
             <div class="space-y-3">
                 <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600">Registered Phone Number</label>
-                <input type="tel" id="lookupPhone" maxlength="10" placeholder="0821234567" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition">
+                <input type="tel" id="lookupPhone" maxlength="10" placeholder="0821234567" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none text-xs text-slate-900 transition">
                 <button id="lookupBtn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg text-xs uppercase tracking-wider">
                     Find My Profile
                 </button>
@@ -68,7 +65,7 @@
 
         <!-- Step 2: Hidden Completion Form (Revealed after phone match) -->
         <div id="completionCard" class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 relative overflow-hidden hidden space-y-6">
-            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500"></div>
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-sky-400"></div>
             
             <div>
                 <span id="driverWelcomeTag" class="text-[10px] font-bold uppercase tracking-widest text-emerald-600">Verified Driver Found</span>
@@ -85,7 +82,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Bank Name</label>
-                            <select id="bankName" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition">
+                            <select id="bankName" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none text-xs text-slate-900 transition">
                                 <option value="">Select Bank</option>
                                 <option value="Capitec">Capitec Bank</option>
                                 <option value="FNB">First National Bank (FNB)</option>
@@ -98,24 +95,24 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Account Holder Name</label>
-                            <input type="text" id="accountHolder" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="John M. Smith">
+                            <input type="text" id="accountHolder" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="John M. Smith">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Account Number</label>
-                            <input type="text" id="accountNumber" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="1234567890">
+                            <input type="text" id="accountNumber" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="1234567890">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Branch Code</label>
-                            <input type="text" id="branchCode" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="250655 or Universal">
+                            <input type="text" id="branchCode" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none text-xs text-slate-900 transition" placeholder="250655 or Universal">
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Account Type</label>
-                        <select id="accountType" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none text-xs text-slate-900 transition">
+                        <select id="accountType" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none text-xs text-slate-900 transition">
                             <option value="Current/Cheque">Current / Cheque Account</option>
                             <option value="Savings">Savings Account</option>
                         </select>
@@ -128,22 +125,22 @@
                     
                     <div>
                         <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">South African ID Document / Card</label>
-                        <input type="file" id="idDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                        <input type="file" id="idDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                     </div>
 
                     <div>
                         <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Driver's License (Front)</label>
-                        <input type="file" id="licenseDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                        <input type="file" id="licenseDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                     </div>
 
                     <div>
                         <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle License Disc</label>
-                        <input type="file" id="discDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                        <input type="file" id="discDoc" accept="image/*,.pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                     </div>
 
                     <div>
                         <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle 360 Photos (Front, Rear, Cargo Area)</label>
-                        <input type="file" id="vehiclePhotos" accept="image/*" multiple required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                        <input type="file" id="vehiclePhotos" accept="image/*" multiple required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                     </div>
 
                     <div>
@@ -152,7 +149,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 px-4 rounded-xl transition shadow-lg shadow-orange-600/30 flex items-center justify-center space-x-2 text-xs uppercase tracking-wider mt-2">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-xl transition shadow-lg shadow-blue-600/30 flex items-center justify-center space-x-2 text-xs uppercase tracking-wider mt-2">
                     <span>Submit Complete Profile</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
