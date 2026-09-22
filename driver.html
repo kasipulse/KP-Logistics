@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KP Logistics | Partner Network Driver Onboarding</title>
+    <title>KP Logistics | Driver - Onboarding</title>
     
-    <!-- Custom App Favicon & Icons -->
-    <link rel="icon" type="image/png" href="logo.png">
-    <link rel="apple-touch-icon" href="logo.png">
+    <!-- Blue Driver App Favicon & Icons -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232563eb'/><text x='50%' y='57%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='42' fill='%23ffffff'>KP</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232563eb'/><text x='50%' y='57%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='42' fill='%23ffffff'>KP</text></svg>">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
 
@@ -27,7 +27,7 @@
                 </div>
                 <div>
                     <h1 class="text-sm font-extrabold tracking-wider uppercase leading-none text-white">KP Logistics</h1>
-                    <span class="text-[9px] text-blue-400 font-semibold uppercase tracking-widest block mt-0.5">Partner Fleet</span>
+                    <span class="text-[9px] text-blue-400 font-semibold uppercase tracking-widest block mt-0.5">Driver Portal</span>
                 </div>
             </div>
             <nav class="hidden md:flex space-x-6 text-xs font-semibold tracking-wide uppercase">
@@ -51,7 +51,7 @@
             
             <div class="mb-8">
                 <div class="inline-block bg-blue-50 text-blue-800 border border-blue-200 text-[10px] font-bold uppercase px-3 py-1 rounded-full tracking-widest mb-3">
-                    Commercial Fleet Onboarding
+                    Driver Onboarding
                 </div>
                 <h2 class="text-2xl font-black text-slate-900 tracking-tight">Register Your Vehicle</h2>
                 <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Join Kasiplus (PTY) Ltd to receive commercial transport and delivery loads in your local operating zone.</p>
@@ -102,7 +102,6 @@
                     </div>
                 </div>
 
-                <!-- Primary Operating Region / Zone -->
                 <div>
                     <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Primary Operating Region / Zone</label>
                     <select id="driverZone" required class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none text-xs text-slate-900 transition">
@@ -114,7 +113,6 @@
                     </select>
                 </div>
 
-                <!-- Voucher / Promo Code Input -->
                 <div>
                     <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Voucher / Promo Code <span class="text-slate-400 font-normal">(Optional)</span></label>
                     <input type="text" id="voucherCode" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none text-xs text-slate-900 transition uppercase" placeholder="">
@@ -133,7 +131,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // PWA Install Prompt Handler
         let deferredPrompt;
         const installBtn = document.getElementById('installAppBtn');
 
@@ -148,9 +145,6 @@
             if (!deferredPrompt) return;
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                console.log('User accepted the install prompt');
-            }
             deferredPrompt = null;
             installBtn.classList.add('hidden');
             installBtn.classList.remove('flex');
@@ -169,7 +163,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Strict 10-digit phone validator
         function validatePhone(phoneValue) {
             const phoneRegex = /^0[0-9]{9}$/;
             return phoneRegex.test(phoneValue);
@@ -208,7 +201,7 @@
                     createdAt: new Date()
                 });
                 
-                alert("Registration successful! Welcome to the KP Logistics Partner Network.");
+                alert("Registration successful! Welcome to the KP Logistics Driver Network.");
                 window.location.href = "driver-portal.html";
             } catch (error) {
                 console.error("Error saving driver profile: ", error);
