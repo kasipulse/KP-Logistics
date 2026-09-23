@@ -127,6 +127,18 @@
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </form>
+
+            <!-- Practical Bottom Navigation Actions -->
+            <div class="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row gap-3">
+                <a href="complete-profile.html" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl text-center text-xs transition uppercase tracking-wider flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-id-card text-blue-600"></i>
+                    <span>Upload Documents & Banking</span>
+                </a>
+                <a href="driver-portal.html" class="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl text-center text-xs transition uppercase tracking-wider flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-truck-fast text-blue-400"></i>
+                    <span>Go to Driver Portal</span>
+                </a>
+            </div>
         </div>
     </main>
 
@@ -192,7 +204,7 @@
                     vehicleModel: document.getElementById('vehicleModel').value,
                     vehicleType: document.getElementById('regVehicleType').value,
                     phone: phone,
-                    pin: pin, // Saved secure PIN
+                    pin: pin,
                     fuelType: document.getElementById('fuelType').value,
                     zone: document.getElementById('driverZone').value,
                     voucherCode: document.getElementById('voucherCode').value.trim() || "None Provided",
