@@ -17,6 +17,37 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// Global SMS Helper Function
+async function sendSmsNotification(recipientNumber, messageText) {
+    const apiEndpoint = "https://www.smsmessenger.co.za/api/v1/send";
+    
+    let formattedNumber = recipientNumber.trim();
+    if (formattedNumber.startsWith("0")) {
+        formattedNumber = "27" + formattedNumber.slice(1);
+    }
+
+    const payload = {
+        email: "mphomahlaba@kplogistics.online",
+        token: "43831b78-8961-49ca-ad17-534f2ec2cd99",
+        to: formattedNumber,
+        message: messageText
+    };
+
+    try {
+        const response = await fetch(apiEndpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        console.log("SMS sent successfully:", result);
+        return true;
+    } catch (error) {
+        console.error("Failed to send SMS:", error);
+        return false;
+    }
+}
+
 // Handle Customer Booking (for index.html) with Paystack Gateway
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
@@ -37,11 +68,10 @@ if (bookingForm) {
         const assistantCount = assistantInput ? parseInt(assistantInput.value) || 0 : 0;
         const loaderFee = assistantCount * 200;
 
-        // Automated Pricing Calculation Parameters (Updated for Light & Heavy Commercial)
-        const estimatedDistanceKm = 15; // Default average town trip radius
-        const currentFuelPriceZAR = 23.50; // Current baseline South African fuel price per liter
+        // Automated Pricing Calculation Parameters
+        const estimatedDistanceKm = 15; 
+        const currentFuelPriceZAR = 23.50; 
         
-        // Base fares reflecting vehicle tiers
         const basePrices = {
             bakkie: 350,
             closedbakkie: 400,
@@ -54,43 +84,19 @@ if (bookingForm) {
         };
         const baseFee = basePrices[vehicleType] || 350;
 
-        // Consumption mapping based on fuel types & expanded vehicle categories (liters per km)
         const consumptionRates = {
-            petrol: { 
-                bakkie: 0.11, 
-                closedbakkie: 0.12, 
-                panelvan: 0.13, 
-                medtruck: 0.21,
-                "8ton": 0.35,
-                "8tonside": 0.38,
-                flatbed: 0.42,
-                towtruck: 0.30
-            },
-            diesel: { 
-                bakkie: 0.08, 
-                closedbakkie: 0.09, 
-                panelvan: 0.10, 
-                medtruck: 0.16, 
-                "8ton": 0.35, 
-                "8tonside": 0.38, 
-                flatbed: 0.42, 
-                towtruck: 0.30 
-            }
+            petrol: { bakkie: 0.11, closedbakkie: 0.12, panelvan: 0.13, medtruck: 0.21, "8ton": 0.35, "8tonside": 0.38, flatbed: 0.42, towtruck: 0.30 },
+            diesel: { bakkie: 0.08, closedbakkie: 0.09, panelvan: 0.10, medtruck: 0.16, "8ton": 0.35, "8tonside": 0.38, flatbed: 0.42, towtruck: 0.30 }
         };
 
-        // Assume standard diesel/petrol mixed baseline or default lookup
         const assumedFuel = ['8ton', '8tonside', 'flatbed', 'towtruck'].includes(vehicleType) ? 'diesel' : 'petrol';
         const rate = consumptionRates[assumedFuel]?.[vehicleType] || 0.11;
         
         const estimatedFuelCost = estimatedDistanceKm * rate * currentFuelPriceZAR;
-        
-        // Subtotal = Base Fee + Fuel Cost + Multi-loader Fee (R200 per assistant)
         const subtotal = baseFee + estimatedFuelCost + loaderFee;
-        
-        // Add 12% Platform Commission
         const commission = subtotal * 0.12;
         const finalCalculatedFare = Math.round(subtotal + commission);
-        const amountInCents = finalCalculatedFare * 100; // Paystack expects amount in cents
+        const amountInCents = finalCalculatedFare * 100;
 
         // Initialize Paystack Popup Checkout for Customer Trip
         try {
@@ -111,7 +117,6 @@ if (bookingForm) {
                     ]
                 },
                 callback: function(response) {
-                    // Payment successful, wrap async Firestore write safely
                     (async () => {
                         try {
                             await addDoc(collection(db, "bookings"), {
@@ -127,6 +132,13 @@ if (bookingForm) {
                                 status: "Paid - Pending Driver Assignment",
                                 createdAt: new Date()
                             });
+
+                            // Send automated confirmation SMS to the customer
+                            await sendSmsNotification(
+                                phone,
+                                `KP Logistics: Booking confirmed! Your transport from ${pickup} to ${dropoff} is paid. A verified driver will be assigned shortly.`
+                            );
+
                             alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${response.reference}\nYour trip has been paid and dispatched to available drivers in ${zone}.`);
                             bookingForm.reset();
                         } catch (error) {
