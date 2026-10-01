@@ -279,6 +279,37 @@
     <!-- Firebase Connection Script -->
     <script type="module" src="app.js"></script>
     <script>
+        // SMS Function implementation
+        async function sendSmsNotification(recipientNumber, messageText) {
+            const apiEndpoint = "https://www.smsmessenger.co.za/api/v1/send";
+            
+            let formattedNumber = recipientNumber.trim();
+            if (formattedNumber.startsWith("0")) {
+                formattedNumber = "27" + formattedNumber.slice(1);
+            }
+
+            const payload = {
+                email: "mphomahlaba@kplogistics.online",
+                token: "43831b78-8961-49ca-ad17-534f2ec2cd99",
+                to: formattedNumber,
+                message: messageText
+            };
+
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                console.log("SMS sent successfully:", result);
+                return true;
+            } catch (error) {
+                console.error("Failed to send SMS:", error);
+                return false;
+            }
+        }
+
         // PWA Install Prompt Handler
         let deferredPrompt;
         const installBtn = document.getElementById('installAppBtn');
@@ -322,14 +353,28 @@
             return phoneRegex.test(phoneValue);
         }
 
-        // Intercept main booking form submission to validate 10-digit phone
-        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        // Intercept main booking form submission to validate phone & trigger SMS
+        document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Temporarily hold default submission if you process bookings here
+            
             const phoneInput = document.getElementById('phone').value.trim();
+            const pickupLoc = document.getElementById('pickup').value;
+            const dropoffLoc = document.getElementById('dropoff').value;
+
             if (!validatePhone(phoneInput)) {
-                e.preventDefault();
                 alert("Please enter a valid 10-digit South African mobile number starting with 0 (e.g., 0821234567).");
                 document.getElementById('phone').focus();
+                return;
             }
+
+            // Fire SMS notification upon successful form submission
+            await sendSmsNotification(
+                phoneInput,
+                `KP Logistics: Booking confirmed! Your transport from ${pickupLoc} to ${dropoffLoc} has been logged. A verified driver will be assigned shortly.`
+            );
+            
+            // NOTE: Add logic here to submit to Firebase / App.js if handled manually
+            // Example: dispatchBookingToFirebase();
         });
 
         // Dynamic WhatsApp Reseller Dispatch Builder
