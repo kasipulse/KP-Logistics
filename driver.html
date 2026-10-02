@@ -146,6 +146,37 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // Global SMS Helper Function
+        async function sendSmsNotification(recipientNumber, messageText) {
+            const apiEndpoint = "https://www.smsmessenger.co.za/api/v1/send";
+            
+            let formattedNumber = recipientNumber.trim();
+            if (formattedNumber.startsWith("0")) {
+                formattedNumber = "27" + formattedNumber.slice(1);
+            }
+
+            const payload = {
+                email: "mphomahlaba@kplogistics.online",
+                token: "43831b78-8961-49ca-ad17-534f2ec2cd99",
+                to: formattedNumber,
+                message: messageText
+            };
+
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                console.log("SMS sent successfully:", result);
+                return true;
+            } catch (error) {
+                console.error("Failed to send SMS:", error);
+                return false;
+            }
+        }
+
         let deferredPrompt;
         const installBtn = document.getElementById('installAppBtn');
         installBtn.classList.remove('hidden');
@@ -190,6 +221,7 @@
             
             const phone = document.getElementById('driverPhone').value.trim();
             const pin = document.getElementById('driverPin').value.trim();
+            const driverName = document.getElementById('driverName').value.trim();
 
             if (!validatePhone(phone)) {
                 alert("Please enter a valid 10-digit South African mobile number starting with 0.");
@@ -199,7 +231,7 @@
 
             try {
                 await addDoc(collection(db, "drivers"), {
-                    name: document.getElementById('driverName').value,
+                    name: driverName,
                     email: document.getElementById('driverEmail').value,
                     vehicleModel: document.getElementById('vehicleModel').value,
                     vehicleType: document.getElementById('regVehicleType').value,
@@ -212,6 +244,12 @@
                     createdAt: new Date()
                 });
                 
+                // Send SMS confirmation to the newly registered driver
+                await sendSmsNotification(
+                    phone,
+                    `KP Logistics: Welcome ${driverName}! Your vehicle registration is successful. Use your mobile number and PIN to log into the Driver Portal.`
+                );
+
                 alert("Registration successful! Welcome to the KP Logistics Driver Network.");
                 window.location.href = "driver-portal.html";
             } catch (error) {
