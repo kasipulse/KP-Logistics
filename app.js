@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // Your web app's Firebase configuration for KP-Logistics
 const firebaseConfig = {
@@ -17,37 +17,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Global SMS Helper Function
-async function sendSmsNotification(recipientNumber, messageText) {
-    const apiEndpoint = "https://www.smsmessenger.co.za/api/v1/send";
-    
-    let formattedNumber = recipientNumber.trim();
-    if (formattedNumber.startsWith("0")) {
-        formattedNumber = "27" + formattedNumber.slice(1);
-    }
-
-    const payload = {
-        email: "mphomahlaba@kplogistics.online",
-        token: "43831b78-8961-49ca-ad17-534f2ec2cd99",
-        to: formattedNumber,
-        message: messageText
-    };
-
-    try {
-        const response = await fetch(apiEndpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-        const result = await response.json();
-        console.log("SMS sent successfully:", result);
-        return true;
-    } catch (error) {
-        console.error("Failed to send SMS:", error);
-        return false;
-    }
-}
-
 // Handle Customer Booking (for index.html) with Paystack Gateway
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
@@ -60,15 +29,12 @@ if (bookingForm) {
         const vehicleType = document.getElementById('vehicleType').value;
         const phone = document.getElementById('phone').value;
         
-        // Generate a clean customer email using the phone number for Paystack
         const customerEmail = `client_${phone.replace(/\s+/g, '')}@kp-logistics.site`;
         
-        // Get selected assistant quantity from numeric input (R200 each)
         const assistantInput = document.getElementById('assistantCount');
         const assistantCount = assistantInput ? parseInt(assistantInput.value) || 0 : 0;
         const loaderFee = assistantCount * 200;
 
-        // Automated Pricing Calculation Parameters
         const estimatedDistanceKm = 15; 
         const currentFuelPriceZAR = 23.50; 
         
@@ -98,7 +64,6 @@ if (bookingForm) {
         const finalCalculatedFare = Math.round(subtotal + commission);
         const amountInCents = finalCalculatedFare * 100;
 
-        // Initialize Paystack Popup Checkout for Customer Trip
         try {
             let handler = PaystackPop.setup({
                 key: 'pk_test_6290ff57c3a32a8e42de333bcba740801e72774c', 
@@ -132,12 +97,6 @@ if (bookingForm) {
                                 status: "Paid - Pending Driver Assignment",
                                 createdAt: new Date()
                             });
-
-                            // Send automated confirmation SMS to the customer
-                            await sendSmsNotification(
-                                phone,
-                                `KP Logistics: Booking confirmed! Your transport from ${pickup} to ${dropoff} is paid. A verified driver will be assigned shortly.`
-                            );
 
                             alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${response.reference}\nYour trip has been paid and dispatched to available drivers in ${zone}.`);
                             bookingForm.reset();
