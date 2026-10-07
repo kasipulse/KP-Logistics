@@ -17,6 +17,31 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// Helper function to trigger SMS notification via the gateway REST API
+async function triggerSmsNotification(customerPhone, fare, refCode) {
+  const apiToken = '43831b78-8961-49ca-ad17-534f2ec2cd99'; // Your REST API token
+  const messageBody = `KP-Logistics: Booking confirmed! Ref: ${refCode}. Amount paid: R${fare}. Your driver is being assigned.`;
+
+  try {
+    const res = await fetch('https://smsmessenger.co.za/api/v1/sms/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiToken}`
+      },
+      body: JSON.stringify({
+        to: customerPhone,
+        text: messageBody
+      })
+    });
+
+    const data = await res.json();
+    console.log('SMS Gateway Response:', data);
+  } catch (err) {
+    console.error('SMS trigger failed (check CORS or network):', err);
+  }
+}
+
 // Handle Customer Booking (for index.html) with Paystack Gateway
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
@@ -84,6 +109,7 @@ if (bookingForm) {
                 callback: function(response) {
                     (async () => {
                         try {
+                            // 1. Save booking to Firestore database
                             await addDoc(collection(db, "bookings"), {
                                 pickup: pickup,
                                 dropoff: dropoff,
@@ -97,6 +123,9 @@ if (bookingForm) {
                                 status: "Paid - Pending Driver Assignment",
                                 createdAt: new Date()
                             });
+
+                            // 2. Automatically dispatch SMS to the customer's phone
+                            await triggerSmsNotification(phone, finalCalculatedFare, response.reference);
 
                             alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${response.reference}\nYour trip has been paid and dispatched to available drivers in ${zone}.`);
                             bookingForm.reset();
