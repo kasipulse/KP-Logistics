@@ -29,7 +29,8 @@ function triggerSmsNotification(customerPhone, fare, refCode) {
         formattedPhone = '27' + formattedPhone.slice(1);
     }
 
-    const targetUrl = `${baseUrl}?to=${formattedPhone}&message=${messageText}`;
+    // Updated parameter name to 'recipientNumber' as required by the SMS gateway API
+    const targetUrl = `${baseUrl}?recipientNumber=${formattedPhone}&message=${messageText}`;
 
     // Use an invisible image request to trigger the URL safely without CORS blocking
     const img = new Image();
