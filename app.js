@@ -17,11 +17,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Helper function to trigger SMS notification via URL sending (bypasses CORS completely)
-function triggerSmsNotification(customerPhone, fare, refCode) {
+// Helper function to trigger SMS notification with full trip details
+function triggerSmsNotification(customerPhone, pickup, dropoff, vehicleType, fare, refCode) {
     const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
     
-    const messageText = encodeURIComponent(`KP-Logistics: Booking confirmed! Ref: ${refCode}. Amount paid: R${fare}. Your driver is being assigned.`);
+    // Structured trip summary message within safe SMS length limits
+    const messageContent = `KP-Logistics: Paid! Ref: ${refCode}. From: ${pickup} To: ${dropoff} (${vehicleType}). Fare: R${fare}. Driver assigned shortly.`;
+    const messageText = encodeURIComponent(messageContent);
     
     // Clean phone number format for South Africa (e.g., converting 082... to 2782...)
     let formattedPhone = customerPhone.replace(/\s+/g, '').replace('+', '');
@@ -29,13 +31,13 @@ function triggerSmsNotification(customerPhone, fare, refCode) {
         formattedPhone = '27' + formattedPhone.slice(1);
     }
 
-    // Updated parameter name to 'recipientNumber' as required by the SMS gateway API
+    // Target URL using 'recipientNumber' parameter as required by the SMS gateway API
     const targetUrl = `${baseUrl}?recipientNumber=${formattedPhone}&message=${messageText}`;
 
     // Use an invisible image request to trigger the URL safely without CORS blocking
     const img = new Image();
     img.src = targetUrl;
-    console.log('SMS URL trigger dispatched.');
+    console.log('Detailed customer SMS URL trigger dispatched.');
 }
 
 // Handle Customer Booking (for index.html) with Paystack Gateway
@@ -120,8 +122,8 @@ if (bookingForm) {
                                 createdAt: new Date()
                             });
 
-                            // 2. Automatically dispatch SMS via URL trigger
-                            triggerSmsNotification(phone, finalCalculatedFare, response.reference);
+                            // 2. Automatically dispatch structured SMS via URL trigger
+                            triggerSmsNotification(phone, pickup, dropoff, vehicleType, finalCalculatedFare, response.reference);
 
                             alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${response.reference}\nYour trip has been paid and dispatched to available drivers in ${zone}.`);
                             bookingForm.reset();
