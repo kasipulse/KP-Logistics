@@ -17,29 +17,24 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Helper function to trigger SMS notification via the gateway REST API
-async function triggerSmsNotification(customerPhone, fare, refCode) {
-  const apiToken = '43831b78-8961-49ca-ad17-534f2ec2cd99'; // Your REST API token
-  const messageBody = `KP-Logistics: Booking confirmed! Ref: ${refCode}. Amount paid: R${fare}. Your driver is being assigned.`;
+// Helper function to trigger SMS notification via URL sending (bypasses CORS completely)
+function triggerSmsNotification(customerPhone, fare, refCode) {
+    const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
+    
+    const messageText = encodeURIComponent(`KP-Logistics: Booking confirmed! Ref: ${refCode}. Amount paid: R${fare}. Your driver is being assigned.`);
+    
+    // Clean phone number format for South Africa (e.g., converting 082... to 2782...)
+    let formattedPhone = customerPhone.replace(/\s+/g, '').replace('+', '');
+    if (formattedPhone.startsWith('0')) {
+        formattedPhone = '27' + formattedPhone.slice(1);
+    }
 
-  try {
-    const res = await fetch('https://smsmessenger.co.za/api/v1/sms/send', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiToken}`
-      },
-      body: JSON.stringify({
-        to: customerPhone,
-        text: messageBody
-      })
-    });
+    const targetUrl = `${baseUrl}?to=${formattedPhone}&message=${messageText}`;
 
-    const data = await res.json();
-    console.log('SMS Gateway Response:', data);
-  } catch (err) {
-    console.error('SMS trigger failed (check CORS or network):', err);
-  }
+    // Use an invisible image request to trigger the URL safely without CORS blocking
+    const img = new Image();
+    img.src = targetUrl;
+    console.log('SMS URL trigger dispatched.');
 }
 
 // Handle Customer Booking (for index.html) with Paystack Gateway
@@ -124,8 +119,8 @@ if (bookingForm) {
                                 createdAt: new Date()
                             });
 
-                            // 2. Automatically dispatch SMS to the customer's phone
-                            await triggerSmsNotification(phone, finalCalculatedFare, response.reference);
+                            // 2. Automatically dispatch SMS via URL trigger
+                            triggerSmsNotification(phone, finalCalculatedFare, response.reference);
 
                             alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${response.reference}\nYour trip has been paid and dispatched to available drivers in ${zone}.`);
                             bookingForm.reset();
