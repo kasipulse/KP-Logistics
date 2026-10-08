@@ -17,27 +17,44 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Helper function to trigger SMS notification with full trip details
-function triggerSmsNotification(customerPhone, pickup, dropoff, vehicleType, fare, refCode) {
+// SINGLE DRIVER CONFIGURATION (Update this to your driver's actual phone number)
+const ACTIVE_DRIVER_PHONE = "0658177124"; 
+
+// 1. Helper function to trigger SMS notification for the Customer
+function triggerCustomerSms(customerPhone, pickup, dropoff, vehicleType, fare, refCode) {
     const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
     
-    // Structured trip summary message within safe SMS length limits
     const messageContent = `KP-Logistics: Paid! Ref: ${refCode}. From: ${pickup} To: ${dropoff} (${vehicleType}). Fare: R${fare}. Driver assigned shortly.`;
     const messageText = encodeURIComponent(messageContent);
     
-    // Clean phone number format for South Africa (e.g., converting 082... to 2782...)
     let formattedPhone = customerPhone.replace(/\s+/g, '').replace('+', '');
     if (formattedPhone.startsWith('0')) {
         formattedPhone = '27' + formattedPhone.slice(1);
     }
 
-    // Target URL using 'recipientNumber' parameter as required by the SMS gateway API
     const targetUrl = `${baseUrl}?recipientNumber=${formattedPhone}&message=${messageText}`;
-
-    // Use an invisible image request to trigger the URL safely without CORS blocking
     const img = new Image();
     img.src = targetUrl;
-    console.log('Detailed customer SMS URL trigger dispatched.');
+    console.log('Customer SMS URL trigger dispatched.');
+}
+
+// 2. Helper function to trigger SMS notification for the Driver
+function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants, clientPhone, fare, refCode) {
+    const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
+    
+    // Concise load sheet message for the driver
+    const messageContent = `NEW LOAD! Ref:${refCode}. From:${pickup} To:${dropoff} (${vehicleType}, Helpers:${assistants}). Client:${clientPhone}. Fare:R${fare}`;
+    const messageText = encodeURIComponent(messageContent);
+    
+    let formattedPhone = driverPhone.replace(/\s+/g, '').replace('+', '');
+    if (formattedPhone.startsWith('0')) {
+        formattedPhone = '27' + formattedPhone.slice(1);
+    }
+
+    const targetUrl = `${baseUrl}?recipientNumber=${formattedPhone}&message=${messageText}`;
+    const img = new Image();
+    img.src = targetUrl;
+    console.log('Driver SMS URL trigger dispatched.');
 }
 
 // Handle Customer Booking (for index.html) with Paystack Gateway
@@ -118,14 +135,17 @@ if (bookingForm) {
                                 assistantFeeTotal: `R ${loaderFee}.00`,
                                 estimatedFare: `R ${finalCalculatedFare}.00`,
                                 paymentReference: response.reference,
-                                status: "Paid - Pending Driver Assignment",
+                                status: "Paid - Assigned to Driver",
                                 createdAt: new Date()
                             });
 
-                            // 2. Automatically dispatch structured SMS via URL trigger
-                            triggerSmsNotification(phone, pickup, dropoff, vehicleType, finalCalculatedFare, response.reference);
+                            // 2. Automatically dispatch customer confirmation SMS
+                            triggerCustomerSms(phone, pickup, dropoff, vehicleType, finalCalculatedFare, response.reference);
 
-                            alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${response.reference}\nYour trip has been paid and dispatched to available drivers in ${zone}.`);
+                            // 3. Automatically dispatch load details SMS to the single active driver
+                            triggerDriverSms(ACTIVE_DRIVER_PHONE, pickup, dropoff, vehicleType, assistantCount, phone, finalCalculatedFare, response.reference);
+
+                            alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${response.reference}\nTrip successfully paid and dispatched to the driver.`);
                             bookingForm.reset();
                         } catch (error) {
                             console.error("Error saving paid booking: ", error);
