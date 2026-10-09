@@ -17,13 +17,116 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// SINGLE DRIVER CONFIGURATION (Update this to your driver's actual phone number)
+// SINGLE DRIVER CONFIGURATION
 const ACTIVE_DRIVER_PHONE = "0658177124"; 
+
+// Current South African market fuel benchmark rates (Protected margins)
+const CURRENT_FUEL_PRICES = {
+    petrol: 30.28,
+    diesel: 33.29
+};
+
+// Global distance tracker (defaults to 15km if map lookup hasn't run yet)
+let calculatedDistanceKm = 15;
+
+// Function to calculate exact route distance via Google Maps Distance Matrix
+window.calculateRouteDistance = function() {
+    const pickup = document.getElementById('pickup').value;
+    const dropoff = document.getElementById('dropoff').value;
+
+    if (!pickup || !dropoff) {
+        updateEstimateDisplay();
+        return;
+    }
+
+    if (typeof google === 'undefined' || !google.maps || !google.maps.DistanceMatrixService) {
+        updateEstimateDisplay();
+        return;
+    }
+
+    const service = new google.maps.DistanceMatrixService();
+    service.getDistanceMatrix({
+        origins: [pickup],
+        destinations: [dropoff],
+        travelMode: 'DRIVING',
+        unitSystem: google.maps.UnitSystem.METRIC,
+        region: 'za'
+    }, (response, status) => {
+        if (status === 'OK') {
+            const results = response.rows[0]?.elements[0];
+            if (results && results.status === 'OK') {
+                calculatedDistanceKm = results.distance.value / 1000; // Meters to KM
+            }
+        }
+        updateEstimateDisplay();
+    });
+};
+
+// Centralized Fare Calculation Engine (Guarantees UI and Paystack match 100%)
+function calculateFinalFare() {
+    const vehicleTypeEl = document.getElementById('vehicleType');
+    const assistantCountEl = document.getElementById('assistantCount');
+
+    const vehicleType = vehicleTypeEl ? vehicleTypeEl.value : 'bakkie';
+    const assistantCount = assistantCountEl ? parseInt(assistantCountEl.value) || 0 : 0;
+    const loaderFee = assistantCount * 200;
+
+    const basePrices = {
+        bakkie: 350,
+        closedbakkie: 400,
+        panelvan: 520,
+        medtruck: 890,
+        "8ton": 2200,
+        "8tonside": 2500,
+        flatbed: 3000,
+        towtruck: 1800
+    };
+    const baseFee = basePrices[vehicleType] || 350;
+
+    const consumptionRates = {
+        petrol: { bakkie: 0.11, closedbakkie: 0.12, panelvan: 0.13, medtruck: 0.21, "8ton": 0.35, "8tonside": 0.38, flatbed: 0.42, towtruck: 0.30 },
+        diesel: { bakkie: 0.08, closedbakkie: 0.09, panelvan: 0.10, medtruck: 0.16, "8ton": 0.35, "8tonside": 0.38, flatbed: 0.42, towtruck: 0.30 }
+    };
+
+    const fuelType = ['8ton', '8tonside', 'flatbed', 'towtruck'].includes(vehicleType) ? 'diesel' : 'petrol';
+    const rate = consumptionRates[fuelType][vehicleType] || 0.11;
+    const activeFuelPrice = CURRENT_FUEL_PRICES[fuelType];
+
+    const estimatedFuelCost = calculatedDistanceKm * rate * activeFuelPrice;
+    const subtotal = baseFee + estimatedFuelCost + loaderFee;
+    const commission = subtotal * 0.12;
+
+    return Math.round(subtotal + commission);
+}
+
+// Updates the price estimate tag on the UI dynamically
+function updateEstimateDisplay() {
+    const priceEstimateEl = document.getElementById('priceEstimate');
+    if (!priceEstimateEl) return;
+
+    const finalFare = calculateFinalFare();
+    priceEstimateEl.innerText = `R ${finalFare}.00`;
+}
+
+// Bind live listeners on DOM load
+document.addEventListener('DOMContentLoaded', () => {
+    const dropoffInput = document.getElementById('dropoff');
+    const pickupInput = document.getElementById('pickup');
+    const vehicleTypeSelect = document.getElementById('vehicleType');
+    const assistantCountInput = document.getElementById('assistantCount');
+
+    if (dropoffInput) dropoffInput.addEventListener('blur', window.calculateRouteDistance);
+    if (pickupInput) pickupInput.addEventListener('blur', window.calculateRouteDistance);
+    if (vehicleTypeSelect) vehicleTypeSelect.addEventListener('change', updateEstimateDisplay);
+    if (assistantCountInput) {
+        assistantCountInput.addEventListener('input', updateEstimateDisplay);
+        assistantCountInput.addEventListener('change', updateEstimateDisplay);
+    }
+});
 
 // 1. Helper function to trigger SMS notification for the Customer
 function triggerCustomerSms(customerPhone, pickup, dropoff, vehicleType, fare, refCode) {
     const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
-    
     const messageContent = `KP-Logistics: Paid! Ref: ${refCode}. From: ${pickup} To: ${dropoff} (${vehicleType}). Fare: R${fare}. Driver assigned shortly.`;
     const messageText = encodeURIComponent(messageContent);
     
@@ -41,8 +144,6 @@ function triggerCustomerSms(customerPhone, pickup, dropoff, vehicleType, fare, r
 // 2. Helper function to trigger SMS notification for the Driver
 function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants, clientPhone, fare, refCode) {
     const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
-    
-    // Concise load sheet message for the driver
     const messageContent = `NEW LOAD! Ref:${refCode}. From:${pickup} To:${dropoff} (${vehicleType}, Helpers:${assistants}). Client:${clientPhone}. Fare:R${fare}`;
     const messageText = encodeURIComponent(messageContent);
     
@@ -75,33 +176,8 @@ if (bookingForm) {
         const assistantCount = assistantInput ? parseInt(assistantInput.value) || 0 : 0;
         const loaderFee = assistantCount * 200;
 
-        const estimatedDistanceKm = 15; 
-        const currentFuelPriceZAR = 23.50; 
-        
-        const basePrices = {
-            bakkie: 350,
-            closedbakkie: 400,
-            panelvan: 520,
-            medtruck: 890,
-            "8ton": 2200,
-            "8tonside": 2500,
-            flatbed: 3000,
-            towtruck: 1800
-        };
-        const baseFee = basePrices[vehicleType] || 350;
-
-        const consumptionRates = {
-            petrol: { bakkie: 0.11, closedbakkie: 0.12, panelvan: 0.13, medtruck: 0.21, "8ton": 0.35, "8tonside": 0.38, flatbed: 0.42, towtruck: 0.30 },
-            diesel: { bakkie: 0.08, closedbakkie: 0.09, panelvan: 0.10, medtruck: 0.16, "8ton": 0.35, "8tonside": 0.38, flatbed: 0.42, towtruck: 0.30 }
-        };
-
-        const assumedFuel = ['8ton', '8tonside', 'flatbed', 'towtruck'].includes(vehicleType) ? 'diesel' : 'petrol';
-        const rate = consumptionRates[assumedFuel]?.[vehicleType] || 0.11;
-        
-        const estimatedFuelCost = estimatedDistanceKm * rate * currentFuelPriceZAR;
-        const subtotal = baseFee + estimatedFuelCost + loaderFee;
-        const commission = subtotal * 0.12;
-        const finalCalculatedFare = Math.round(subtotal + commission);
+        // Use the centralized calculation so Paystack matches the screen exactly
+        const finalCalculatedFare = calculateFinalFare();
         const amountInCents = finalCalculatedFare * 100;
 
         try {
@@ -118,7 +194,8 @@ if (bookingForm) {
                         { display_name: "Operating Zone", variable_name: "zone", value: zone },
                         { display_name: "Vehicle Category", variable_name: "vehicle_type", value: vehicleType },
                         { display_name: "Assistants", variable_name: "assistants", value: assistantCount },
-                        { display_name: "Contact Phone", variable_name: "phone", value: phone }
+                        { display_name: "Contact Phone", variable_name: "phone", value: phone },
+                        { display_name: "Calculated Distance", variable_name: "distance_km", value: `${calculatedDistanceKm.toFixed(1)} km` }
                     ]
                 },
                 callback: function(response) {
@@ -133,6 +210,7 @@ if (bookingForm) {
                                 phone: phone,
                                 assistantsRequested: assistantCount,
                                 assistantFeeTotal: `R ${loaderFee}.00`,
+                                estimatedDistanceKm: `${calculatedDistanceKm.toFixed(1)} km`,
                                 estimatedFare: `R ${finalCalculatedFare}.00`,
                                 paymentReference: response.reference,
                                 status: "Paid - Assigned to Driver",
