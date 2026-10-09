@@ -9,11 +9,49 @@ const googleProvider = new GoogleAuthProvider();
 
 let currentUser = null;
 
-// Handle redirect result when user returns from Google login page on mobile
+// Helper to save form state before redirect
+function saveFormState() {
+    const formData = {
+        pickup: document.getElementById('pickup')?.value || '',
+        dropoff: document.getElementById('dropoff')?.value || '',
+        zone: document.getElementById('bookingZone')?.value || 'East Rand',
+        vehicleType: document.getElementById('vehicleType')?.value || 'bakkie',
+        phone: document.getElementById('phone')?.value || '',
+        assistantCount: document.getElementById('assistantCount')?.value || '0'
+    };
+    localStorage.setItem('pending_booking', JSON.stringify(formData));
+}
+
+// Helper to restore form state after redirect and auto-trigger checkout if returning from login
+function restoreFormState() {
+    const saved = localStorage.getItem('pending_booking');
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            if (document.getElementById('pickup')) document.getElementById('pickup').value = data.pickup;
+            if (document.getElementById('dropoff')) document.getElementById('dropoff').value = data.dropoff;
+            if (document.getElementById('bookingZone')) document.getElementById('bookingZone').value = data.zone;
+            if (document.getElementById('vehicleType')) document.getElementById('vehicleType').value = data.vehicleType;
+            if (document.getElementById('phone')) document.getElementById('phone').value = data.phone;
+            if (document.getElementById('assistantCount')) document.getElementById('assistantCount').value = data.assistantCount;
+            
+            // Recalculate distance and price estimate with restored values
+            if (typeof window.calculateRouteDistance === 'function') {
+                window.calculateRouteDistance();
+            }
+        } catch (e) {
+            console.error("Error restoring form state:", e);
+        }
+        localStorage.removeItem('pending_booking');
+    }
+}
+
+// Handle redirect result when user returns from Google login page on mobile/Safari
 getRedirectResult(auth).then((result) => {
     if (result && result.user) {
         currentUser = result.user;
         console.log("Successfully logged in via redirect:", currentUser.email);
+        restoreFormState();
     }
 }).catch((error) => {
     console.error("Redirect sign-in error:", error);
@@ -28,6 +66,8 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         if (banner) banner.style.display = 'flex';
         if (emailDisplay) emailDisplay.innerText = `Signed in as: ${user.email}`;
+        // If user just logged in and we have saved state, restore it
+        restoreFormState();
     } else {
         if (banner) banner.style.display = 'none';
     }
@@ -170,9 +210,10 @@ if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // CHECKPOINT: If user is not logged in, redirect to Google Sign-In safely for mobile
+        // CHECKPOINT: If user is not logged in, save form data and redirect to Google Sign-In safely for Safari/mobile
         if (!currentUser) {
-            alert("Please sign in with your Google account to complete your booking.");
+            saveFormState();
+            alert("Please sign in with your Google account to complete your booking. We've saved your trip details!");
             try {
                 await signInWithRedirect(auth, googleProvider);
             } catch (authError) {
