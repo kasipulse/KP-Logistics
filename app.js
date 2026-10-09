@@ -1,81 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
-
-let currentUser = null;
-
-// Helper to save form state before redirect
-function saveFormState() {
-    const formData = {
-        pickup: document.getElementById('pickup')?.value || '',
-        dropoff: document.getElementById('dropoff')?.value || '',
-        zone: document.getElementById('bookingZone')?.value || 'East Rand',
-        vehicleType: document.getElementById('vehicleType')?.value || 'bakkie',
-        phone: document.getElementById('phone')?.value || '',
-        assistantCount: document.getElementById('assistantCount')?.value || '0'
-    };
-    localStorage.setItem('pending_booking', JSON.stringify(formData));
-}
-
-// Helper to restore form state after redirect and auto-trigger checkout if returning from login
-function restoreFormState() {
-    const saved = localStorage.getItem('pending_booking');
-    if (saved) {
-        try {
-            const data = JSON.parse(saved);
-            if (document.getElementById('pickup')) document.getElementById('pickup').value = data.pickup;
-            if (document.getElementById('dropoff')) document.getElementById('dropoff').value = data.dropoff;
-            if (document.getElementById('bookingZone')) document.getElementById('bookingZone').value = data.zone;
-            if (document.getElementById('vehicleType')) document.getElementById('vehicleType').value = data.vehicleType;
-            if (document.getElementById('phone')) document.getElementById('phone').value = data.phone;
-            if (document.getElementById('assistantCount')) document.getElementById('assistantCount').value = data.assistantCount;
-            
-            // Recalculate distance and price estimate with restored values
-            if (typeof window.calculateRouteDistance === 'function') {
-                window.calculateRouteDistance();
-            }
-        } catch (e) {
-            console.error("Error restoring form state:", e);
-        }
-        localStorage.removeItem('pending_booking');
-    }
-}
-
-// Handle redirect result when user returns from Google login page on mobile/Safari
-getRedirectResult(auth).then((result) => {
-    if (result && result.user) {
-        currentUser = result.user;
-        console.log("Successfully logged in via redirect:", currentUser.email);
-        restoreFormState();
-    }
-}).catch((error) => {
-    console.error("Redirect sign-in error:", error);
-});
-
-// Track Auth State for UI Banner
-onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    const banner = document.getElementById('userSessionBanner');
-    const emailDisplay = document.getElementById('userEmailDisplay');
-
-    if (user) {
-        if (banner) banner.style.display = 'flex';
-        if (emailDisplay) emailDisplay.innerText = `Signed in as: ${user.email}`;
-        // If user just logged in and we have saved state, restore it
-        restoreFormState();
-    } else {
-        if (banner) banner.style.display = 'none';
-    }
-});
-
-window.logoutUser = async function() {
-    await signOut(auth);
-};
 
 const ACTIVE_DRIVER_PHONE = "0658177124"; 
 
@@ -177,7 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function triggerCustomerSms(customerPhone, pickup, dropoff, vehicleType, fare, refCode) {
+// Robust Fetch-based SMS Dispatch Functions
+async function triggerCustomerSms(customerPhone, pickup, dropoff, vehicleType, fare, refCode) {
     const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
     const messageContent = `KP-Logistics: Paid! Ref: ${refCode}. From: ${pickup} To: ${dropoff} (${vehicleType}). Fare: R${fare}. Driver assigned shortly.`;
     const messageText = encodeURIComponent(messageContent);
@@ -187,11 +115,14 @@ function triggerCustomerSms(customerPhone, pickup, dropoff, vehicleType, fare, r
         formattedPhone = '27' + formattedPhone.slice(1);
     }
 
-    const img = new Image();
-    img.src = `${baseUrl}?recipientNumber=${formattedPhone}&message=${messageText}`;
+    try {
+        await fetch(`${baseUrl}?recipientNumber=${formattedPhone}&message=${messageText}`, { mode: 'no-cors' });
+    } catch (err) {
+        console.error("Customer SMS failed to send:", err);
+    }
 }
 
-function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants, clientPhone, fare, refCode) {
+async function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants, clientPhone, fare, refCode) {
     const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
     const messageContent = `NEW LOAD! Ref:${refCode}. From:${pickup} To:${dropoff} (${vehicleType}, Helpers:${assistants}). Client:${clientPhone}. Fare:R${fare}`;
     const messageText = encodeURIComponent(messageContent);
@@ -201,8 +132,11 @@ function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants,
         formattedPhone = '27' + formattedPhone.slice(1);
     }
 
-    const img = new Image();
-    img.src = `${baseUrl}?recipientNumber=${formattedPhone}&message=${messageText}`;
+    try {
+        await fetch(`${baseUrl}?recipientNumber=${formattedPhone}&message=${messageText}`, { mode: 'no-cors' });
+    } catch (err) {
+        console.error("Driver SMS failed to send:", err);
+    }
 }
 
 const bookingForm = document.getElementById('bookingForm');
@@ -210,25 +144,13 @@ if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // CHECKPOINT: If user is not logged in, save form data and redirect to Google Sign-In safely for Safari/mobile
-        if (!currentUser) {
-            saveFormState();
-            alert("Please sign in with your Google account to complete your booking. We've saved your trip details!");
-            try {
-                await signInWithRedirect(auth, googleProvider);
-            } catch (authError) {
-                console.error("Redirect sign-in error:", authError);
-            }
-            return; 
-        }
-        
         const pickup = document.getElementById('pickup').value;
         const dropoff = document.getElementById('dropoff').value;
         const zone = document.getElementById('bookingZone') ? document.getElementById('bookingZone').value : "East Rand";
         const vehicleType = document.getElementById('vehicleType').value;
         const phone = document.getElementById('phone').value;
         
-        const customerEmail = currentUser.email || `client_${phone.replace(/\s+/g, '')}@kp-logistics.site`;
+        const customerEmail = `client_${phone.replace(/\s+/g, '')}@kp-logistics.site`;
         
         const assistantInput = document.getElementById('assistantCount');
         const assistantCount = assistantInput ? parseInt(assistantInput.value) || 0 : 0;
@@ -253,7 +175,6 @@ if (bookingForm) {
                         { display_name: "Vehicle Category", variable_name: "vehicle_type", value: vehicleType },
                         { display_name: "Assistants", variable_name: "assistants", value: assistantCount },
                         { display_name: "Contact Phone", variable_name: "phone", value: phone },
-                        { display_name: "Google Account", variable_name: "google_user", value: currentUser.email },
                         { display_name: "Distance (KM)", variable_name: "distance_km", value: calculatedDistanceKm.toFixed(1) }
                     ]
                 },
@@ -266,7 +187,7 @@ if (bookingForm) {
                                 zone: zone,
                                 vehicleType: vehicleType,
                                 phone: phone,
-                                customerEmail: currentUser.email,
+                                customerEmail: customerEmail,
                                 assistantsRequested: assistantCount,
                                 assistantFeeTotal: `R ${loaderFee}.00`,
                                 estimatedDistanceKm: `${calculatedDistanceKm.toFixed(1)} km`,
@@ -276,8 +197,8 @@ if (bookingForm) {
                                 createdAt: new Date()
                             });
 
-                            triggerCustomerSms(phone, pickup, dropoff, vehicleType, finalCalculatedFare, response.reference);
-                            triggerDriverSms(ACTIVE_DRIVER_PHONE, pickup, dropoff, vehicleType, assistantCount, phone, finalCalculatedFare, response.reference);
+                            await triggerCustomerSms(phone, pickup, dropoff, vehicleType, finalCalculatedFare, response.reference);
+                            await triggerDriverSms(ACTIVE_DRIVER_PHONE, pickup, dropoff, vehicleType, assistantCount, phone, finalCalculatedFare, response.reference);
 
                             alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${response.reference}\nTrip successfully paid and dispatched to the driver.`);
                             bookingForm.reset();
