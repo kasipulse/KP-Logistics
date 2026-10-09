@@ -80,84 +80,113 @@
             </div>
         </div>
 
-        <!-- Right Booking Widget Card -->
+        <!-- Right Booking Widget Card with Auth Protection -->
         <div class="lg:col-span-6">
             <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 relative overflow-hidden">
                 <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500"></div>
-                <h3 class="text-xl font-bold text-slate-900 mb-6 flex items-center justify-between">
-                    <span>Book Your Transport</span>
-                    <i class="fa-solid fa-truck-fast text-orange-600"></i>
-                </h3>
 
-                <form id="bookingForm" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Pickup Address</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-orange-600"><i class="fa-solid fa-location-dot"></i></span>
-                            <input type="text" id="pickup" required class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm" placeholder="e.g., 12 Mokone Street, Benoni">
-                        </div>
+                <!-- Auth Section: Shown only when logged out -->
+                <div id="authContainer" class="text-center py-10 space-y-4">
+                    <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
+                        <i class="fa-solid fa-lock"></i>
                     </div>
+                    <h3 class="text-xl font-bold text-slate-900">Sign In to Book</h3>
+                    <p class="text-sm text-slate-500 max-w-sm mx-auto">
+                        Please sign in with your Google account to access instant quotes and dispatch a vehicle.
+                    </p>
+                    <button onclick="loginWithGoogle()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-md flex items-center justify-center space-x-3">
+                        <i class="fa-brands fa-google text-lg"></i>
+                        <span>Sign in with Google</span>
+                    </button>
+                </div>
 
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Drop-off Address</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-flag-checkered"></i></span>
-                            <input type="text" id="dropoff" required class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm" placeholder="e.g., 45 Voortrekker Road, Germiston">
-                        </div>
-                    </div>
-
-                    <!-- Operating Region / Zone Selector -->
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Operating Region / Zone</label>
-                        <select id="bookingZone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
-                            <option value="East Rand">East Rand (Benoni, Springs, Boksburg, Kempton Park, Germiston)</option>
-                            <option value="Johannesburg">Johannesburg Central & Surrounds</option>
-                            <option value="Pretoria">Pretoria / Tshwane</option>
-                            <option value="West Rand">West Rand (Roodepoort, Krugersdorp, Randfontein)</option>
-                            <option value="Vaal">Vaal Triangle (Vereeniging, Vanderbijlpark)</option>
-                        </select>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Booking Form Section: Locked / Hidden until logged in -->
+                <div id="bookingFormContainer" style="display: none;" class="space-y-6">
+                    <div class="flex justify-between items-center pb-4 border-b border-slate-100">
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle Category</label>
-                            <select id="vehicleType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
-                                <option value="bakkie" selected>Light Bakkie (1-Ton)</option>
-                                <option value="closedbakkie">Canopy Bakkie (Protected)</option>
-                                <option value="panelvan">Panel Van</option>
-                                <option value="medtruck">Medium Truck (4-Ton)</option>
-                                <option value="8ton">8-Ton Heavy Truck (Box)</option>
-                                <option value="8tonside">8-Ton Open Side / Curtain</option>
-                                <option value="flatbed">Flatbed Truck (Machinery/Steel)</option>
-                                <option value="towtruck">Tow Truck / Breakdown Recovery</option>
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Authenticated Session</span>
+                            <span id="userEmailDisplay" class="text-xs font-bold text-slate-700"></span>
+                        </div>
+                        <button onclick="logoutUser()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                            Sign Out
+                        </button>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-slate-900 flex items-center justify-between">
+                        <span>Book Your Transport</span>
+                        <i class="fa-solid fa-truck-fast text-orange-600"></i>
+                    </h3>
+
+                    <form id="bookingForm" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Pickup Address</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-orange-600"><i class="fa-solid fa-location-dot"></i></span>
+                                <input type="text" id="pickup" required class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm" placeholder="e.g., 12 Mokone Street, Benoni">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Drop-off Address</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-flag-checkered"></i></span>
+                                <input type="text" id="dropoff" required class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm" placeholder="e.g., 45 Voortrekker Road, Germiston">
+                            </div>
+                        </div>
+
+                        <!-- Operating Region / Zone Selector -->
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Operating Region / Zone</label>
+                            <select id="bookingZone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
+                                <option value="East Rand">East Rand (Benoni, Springs, Boksburg, Kempton Park, Germiston)</option>
+                                <option value="Johannesburg">Johannesburg Central & Surrounds</option>
+                                <option value="Pretoria">Pretoria / Tshwane</option>
+                                <option value="West Rand">West Rand (Roodepoort, Krugersdorp, Randfontein)</option>
+                                <option value="Vaal">Vaal Triangle (Vereeniging, Vanderbijlpark)</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Phone Number (10 Digits)</label>
-                            <input type="tel" id="phone" required maxlength="10" placeholder="0821234567" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle Category</label>
+                                <select id="vehicleType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
+                                    <option value="bakkie" selected>Light Bakkie (1-Ton)</option>
+                                    <option value="closedbakkie">Canopy Bakkie (Protected)</option>
+                                    <option value="panelvan">Panel Van</option>
+                                    <option value="medtruck">Medium Truck (4-Ton)</option>
+                                    <option value="8ton">8-Ton Heavy Truck (Box)</option>
+                                    <option value="8tonside">8-Ton Open Side / Curtain</option>
+                                    <option value="flatbed">Flatbed Truck (Machinery/Steel)</option>
+                                    <option value="towtruck">Tow Truck / Breakdown Recovery</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Phone Number (10 Digits)</label>
+                                <input type="tel" id="phone" required maxlength="10" placeholder="0821234567" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Driver Assistants Numeric Input -->
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Driver Assistants / Loaders (R200 each)</label>
-                        <input type="number" id="assistantCount" min="0" max="10" value="0" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
-                    </div>
-
-                    <!-- Price Estimate Box -->
-                    <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-between">
+                        <!-- Driver Assistants Numeric Input -->
                         <div>
-                            <p class="text-xs text-orange-800 font-medium">Estimated Fare Quote</p>
-                            <p id="priceEstimate" class="text-2xl font-black text-orange-600">R 350.00</p>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Driver Assistants / Loaders (R200 each)</label>
+                            <input type="number" id="assistantCount" min="0" max="10" value="0" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
                         </div>
-                        <span class="text-[11px] text-slate-500 text-right">Includes base distance<br>& selected add-ons</span>
-                    </div>
 
-                    <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-orange-600/30 flex items-center justify-center space-x-2">
-                        <span>Dispatch Driver Now</span>
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </button>
-                </form>
+                        <!-- Price Estimate Box -->
+                        <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-orange-800 font-medium">Estimated Fare Quote</p>
+                                <p id="priceEstimate" class="text-2xl font-black text-orange-600">R 350.00</p>
+                            </div>
+                            <span class="text-[11px] text-slate-500 text-right">Includes base distance<br>& selected add-ons</span>
+                        </div>
+
+                        <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-orange-600/30 flex items-center justify-center space-x-2">
+                            <span>Dispatch Driver Now</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </main>
