@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -8,6 +8,16 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
 let currentUser = null;
+
+// Handle redirect result when user returns from Google login page on mobile
+getRedirectResult(auth).then((result) => {
+    if (result && result.user) {
+        currentUser = result.user;
+        console.log("Successfully logged in via redirect:", currentUser.email);
+    }
+}).catch((error) => {
+    console.error("Redirect sign-in error:", error);
+});
 
 // Track Auth State for UI Banner
 onAuthStateChanged(auth, (user) => {
@@ -160,16 +170,15 @@ if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // CHECKPOINT: If user is not logged in, force Google Sign-In popup before proceeding
+        // CHECKPOINT: If user is not logged in, redirect to Google Sign-In safely for mobile
         if (!currentUser) {
+            alert("Please sign in with your Google account to complete your booking.");
             try {
-                alert("Please sign in with your Google account to complete your booking.");
-                const result = await signInWithPopup(auth, googleProvider);
-                currentUser = result.user;
+                await signInWithRedirect(auth, googleProvider);
             } catch (authError) {
-                console.error("Sign-in cancelled or failed:", authError);
-                return; 
+                console.error("Redirect sign-in error:", authError);
             }
+            return; 
         }
         
         const pickup = document.getElementById('pickup').value;
