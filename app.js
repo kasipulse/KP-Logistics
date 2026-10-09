@@ -1,53 +1,175 @@
-// Import Auth functions alongside your existing Firestore imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// Initialize Firebase & Auth
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-// Global variable to track logged-in user
 let currentUser = null;
 
-// Handle Auth State Changes (UI Lock/Unlock)
+// Track Auth State for UI Banner
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
-    const authContainer = document.getElementById('authContainer');
-    const bookingFormContainer = document.getElementById('bookingFormContainer'); // Wrap your form in this ID in index.html
-    const userEmailDisplay = document.getElementById('userEmailDisplay');
+    const banner = document.getElementById('userSessionBanner');
+    const emailDisplay = document.getElementById('userEmailDisplay');
 
     if (user) {
-        // User is logged in: Show form, hide login button
-        if (authContainer) authContainer.style.display = 'none';
-        if (bookingFormContainer) bookingFormContainer.style.display = 'block';
-        if (userEmailDisplay) userEmailDisplay.innerText = `Logged in as: ${user.email}`;
-        
-        // Auto-fill phone field if available from Google account profile or previous sessions
-        const phoneInput = document.getElementById('phone');
-        if (phoneInput && !phoneInput.value && user.phoneNumber) {
-            phoneInput.value = user.phoneNumber;
-        }
+        if (banner) banner.style.display = 'flex';
+        if (emailDisplay) emailDisplay.innerText = `Signed in as: ${user.email}`;
     } else {
-        // User is logged out: Hide form, show Google login button
-        if (authContainer) authContainer.style.display = 'block';
-        if (bookingFormContainer) bookingFormContainer.style.display = 'none';
+        if (banner) banner.style.display = 'none';
     }
 });
 
-// Google Sign-In Trigger Function (Hook this to a "Sign in with Google" button in your HTML)
-window.loginWithGoogle = async function() {
-    try {
-        await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-        console.error("Google Auth Error:", error);
-        alert("Login failed. Please try again.");
-    }
-};
-
-// Logout Function (Optional: hook to a Logout button)
 window.logoutUser = async function() {
     await signOut(auth);
 };
+
+const ACTIVE_DRIVER_PHONE = "0658177124"; 
+
+function triggerCustomerSms(customerPhone, pickup, dropoff, vehicleType, fare, refCode) {
+    const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
+    const messageContent = `KP-Logistics: Paid! Ref: ${refCode}. From: ${pickup} To: ${dropoff} (${vehicleType}). Fare: R${fare}. Driver assigned shortly.`;
+    const messageText = encodeURIComponent(messageContent);
+    
+    let formattedPhone = customerPhone.replace(/\s+/g, '').replace('+', '');
+    if (formattedPhone.startsWith('0')) {
+        formattedPhone = '27' + formattedPhone.slice(1);
+    }
+
+    const img = new Image();
+    img.src = `${baseUrl}?recipientNumber=${formattedPhone}&message=${messageText}`;
+}
+
+function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants, clientPhone, fare, refCode) {
+    const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
+    const messageContent = `NEW LOAD! Ref:${refCode}. From:${pickup} To:${dropoff} (${vehicleType}, Helpers:${assistants}). Client:${clientPhone}. Fare:R${fare}`;
+    const messageText = encodeURIComponent(messageContent);
+    
+    let formattedPhone = driverPhone.replace(/\s+/g, '').replace('+', '');
+    if (formattedPhone.startsWith('0')) {
+        formattedPhone = '27' + formattedPhone.slice(1);
+    }
+
+    const img = new Image();
+    img.src = `${baseUrl}?recipientNumber=${formattedPhone}&message=${messageText}`;
+}
+
+const bookingForm = document.getElementById('bookingForm');
+if (bookingForm) {
+    bookingForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // CHECKPOINT: If user is not logged in, force Google Sign-In popup before proceeding
+        if (!currentUser) {
+            try {
+                alert("Please sign in with your Google account to complete your booking.");
+                const result = await signInWithPopup(auth, googleProvider);
+                currentUser = result.user;
+            } catch (authError) {
+                console.error("Sign-in cancelled or failed:", authError);
+                return; // Stop execution if they cancel login
+            }
+        }
+        
+        const pickup = document.getElementById('pickup').value;
+        const dropoff = document.getElementById('dropoff').value;
+        const zone = document.getElementById('bookingZone') ? document.getElementById('bookingZone').value : "East Rand";
+        const vehicleType = document.getElementById('vehicleType').value;
+        const phone = document.getElementById('phone').value;
+        
+        const customerEmail = currentUser.email || `client_${phone.replace(/\s+/g, '')}@kp-logistics.site`;
+        
+        const assistantInput = document.getElementById('assistantCount');
+        const assistantCount = assistantInput ? parseInt(assistantInput.value) || 0 : 0;
+        const loaderFee = assistantCount * 200;
+
+        const estimatedDistanceKm = 15; 
+        const currentFuelPriceZAR = 23.50; 
+        
+        const basePrices = {
+            bakkie: 350,
+            closedbakkie: 400,
+            panelvan: 520,
+            medtruck: 890,
+            "8ton": 2200,
+            "8tonside": 2500,
+            flatbed: 3000,
+            towtruck: 1800
+        };
+        const baseFee = basePrices[vehicleType] || 350;
+
+        const consumptionRates = {
+            petrol: { bakkie: 0.11, closedbakkie: 0.12, panelvan: 0.13, medtruck: 0.21, "8ton": 0.35, "8tonside": 0.38, flatbed: 0.42, towtruck: 0.30 },
+            diesel: { bakkie: 0.08, closedbakkie: 0.09, panelvan: 0.10, medtruck: 0.16, "8ton": 0.35, "8tonside": 0.38, flatbed: 0.42, towtruck: 0.30 }
+        };
+
+        const assumedFuel = ['8ton', '8tonside', 'flatbed', 'towtruck'].includes(vehicleType) ? 'diesel' : 'petrol';
+        const rate = consumptionRates[assumedFuel]?.[vehicleType] || 0.11;
+        
+        const estimatedFuelCost = estimatedDistanceKm * rate * currentFuelPriceZAR;
+        const subtotal = baseFee + estimatedFuelCost + loaderFee;
+        const commission = subtotal * 0.12;
+        const finalCalculatedFare = Math.round(subtotal + commission);
+        const amountInCents = finalCalculatedFare * 100;
+
+        try {
+            let handler = PaystackPop.setup({
+                key: 'pk_test_6290ff57c3a32a8e42de333bcba740801e72774c', 
+                email: customerEmail,
+                amount: amountInCents,
+                currency: 'ZAR',
+                ref: 'KP_TRIP_' + Math.floor((Math.random() * 1000000) + 1),
+                metadata: {
+                    custom_fields: [
+                        { display_name: "Pickup Location", variable_name: "pickup", value: pickup },
+                        { display_name: "Dropoff Location", variable_name: "dropoff", value: dropoff },
+                        { display_name: "Operating Zone", variable_name: "zone", value: zone },
+                        { display_name: "Vehicle Category", variable_name: "vehicle_type", value: vehicleType },
+                        { display_name: "Assistants", variable_name: "assistants", value: assistantCount },
+                        { display_name: "Contact Phone", variable_name: "phone", value: phone },
+                        { display_name: "Google Account", variable_name: "google_user", value: currentUser.email }
+                    ]
+                },
+                callback: function(response) {
+                    (async () => {
+                        try {
+                            await addDoc(collection(db, "bookings"), {
+                                pickup: pickup,
+                                dropoff: dropoff,
+                                zone: zone,
+                                vehicleType: vehicleType,
+                                phone: phone,
+                                customerEmail: currentUser.email,
+                                assistantsRequested: assistantCount,
+                                assistantFeeTotal: `R ${loaderFee}.00`,
+                                estimatedFare: `R ${finalCalculatedFare}.00`,
+                                paymentReference: response.reference,
+                                status: "Paid - Assigned to Driver",
+                                createdAt: new Date()
+                            });
+
+                            triggerCustomerSms(phone, pickup, dropoff, vehicleType, finalCalculatedFare, response.reference);
+                            triggerDriverSms(ACTIVE_DRIVER_PHONE, pickup, dropoff, vehicleType, assistantCount, phone, finalCalculatedFare, response.reference);
+
+                            alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${response.reference}\nTrip successfully paid and dispatched to the driver.`);
+                            bookingForm.reset();
+                        } catch (error) {
+                            console.error("Error saving paid booking: ", error);
+                            alert("Payment received successfully, but booking save failed. Please contact support with reference: " + response.reference);
+                        }
+                    })();
+                },
+                onClose: function() {
+                    console.log('Payment window closed by user.');
+                }
+            });
+            handler.openIframe();
+        } catch (paystackError) {
+            console.error("Paystack initialization error: ", paystackError);
+            alert("Could not open payment gateway. Please check your network connection.");
+        }
+    });
+}
