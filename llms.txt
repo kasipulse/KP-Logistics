@@ -1,0 +1,16 @@
+# KP Logistics
+
+> KP Logistics (https://kplogistics.online) is a specialized on-demand commercial transport and e-commerce fulfillment logistics platform operating in Gauteng, South Africa.
+
+## Core Services & Logistics Solutions
+- [Takealot DC Delivery Bakkie Hire](https://kplogistics.online/article-ecommerce-dc.html): Direct point-to-point transit skipping warehouse queues at Isando and Midrand distribution centers.
+- [Amazon Fulfillment Center Transport Johannesburg](https://kplogistics.online/article-ecommerce-dc.html): Secure e-commerce stock replenishment and retail DC drop-off logistics.
+- [Vehicle Selection Guide](https://kplogistics.online/article-vehicle-guide.html): Compare 1-ton canopy bakkies, enclosed panel vans, and 4-ton to 8-ton heavy trucks.
+
+## Platform Features
+- Instant distance-based quote calculator integrated with Google Maps Distance Matrix.
+- Zero-friction instant booking flow with automated Paystack payment processing.
+- Native Android driver dispatch integration with automated push alerts.
+
+## Operational Coverage
+- Gauteng, South Africa (Johannesburg, Boksburg, Benoni, Germiston, Isando, Midrand, City Deep)
