@@ -1,4 +1,4 @@
-// Import the functions you need from the SDKs you need
+// Import Firebase SDKs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -17,24 +17,26 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// CONFIGURATION
+// Operational Configurations
 const ACTIVE_DRIVER_PHONE = "0658177124"; 
-const YOCO_PUBLIC_KEY = "pk_test_6290ff57c3a32a8e42de333bcba740801e72774c"; // Replace with your Yoco Public Key
-const RENDER_BACKEND_URL = "https://your-render-app.onrender.com"; // Replace with your Render backend URL
+// Yoco Test Public Key
+const YOCO_PUBLIC_KEY = "pk_test_461c13e6Dme2LvY92d64"; 
+// Update with your live Render backend URL once deployed
+const RENDER_BACKEND_URL = "https://your-render-app.onrender.com"; 
 
-// Initialize Yoco SDK
+// Initialize Yoco SDK Instance
 let yocoSdk = null;
 if (window.YocoSDK) {
     yocoSdk = new window.YocoSDK({ publicKey: YOCO_PUBLIC_KEY });
 }
 
-// Current South African market fuel benchmark rates (Protected margins)
+// South African market fuel benchmark rates
 const CURRENT_FUEL_PRICES = {
     petrol: 30.28,
     diesel: 33.29
 };
 
-// Global distance tracker (defaults to 15km if map lookup hasn't run yet)
+// Global distance tracker (defaults to 15km baseline)
 let calculatedDistanceKm = 15;
 
 // Function to calculate exact route distance via Google Maps Distance Matrix
@@ -70,7 +72,7 @@ window.calculateRouteDistance = function() {
     });
 };
 
-// Centralized Fare Calculation Engine (Guarantees UI and Yoco match 100%)
+// Centralized Fare Calculation Engine
 function calculateFinalFare() {
     const vehicleTypeEl = document.getElementById('vehicleType');
     const assistantCountEl = document.getElementById('assistantCount');
@@ -116,7 +118,7 @@ function updateEstimateDisplay() {
     priceEstimateEl.innerText = `R ${finalFare}.00`;
 }
 
-// Bind live listeners on DOM load
+// Bind live UI listeners on DOM load
 document.addEventListener('DOMContentLoaded', () => {
     const dropoffInput = document.getElementById('dropoff');
     const pickupInput = document.getElementById('pickup');
@@ -132,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// 1. Helper function to trigger SMS notification for the Customer
+// Helper 1: Trigger SMS notification for Customer
 function triggerCustomerSms(customerPhone, pickup, dropoff, vehicleType, fare, refCode) {
     const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
     const messageContent = `KP-Logistics: Paid! Ref: ${refCode}. From: ${pickup} To: ${dropoff} (${vehicleType}). Fare: R${fare}. Driver assigned shortly.`;
@@ -146,10 +148,10 @@ function triggerCustomerSms(customerPhone, pickup, dropoff, vehicleType, fare, r
     const targetUrl = `${baseUrl}?recipientNumber=${formattedPhone}&message=${messageText}`;
     const img = new Image();
     img.src = targetUrl;
-    console.log('Customer SMS URL trigger dispatched.');
+    console.log('Customer SMS trigger dispatched.');
 }
 
-// 2. Helper function to trigger SMS notification for the Driver
+// Helper 2: Trigger SMS notification for Driver
 function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants, clientPhone, fare, refCode) {
     const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
     const messageContent = `NEW LOAD! Ref:${refCode}. From:${pickup} To:${dropoff} (${vehicleType}, Helpers:${assistants}). Client:${clientPhone}. Fare:R${fare}`;
@@ -163,10 +165,10 @@ function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants,
     const targetUrl = `${baseUrl}?recipientNumber=${formattedPhone}&message=${messageText}`;
     const img = new Image();
     img.src = targetUrl;
-    console.log('Driver SMS URL trigger dispatched.');
+    console.log('Driver SMS trigger dispatched.');
 }
 
-// 3. Helper function to trigger Zoho email notifications via Render backend
+// Helper 3: Trigger Zoho Mail via Render Backend
 async function triggerZohoEmailDispatch(clientEmail, bookingData) {
     try {
         await fetch(`${RENDER_BACKEND_URL}/api/bookings/confirm`, {
@@ -183,7 +185,7 @@ async function triggerZohoEmailDispatch(clientEmail, bookingData) {
     }
 }
 
-// Handle Customer Booking (for index.html) with Yoco Web SDK Gateway
+// Handle Customer Booking Form Submission
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
@@ -196,7 +198,6 @@ if (bookingForm) {
         const phone = document.getElementById('phone').value;
         const clientEmailInput = document.getElementById('email');
         
-        // Use provided email or fallback to formatted phone email
         const customerEmail = clientEmailInput && clientEmailInput.value 
             ? clientEmailInput.value 
             : `client_${phone.replace(/\s+/g, '')}@kplogistics.co.za`;
@@ -205,7 +206,6 @@ if (bookingForm) {
         const assistantCount = assistantInput ? parseInt(assistantInput.value) || 0 : 0;
         const loaderFee = assistantCount * 200;
 
-        // Use centralized fare calculation engine
         const finalCalculatedFare = calculateFinalFare();
         const amountInCents = finalCalculatedFare * 100;
 
@@ -217,7 +217,7 @@ if (bookingForm) {
             yocoSdk.showPopup({
                 amountInCents: amountInCents,
                 currency: 'ZAR',
-                name: 'KP Logistics',
+                name: 'KP Logistics (TEST MODE)',
                 description: `Vehicle Booking (${vehicleType})`,
                 callback: async function(result) {
                     if (result.error) {
@@ -226,7 +226,7 @@ if (bookingForm) {
                         return;
                     }
 
-                    const paymentReference = result.id || 'YOCO_TRIP_' + Math.floor((Math.random() * 1000000) + 1);
+                    const paymentReference = result.id || 'YOCO_TEST_' + Math.floor((Math.random() * 1000000) + 1);
 
                     try {
                         const bookingPayload = {
@@ -248,21 +248,21 @@ if (bookingForm) {
                         // 1. Save booking to Firestore database
                         await addDoc(collection(db, "bookings"), bookingPayload);
 
-                        // 2. Automatically dispatch customer confirmation SMS
+                        // 2. Dispatch customer confirmation SMS
                         triggerCustomerSms(phone, pickup, dropoff, vehicleType, finalCalculatedFare, paymentReference);
 
-                        // 3. Automatically dispatch load details SMS to driver
+                        // 3. Dispatch driver load SMS
                         triggerDriverSms(ACTIVE_DRIVER_PHONE, pickup, dropoff, vehicleType, assistantCount, phone, finalCalculatedFare, paymentReference);
 
                         // 4. Trigger Zoho email via Render backend (support@kplogistics.co.za)
                         triggerZohoEmailDispatch(customerEmail, bookingPayload);
 
-                        alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${paymentReference}\nTrip successfully paid and dispatched.`);
+                        alert(`TEST Payment of R ${finalCalculatedFare}.00 successful!\nRef: ${paymentReference}\nTrip saved and notifications dispatched.`);
                         bookingForm.reset();
 
                     } catch (error) {
                         console.error("Error saving paid booking: ", error);
-                        alert("Payment received successfully, but booking record failed. Contact support with reference: " + paymentReference);
+                        alert("Test payment received, but booking record failed. Contact support with reference: " + paymentReference);
                     }
                 }
             });
