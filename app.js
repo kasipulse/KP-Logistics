@@ -16,6 +16,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+window.db = db; // Expose Firestore to window for F12 console commands
 
 // Operational Configurations
 const ACTIVE_DRIVER_PHONE = "0658177124"; 
