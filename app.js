@@ -17,8 +17,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// SINGLE DRIVER CONFIGURATION
+// CONFIGURATION
 const ACTIVE_DRIVER_PHONE = "0658177124"; 
+const YOCO_PUBLIC_KEY = "pk_test_6290ff57c3a32a8e42de333bcba740801e72774c"; // Replace with your Yoco Public Key
+const RENDER_BACKEND_URL = "https://your-render-app.onrender.com"; // Replace with your Render backend URL
+
+// Initialize Yoco SDK
+let yocoSdk = null;
+if (window.YocoSDK) {
+    yocoSdk = new window.YocoSDK({ publicKey: YOCO_PUBLIC_KEY });
+}
 
 // Current South African market fuel benchmark rates (Protected margins)
 const CURRENT_FUEL_PRICES = {
@@ -62,7 +70,7 @@ window.calculateRouteDistance = function() {
     });
 };
 
-// Centralized Fare Calculation Engine (Guarantees UI and Paystack match 100%)
+// Centralized Fare Calculation Engine (Guarantees UI and Yoco match 100%)
 function calculateFinalFare() {
     const vehicleTypeEl = document.getElementById('vehicleType');
     const assistantCountEl = document.getElementById('assistantCount');
@@ -158,7 +166,24 @@ function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants,
     console.log('Driver SMS URL trigger dispatched.');
 }
 
-// Handle Customer Booking (for index.html) with Paystack Gateway
+// 3. Helper function to trigger Zoho email notifications via Render backend
+async function triggerZohoEmailDispatch(clientEmail, bookingData) {
+    try {
+        await fetch(`${RENDER_BACKEND_URL}/api/bookings/confirm`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                clientEmail: clientEmail,
+                bookingData: bookingData
+            })
+        });
+        console.log('Render Zoho email dispatch triggered.');
+    } catch (err) {
+        console.error('Failed to trigger Render email backend:', err);
+    }
+}
+
+// Handle Customer Booking (for index.html) with Yoco Web SDK Gateway
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
@@ -169,76 +194,81 @@ if (bookingForm) {
         const zone = document.getElementById('bookingZone') ? document.getElementById('bookingZone').value : "East Rand";
         const vehicleType = document.getElementById('vehicleType').value;
         const phone = document.getElementById('phone').value;
+        const clientEmailInput = document.getElementById('email');
         
-        const customerEmail = `client_${phone.replace(/\s+/g, '')}@kp-logistics.site`;
+        // Use provided email or fallback to formatted phone email
+        const customerEmail = clientEmailInput && clientEmailInput.value 
+            ? clientEmailInput.value 
+            : `client_${phone.replace(/\s+/g, '')}@kplogistics.co.za`;
         
         const assistantInput = document.getElementById('assistantCount');
         const assistantCount = assistantInput ? parseInt(assistantInput.value) || 0 : 0;
         const loaderFee = assistantCount * 200;
 
-        // Use the centralized calculation so Paystack matches the screen exactly
+        // Use centralized fare calculation engine
         const finalCalculatedFare = calculateFinalFare();
         const amountInCents = finalCalculatedFare * 100;
 
+        if (!yocoSdk) {
+            yocoSdk = new window.YocoSDK({ publicKey: YOCO_PUBLIC_KEY });
+        }
+
         try {
-            let handler = PaystackPop.setup({
-                key: 'pk_test_6290ff57c3a32a8e42de333bcba740801e72774c', 
-                email: customerEmail,
-                amount: amountInCents,
+            yocoSdk.showPopup({
+                amountInCents: amountInCents,
                 currency: 'ZAR',
-                ref: 'KP_TRIP_' + Math.floor((Math.random() * 1000000) + 1),
-                metadata: {
-                    custom_fields: [
-                        { display_name: "Pickup Location", variable_name: "pickup", value: pickup },
-                        { display_name: "Dropoff Location", variable_name: "dropoff", value: dropoff },
-                        { display_name: "Operating Zone", variable_name: "zone", value: zone },
-                        { display_name: "Vehicle Category", variable_name: "vehicle_type", value: vehicleType },
-                        { display_name: "Assistants", variable_name: "assistants", value: assistantCount },
-                        { display_name: "Contact Phone", variable_name: "phone", value: phone },
-                        { display_name: "Calculated Distance", variable_name: "distance_km", value: `${calculatedDistanceKm.toFixed(1)} km` }
-                    ]
-                },
-                callback: function(response) {
-                    (async () => {
-                        try {
-                            // 1. Save booking to Firestore database
-                            await addDoc(collection(db, "bookings"), {
-                                pickup: pickup,
-                                dropoff: dropoff,
-                                zone: zone,
-                                vehicleType: vehicleType,
-                                phone: phone,
-                                assistantsRequested: assistantCount,
-                                assistantFeeTotal: `R ${loaderFee}.00`,
-                                estimatedDistanceKm: `${calculatedDistanceKm.toFixed(1)} km`,
-                                estimatedFare: `R ${finalCalculatedFare}.00`,
-                                paymentReference: response.reference,
-                                status: "Paid - Assigned to Driver",
-                                createdAt: new Date()
-                            });
+                name: 'KP Logistics',
+                description: `Vehicle Booking (${vehicleType})`,
+                callback: async function(result) {
+                    if (result.error) {
+                        console.error("Yoco payment error: ", result.error.message);
+                        alert("Payment was canceled or failed: " + result.error.message);
+                        return;
+                    }
 
-                            // 2. Automatically dispatch customer confirmation SMS
-                            triggerCustomerSms(phone, pickup, dropoff, vehicleType, finalCalculatedFare, response.reference);
+                    const paymentReference = result.id || 'YOCO_TRIP_' + Math.floor((Math.random() * 1000000) + 1);
 
-                            // 3. Automatically dispatch load details SMS to the single active driver
-                            triggerDriverSms(ACTIVE_DRIVER_PHONE, pickup, dropoff, vehicleType, assistantCount, phone, finalCalculatedFare, response.reference);
+                    try {
+                        const bookingPayload = {
+                            pickup: pickup,
+                            dropoff: dropoff,
+                            zone: zone,
+                            vehicleType: vehicleType,
+                            phone: phone,
+                            clientEmail: customerEmail,
+                            assistantsRequested: assistantCount,
+                            assistantFeeTotal: `R ${loaderFee}.00`,
+                            estimatedDistanceKm: `${calculatedDistanceKm.toFixed(1)} km`,
+                            estimatedFare: `R ${finalCalculatedFare}.00`,
+                            paymentReference: paymentReference,
+                            status: "Paid - Assigned to Driver",
+                            createdAt: new Date()
+                        };
 
-                            alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${response.reference}\nTrip successfully paid and dispatched to the driver.`);
-                            bookingForm.reset();
-                        } catch (error) {
-                            console.error("Error saving paid booking: ", error);
-                            alert("Payment received successfully, but booking save failed. Please contact support with reference: " + response.reference);
-                        }
-                    })();
-                },
-                onClose: function() {
-                    console.log('Payment window closed by user.');
+                        // 1. Save booking to Firestore database
+                        await addDoc(collection(db, "bookings"), bookingPayload);
+
+                        // 2. Automatically dispatch customer confirmation SMS
+                        triggerCustomerSms(phone, pickup, dropoff, vehicleType, finalCalculatedFare, paymentReference);
+
+                        // 3. Automatically dispatch load details SMS to driver
+                        triggerDriverSms(ACTIVE_DRIVER_PHONE, pickup, dropoff, vehicleType, assistantCount, phone, finalCalculatedFare, paymentReference);
+
+                        // 4. Trigger Zoho email via Render backend (support@kplogistics.co.za)
+                        triggerZohoEmailDispatch(customerEmail, bookingPayload);
+
+                        alert(`Payment of R ${finalCalculatedFare}.00 successful! Reference: ${paymentReference}\nTrip successfully paid and dispatched.`);
+                        bookingForm.reset();
+
+                    } catch (error) {
+                        console.error("Error saving paid booking: ", error);
+                        alert("Payment received successfully, but booking record failed. Contact support with reference: " + paymentReference);
+                    }
                 }
             });
-            handler.openIframe();
-        } catch (paystackError) {
-            console.error("Paystack initialization error: ", paystackError);
-            alert("Could not open payment gateway. Please check your network connection.");
+        } catch (yocoError) {
+            console.error("Yoco SDK initialization error: ", yocoError);
+            alert("Could not open payment gateway. Please check your connection.");
         }
     });
 }
