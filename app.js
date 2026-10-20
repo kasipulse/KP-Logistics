@@ -25,10 +25,13 @@ const YOCO_PUBLIC_KEY = "pk_test_461c13e6Dme2LvY92d64";
 // Update with your live Render backend URL once deployed
 const RENDER_BACKEND_URL = "https://your-render-app.onrender.com"; 
 
-// Initialize Yoco SDK Instance
+// Initialize Yoco SDK Instance safely using a getter function
 let yocoSdk = null;
-if (window.YocoSDK) {
-    yocoSdk = new window.YocoSDK({ publicKey: YOCO_PUBLIC_KEY });
+function getYocoInstance() {
+    if (!yocoSdk && window.YocoSDK) {
+        yocoSdk = new window.YocoSDK({ publicKey: YOCO_PUBLIC_KEY });
+    }
+    return yocoSdk;
 }
 
 // South African market fuel benchmark rates
@@ -210,12 +213,14 @@ if (bookingForm) {
         const finalCalculatedFare = calculateFinalFare();
         const amountInCents = finalCalculatedFare * 100;
 
-        if (!yocoSdk) {
-            yocoSdk = new window.YocoSDK({ publicKey: YOCO_PUBLIC_KEY });
+        const sdk = getYocoInstance();
+        if (!sdk) {
+            alert("Payment gateway is still loading or unavailable. Please check your connection.");
+            return;
         }
 
         try {
-            yocoSdk.showPopup({
+            sdk.showPopup({
                 amountInCents: amountInCents,
                 currency: 'ZAR',
                 name: 'KP Logistics (TEST MODE)',
