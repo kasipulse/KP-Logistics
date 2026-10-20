@@ -34,8 +34,11 @@ let calculatedDistanceKm = 15;
 
 // Function to calculate exact route distance via Google Maps Distance Matrix
 window.calculateRouteDistance = function() {
-    const pickup = document.getElementById('pickup').value;
-    const dropoff = document.getElementById('dropoff').value;
+    const pickupInput = document.getElementById('pickup');
+    const dropoffInput = document.getElementById('dropoff');
+
+    const pickup = pickupInput ? pickupInput.value : '';
+    const dropoff = dropoffInput ? dropoffInput.value : '';
 
     if (!pickup || !dropoff) {
         updateEstimateDisplay();
