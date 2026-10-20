@@ -22,8 +22,8 @@ window.db = db; // Expose Firestore to window for F12 console commands
 const ACTIVE_DRIVER_PHONE = "0658177124"; 
 // Yoco Test Public Key
 const YOCO_PUBLIC_KEY = "pk_test_461c13e6Dme2LvY92d64"; 
-// Update with your live Render backend URL once deployed
-const RENDER_BACKEND_URL = "https://your-render-app.onrender.com"; 
+// Update this line with your actual deployed Render Web Service URL once ready
+const RENDER_BACKEND_URL = "https://kp-logistics-backend.onrender.com"; 
 
 // South African market fuel benchmark rates
 const CURRENT_FUEL_PRICES = {
@@ -165,6 +165,12 @@ function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants,
 
 // Helper 3: Trigger Zoho Mail via Render Backend
 async function triggerZohoEmailDispatch(clientEmail, bookingData) {
+    // If backend URL is placeholder, log notice and bypass CORS fetch safely
+    if (RENDER_BACKEND_URL.includes("your-render-app.onrender.com")) {
+        console.warn('Render backend URL not configured yet. Skipping email trigger.');
+        return;
+    }
+
     try {
         await fetch(`${RENDER_BACKEND_URL}/api/bookings/confirm`, {
             method: 'POST',
@@ -176,7 +182,7 @@ async function triggerZohoEmailDispatch(clientEmail, bookingData) {
         });
         console.log('Render Zoho email dispatch triggered.');
     } catch (err) {
-        console.error('Failed to trigger Render email backend:', err);
+        console.warn('Backend email endpoint unreachable or blocked by CORS:', err);
     }
 }
 
@@ -208,7 +214,7 @@ async function executeBookingDispatch(paymentReference, pickup, dropoff, zone, v
         // 3. Dispatch driver load SMS
         triggerDriverSms(ACTIVE_DRIVER_PHONE, pickup, dropoff, vehicleType, assistantCount, phone, finalCalculatedFare, paymentReference);
 
-        // 4. Trigger Zoho email via Render backend
+        // 4. Trigger Zoho email via Render backend (Non-blocking)
         triggerZohoEmailDispatch(customerEmail, bookingPayload);
 
         alert(`Payment of R ${finalCalculatedFare}.00 confirmed!\nRef: ${paymentReference}\nTrip saved and driver dispatch triggered.`);
@@ -274,7 +280,7 @@ if (bookingForm) {
             }
         }
 
-        // Safe Fallback: If Yoco Web Popup SDK is deprecated/unreachable, process test confirmation directly
+        // Safe Fallback: Process test confirmation directly
         const paymentReference = 'YOCO_TEST_' + Math.floor((Math.random() * 1000000) + 1);
         await executeBookingDispatch(paymentReference, pickup, dropoff, zone, vehicleType, phone, customerEmail, assistantCount, loaderFee, finalCalculatedFare);
     });
