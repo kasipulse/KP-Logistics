@@ -67,12 +67,8 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Places Autocomplete SDK (Optimized with loading=async and async attribute) -->
+    <!-- Google Places Autocomplete SDK -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBO20O0U8J3-wQI-YLBQy09pdtpYpNCGrM&libraries=places&loading=async" async></script>
-    <!-- Paystack Checkout Inline Script -->
-    <script src="https://js.paystack.co/v1/inline.js"></script>
-    <!-- Yoco Web SDK Script -->
-<script src="https://payments.yoco.com/sdk/v1/yoco-sdk-web.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
 
@@ -93,7 +89,6 @@
                 <a href="driver.html" class="text-slate-300 hover:text-orange-400 transition">Drive With Us</a>
             </nav>
             <div class="flex items-center space-x-3">
-                <!-- Native PWA Install Button (Hidden until browser permits installation) -->
                 <button id="installAppBtn" class="hidden bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition shadow-md shadow-orange-500/20 uppercase tracking-wider items-center space-x-1.5">
                     <i class="fa-solid fa-download"></i>
                     <span>Install App</span>
@@ -148,7 +143,6 @@
                     <i class="fa-solid fa-truck-fast text-orange-600 text-xl"></i>
                 </div>
 
-                <!-- Authenticated User Session Banner (Hidden until signed in) -->
                 <div id="userSessionBanner" style="display: none;" class="mb-4 p-3 bg-slate-100 rounded-xl flex justify-between items-center text-xs border border-slate-200">
                     <div>
                         <span class="text-[9px] uppercase font-bold text-slate-400 block">Signed In Account</span>
@@ -176,7 +170,6 @@
                         </div>
                     </div>
 
-                    <!-- Operating Region / Zone Selector -->
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Operating Region / Zone</label>
                         <select id="bookingZone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
@@ -208,13 +201,11 @@
                         </div>
                     </div>
 
-                    <!-- Driver Assistants Numeric Input -->
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Driver Assistants / Loaders (R200 each)</label>
                         <input type="number" id="assistantCount" min="0" max="10" value="0" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
                     </div>
 
-                    <!-- Price Estimate Box -->
                     <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-between">
                         <div>
                             <p class="text-xs text-orange-800 font-medium">Estimated Fare Quote</p>
@@ -232,7 +223,7 @@
         </div>
     </main>
 
-    <!-- Earnings Comparison Section (Adopted Style from Bro Cabs Reference) -->
+    <!-- Earnings Comparison Section -->
     <section class="max-w-7xl mx-auto px-6 py-12">
         <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 rounded-3xl p-8 md:p-12 text-white shadow-2xl border border-slate-800 relative overflow-hidden">
             <div class="absolute -right-20 -top-20 w-80 h-80 bg-orange-600/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -243,12 +234,11 @@
                 </span>
                 <h3 class="text-3xl md:text-4xl font-black tracking-tight">Keep more of every rand you earn.</h3>
                 <p class="text-slate-400 text-sm leading-relaxed">
-                    Traditional logistics platforms take up to 35% to 40% in commission on every trip. KP Logistics keeps your commission minimal and predictable so your hard-earned cash stays where it belongs: in your wallet[cite: 4, 7].
+                    Traditional logistics platforms take up to 35% to 40% in commission on every trip. KP Logistics keeps your commission minimal and predictable so your hard-earned cash stays where it belongs: in your wallet.
                 </p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-                <!-- Traditional Commission Model Card -->
                 <div class="bg-slate-950/60 p-6 md:p-8 rounded-2xl border border-slate-800/80 flex flex-col justify-between space-y-6 relative">
                     <div class="absolute top-4 right-4 text-xs font-bold uppercase tracking-wider text-red-400 bg-red-500/10 px-2.5 py-1 rounded-lg border border-red-500/20">
                         Traditional Apps
@@ -278,7 +268,6 @@
                     </div>
                 </div>
 
-                <!-- KP Logistics Model Card -->
                 <div class="bg-gradient-to-br from-orange-600/20 via-slate-950/80 to-slate-950 p-6 md:p-8 rounded-2xl border-2 border-orange-500/50 flex flex-col justify-between space-y-6 relative shadow-xl shadow-orange-950/30">
                     <div class="absolute top-4 right-4 text-xs font-bold uppercase tracking-wider text-orange-400 bg-orange-500/20 px-2.5 py-1 rounded-lg border border-orange-500/30">
                         KP Logistics Model
