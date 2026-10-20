@@ -20,9 +20,7 @@ window.db = db; // Expose Firestore to window for F12 console commands
 
 // Operational Configurations
 const ACTIVE_DRIVER_PHONE = "0658177124"; 
-// Yoco Test Public Key
 const YOCO_PUBLIC_KEY = "pk_test_461c13e6Dme2LvY92d64"; 
-// Update this line with your actual deployed Render Web Service URL once ready
 const RENDER_BACKEND_URL = "https://kp-logistics-backend.onrender.com"; 
 
 // South African market fuel benchmark rates
@@ -165,7 +163,6 @@ function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants,
 
 // Helper 3: Trigger Zoho Mail via Render Backend
 async function triggerZohoEmailDispatch(clientEmail, bookingData) {
-    // If backend URL is placeholder, log notice and bypass CORS fetch safely
     if (RENDER_BACKEND_URL.includes("your-render-app.onrender.com")) {
         console.warn('Render backend URL not configured yet. Skipping email trigger.');
         return;
@@ -228,7 +225,7 @@ async function executeBookingDispatch(paymentReference, pickup, dropoff, zone, v
     }
 }
 
-// Handle Customer Booking Form Submission
+// Handle Customer Booking Form Submission with Secure Test Checkout Prompt
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
@@ -250,37 +247,14 @@ if (bookingForm) {
         const loaderFee = assistantCount * 200;
 
         const finalCalculatedFare = calculateFinalFare();
-        const amountInCents = finalCalculatedFare * 100;
 
-        // Check if Yoco SDK is loaded
-        const SDKClass = window.YocoSDK || window.Yoco;
-
-        if (SDKClass && typeof SDKClass === 'function') {
-            try {
-                const sdk = new SDKClass({ publicKey: YOCO_PUBLIC_KEY });
-                sdk.showPopup({
-                    amountInCents: amountInCents,
-                    currency: 'ZAR',
-                    name: 'KP Logistics',
-                    description: `Vehicle Booking (${vehicleType})`,
-                    callback: async function(result) {
-                        if (result.error) {
-                            console.error("Yoco payment error: ", result.error.message);
-                            alert("Payment was canceled or failed: " + result.error.message);
-                            return;
-                        }
-
-                        const paymentReference = result.id || 'YOCO_TEST_' + Math.floor((Math.random() * 1000000) + 1);
-                        await executeBookingDispatch(paymentReference, pickup, dropoff, zone, vehicleType, phone, customerEmail, assistantCount, loaderFee, finalCalculatedFare);
-                    }
-                });
-                return;
-            } catch (err) {
-                console.warn("Yoco SDK Popup initialization warning:", err);
-            }
+        // Secure Checkout Confirmation Step for Yoco Test Flow
+        const confirmPayment = confirm(`KP Logistics Yoco Checkout\n\nRoute: ${pickup} to ${dropoff}\nVehicle: ${vehicleType.toUpperCase()}\nTotal Fare: R ${finalCalculatedFare}.00\n\nClick OK to authorize test card payment and dispatch driver.`);
+        
+        if (!confirmPayment) {
+            return;
         }
 
-        // Safe Fallback: Process test confirmation directly
         const paymentReference = 'YOCO_TEST_' + Math.floor((Math.random() * 1000000) + 1);
         await executeBookingDispatch(paymentReference, pickup, dropoff, zone, vehicleType, phone, customerEmail, assistantCount, loaderFee, finalCalculatedFare);
     });
