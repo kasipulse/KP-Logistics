@@ -28,8 +28,11 @@ const RENDER_BACKEND_URL = "https://your-render-app.onrender.com";
 // Initialize Yoco SDK Instance safely using a getter function
 let yocoSdk = null;
 function getYocoInstance() {
-    if (!yocoSdk && window.YocoSDK) {
-        yocoSdk = new window.YocoSDK({ publicKey: YOCO_PUBLIC_KEY });
+    if (!yocoSdk) {
+        const SDKClass = window.YocoSDK || window.YocoSDKWeb;
+        if (SDKClass) {
+            yocoSdk = new SDKClass({ publicKey: YOCO_PUBLIC_KEY });
+        }
     }
     return yocoSdk;
 }
@@ -213,7 +216,12 @@ if (bookingForm) {
         const finalCalculatedFare = calculateFinalFare();
         const amountInCents = finalCalculatedFare * 100;
 
-        const sdk = getYocoInstance();
+        let sdk = getYocoInstance();
+        if (!sdk) {
+            await new Promise(resolve => setTimeout(resolve, 800));
+            sdk = getYocoInstance();
+        }
+
         if (!sdk) {
             alert("Payment gateway is still loading or unavailable. Please check your connection.");
             return;
