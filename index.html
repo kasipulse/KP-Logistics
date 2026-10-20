@@ -3,46 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Takealot DC Delivery & Bakkie Hire | KP Logistics Johannesburg</title>
+    <title>KP Logistics | Bakkie for Hire, Van Rental & Truck Bookings South Africa</title>
     
-    <!-- Primary & High-Intent SEO Meta Tags -->
-    <meta name="description" content="Need Takealot DC delivery bakkie hire or Amazon fulfillment center transport in Johannesburg? Book verified bakkies and trucks for retail DC drop-offs instantly.">
-    <meta name="keywords" content="Takealot DC delivery bakkie hire, Amazon fulfillment center transport Johannesburg, Retail DC drop-off logistics South Africa, Book a bakkie for Takealot warehouse delivery, JHB DC courier and truck service">
+    <!-- Primary SEO Meta Tags -->
+    <meta name="description" content="Looking for a bakkie for hire, van for hire, or an 8 ton truck for hire in South Africa? Get instant distance quotes and book vetted transport with KP Logistics.">
+    <meta name="keywords" content="bakkie for hire, van for hire, 8 ton truck rental, truck hire Johannesburg, logistics company South Africa, furniture removal, KP Logistics">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://kplogistics.online/">
 
     <!-- Open Graph / WhatsApp Meta Tags -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://kplogistics.online/">
-    <meta property="og:title" content="Takealot DC Delivery & Bakkie Hire | KP Logistics">
-    <meta property="og:description" content="Book verified bakkies, panel vans, and heavy trucks instantly for distribution center drop-offs across Gauteng.">
+    <meta property="og:title" content="KP Logistics | Fast Truck & Bakkie Bookings">
+    <meta property="og:description" content="Book vetted bakkies, panel vans, and heavy trucks instantly across South Africa.">
     <meta property="og:image" content="https://kplogistics.online/logo.png">
-
-    <!-- AI & Search Engine FAQ Schema Markup for Generative Engine Optimization (GEO) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "How can I book a bakkie for Takealot DC delivery in Johannesburg?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "You can book a bakkie for Takealot DC delivery instantly through KP Logistics (https://kplogistics.online) by entering your pickup and drop-off locations, selecting your vehicle type, and completing payment without needing an account login."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What vehicle types are available for e-commerce fulfillment transport in Gauteng?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "KP Logistics offers light 1-ton canopy bakkies, fully enclosed panel vans, and heavy-duty commercial trucks tailored for retail distribution center drop-offs across Gauteng."
-          }
-        }
-      ]
-    }
-    </script>
 
     <!-- Local Business & Service Schema (JSON-LD) for Google Search Knowledge Graph -->
     <script type="application/ld+json">
@@ -93,7 +67,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Places Autocomplete SDK -->
+    <!-- Google Places Autocomplete SDK (Optimized with loading=async and async attribute) -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBO20O0U8J3-wQI-YLBQy09pdtpYpNCGrM&libraries=places&loading=async" async></script>
     <!-- Paystack Checkout Inline Script -->
     <script src="https://js.paystack.co/v1/inline.js"></script>
@@ -114,11 +88,10 @@
             </div>
             <nav class="hidden md:flex items-center space-x-6 text-xs font-semibold tracking-wide uppercase">
                 <a href="index.html" class="text-orange-400 transition">Book a Truck</a>
-                <a href="articles.html" class="text-slate-300 hover:text-orange-400 transition">Articles</a>
                 <a href="driver.html" class="text-slate-300 hover:text-orange-400 transition">Drive With Us</a>
             </nav>
             <div class="flex items-center space-x-3">
-                <!-- Native PWA Install Button -->
+                <!-- Native PWA Install Button (Hidden until browser permits installation) -->
                 <button id="installAppBtn" class="hidden bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition shadow-md shadow-orange-500/20 uppercase tracking-wider items-center space-x-1.5">
                     <i class="fa-solid fa-download"></i>
                     <span>Install App</span>
@@ -140,10 +113,10 @@
                 <span>Instant Dispatch & Verified Drivers</span>
             </div>
             <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                Takealot & Amazon DC Deliveries Made <span class="text-orange-600">Seamless.</span>
+                Move Anything, <span class="text-orange-600">Anywhere</span> Across Town.
             </h2>
             <p class="text-lg text-slate-600 leading-relaxed">
-                Connect instantly with trusted local bakkie, van, and heavy truck operators. Transparent pricing, secure escrow handling, and live tracking for retail distribution center drops across Johannesburg and Gauteng.
+                Connect instantly with trusted local bakkie, van, and heavy truck operators. Transparent pricing, secure escrow handling, and live tracking for retail deliveries, home moves, and industrial freight.
             </p>
             <div class="grid grid-cols-3 gap-4 pt-4 border-t border-slate-200">
                 <div>
@@ -173,7 +146,7 @@
                     <i class="fa-solid fa-truck-fast text-orange-600 text-xl"></i>
                 </div>
 
-                <!-- Authenticated User Session Banner -->
+                <!-- Authenticated User Session Banner (Hidden until signed in) -->
                 <div id="userSessionBanner" style="display: none;" class="mb-4 p-3 bg-slate-100 rounded-xl flex justify-between items-center text-xs border border-slate-200">
                     <div>
                         <span class="text-[9px] uppercase font-bold text-slate-400 block">Signed In Account</span>
@@ -194,12 +167,341 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Drop-off Address (Takealot / Amazon DC)</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Drop-off Address</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-flag-checkered"></i></span>
-                            <input type="text" id="dropoff" required class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm" placeholder="e.g., Takealot Isando Distribution Center">
+                            <input type="text" id="dropoff" required class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm" placeholder="e.g., 45 Voortrekker Road, Germiston">
                         </div>
                     </div>
 
                     <!-- Operating Region / Zone Selector -->
-                    
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Operating Region / Zone</label>
+                        <select id="bookingZone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
+                            <option value="East Rand">East Rand (Benoni, Springs, Boksburg, Kempton Park, Germiston)</option>
+                            <option value="Johannesburg">Johannesburg Central & Surrounds</option>
+                            <option value="Pretoria">Pretoria / Tshwane</option>
+                            <option value="West Rand">West Rand (Roodepoort, Krugersdorp, Randfontein)</option>
+                            <option value="Vaal">Vaal Triangle (Vereeniging, Vanderbijlpark)</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle Category</label>
+                            <select id="vehicleType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
+                                <option value="bakkie" selected>Light Bakkie (1-Ton)</option>
+                                <option value="closedbakkie">Canopy Bakkie (Protected)</option>
+                                <option value="panelvan">Panel Van</option>
+                                <option value="medtruck">Medium Truck (4-Ton)</option>
+                                <option value="8ton">8-Ton Heavy Truck (Box)</option>
+                                <option value="8tonside">8-Ton Open Side / Curtain</option>
+                                <option value="flatbed">Flatbed Truck (Machinery/Steel)</option>
+                                <option value="towtruck">Tow Truck / Breakdown Recovery</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Phone Number (10 Digits)</label>
+                            <input type="tel" id="phone" required maxlength="10" placeholder="0821234567" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Driver Assistants Numeric Input -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Driver Assistants / Loaders (R200 each)</label>
+                        <input type="number" id="assistantCount" min="0" max="10" value="0" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
+                    </div>
+
+                    <!-- Price Estimate Box -->
+                    <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-orange-800 font-medium">Estimated Fare Quote</p>
+                            <p id="priceEstimate" class="text-2xl font-black text-orange-600">R 350.00</p>
+                        </div>
+                        <span class="text-[11px] text-slate-500 text-right">Includes base distance<br>& selected add-ons</span>
+                    </div>
+
+                    <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-orange-600/30 flex items-center justify-center space-x-2">
+                        <span>Dispatch Driver Now</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- SEO Vehicle Indexing & Keyword Targeting Section -->
+    <section class="max-w-7xl mx-auto px-6 py-8">
+        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+            <div>
+                <h3 class="text-2xl font-black text-slate-900 tracking-tight">South Africa's Trusted On-Demand Vehicle & Truck Hire Fleet</h3>
+                <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                    Whether you need a quick <strong class="text-slate-900">bakkie for hire</strong> for home furniture, a secure <strong class="text-slate-900">van for hire</strong> for retail stock, or heavy commercial logistics like an <strong class="text-slate-900">8 ton truck for hire</strong>, KP-Logistics connects you with verified local operators instantly.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-truck-pickup mr-1"></i> Light Transport</span>
+                    <span class="text-slate-500">1-Ton Bakkie, Canopy Bakkie, Panel Van for hire across Gauteng.</span>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-truck mr-1"></i> Medium Logistics</span>
+                    <span class="text-slate-500">4-Ton Medium Trucks & Industrial delivery vehicles.</span>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-truck-moving mr-1"></i> Heavy Freight</span>
+                    <span class="text-slate-500">8-Ton Box Trucks & 8-Ton Open Side Curtainside trucks for bulk cargo.</span>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-wrench mr-1"></i> Specialized</span>
+                    <span class="text-slate-500">Flatbed trucks for steel/machinery & Breakdown Tow Trucks.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Takealot & Amazon Reseller Dedicated Section -->
+    <section class="max-w-7xl mx-auto px-6 py-12">
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-8 md:p-12 text-white shadow-xl flex flex-col lg:flex-row items-center justify-between gap-8 border border-slate-700">
+            <div class="space-y-4 max-w-xl">
+                <span class="bg-orange-500/20 text-orange-400 border border-orange-500/30 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-widest inline-block">
+                    E-Commerce Reseller Solutions
+                </span>
+                <h3 class="text-2xl md:text-3xl font-black tracking-tight">Stop Queuing at Takealot & Amazon Hubs.</h3>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    We collect your stock directly from your door and deliver next-day straight to fulfillment centers. Skip the traffic and let our commercial bakkies handle your distribution.
+                </p>
+                <div class="flex flex-wrap gap-4 pt-2">
+                    <div class="bg-slate-800/80 border border-slate-700 px-4 py-3 rounded-xl flex items-center space-x-3">
+                        <i class="fa-solid fa-box-archive text-orange-400 text-lg"></i>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-slate-400">Urban Areas</p>
+                            <p class="text-lg font-black text-white">R90 <span class="text-xs font-normal text-slate-400">/ parcel</span></p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/80 border border-slate-700 px-4 py-3 rounded-xl flex items-center space-x-3">
+                        <i class="fa-solid fa-truck-ramp-box text-orange-400 text-lg"></i>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-slate-400">Outlying Areas</p>
+                            <p class="text-lg font-black text-white">R120 <span class="text-xs font-normal text-slate-400">/ parcel</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WhatsApp Collection Form Widget -->
+            <div class="w-full lg:w-96 bg-slate-950/80 p-6 rounded-2xl border border-slate-700 space-y-3">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400">Quick WhatsApp Booking</h4>
+                
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Your Exact Collection Address</label>
+                    <input type="text" id="resellerAddress" placeholder="e.g., 24 Vilakazi St, Orlando West" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Zone</label>
+                        <select id="resellerZone" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500">
+                            <option value="Urban (R90)">Urban (R90)</option>
+                            <option value="Outlying (R120)">Outlying (R120)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Phone Number</label>
+                        <input type="tel" id="resellerPhone" maxlength="10" placeholder="0821234567" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+                </div>
+
+                <button id="resellerWaBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-xs transition inline-flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/20">
+                    <i class="fa-brands fa-whatsapp text-base"></i>
+                    <span>Send Collection to WhatsApp</span>
+                </button>
+                <p class="text-[10px] text-slate-400 text-center">Cut-off: 1:00 PM (Late collections accommodated if driver is in area)</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why KP-Logistics Section -->
+    <section class="max-w-7xl mx-auto px-6 py-16 border-t border-slate-200">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-widest text-orange-600">Why KP Logistics</span>
+                <h3 class="text-3xl md:text-4xl font-extrabold text-slate-900 mt-1 tracking-tight">The easy way to move.</h3>
+            </div>
+            <p class="text-sm text-slate-500 max-w-sm mt-3 md:mt-0">
+                A dependable logistics partner for homes, retailers and industrial projects across town.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-slate-900 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h4 class="text-lg font-bold text-slate-900 mb-1">Vetted Drivers</h4>
+                <p class="text-sm text-slate-500">Verified & reliable operators</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-slate-900 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <h4 class="text-lg font-bold text-slate-900 mb-1">Instant Dispatch</h4>
+                <p class="text-sm text-slate-500">Fast vehicle matching</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-slate-900 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h4 class="text-lg font-bold text-slate-900 mb-1">24/7 Support</h4>
+                <p class="text-sm text-slate-500">Always here to help</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="bg-slate-950 text-slate-400 py-6 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-xs space-y-4 md:space-y-0">
+            <div class="flex items-center space-x-3">
+                <div class="bg-orange-600 text-white font-black px-2 py-1 rounded text-[10px]">KP</div>
+                <p>&copy; 2026 Kasiplus (PTY) Ltd. All rights reserved.</p>
+            </div>
+            <div class="flex items-center space-x-6 text-slate-400">
+                <span class="flex items-center space-x-1.5"><i class="fa-solid fa-lock text-orange-500 text-[11px]"></i><span>Secure escrow bookings</span></span>
+                <span class="flex items-center space-x-1.5"><i class="fa-solid fa-clock text-orange-500 text-[11px]"></i><span>Support available 24/7</span></span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase Connection Script -->
+    <script type="module" src="app.js"></script>
+    <script>
+        // PWA Install Prompt Handler
+        let deferredPrompt;
+        const installBtn = document.getElementById('installAppBtn');
+        
+        if (installBtn) {
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installBtn.classList.remove('hidden');
+                installBtn.classList.add('flex');
+            });
+
+            installBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                }
+                deferredPrompt = null;
+                installBtn.classList.add('hidden');
+                installBtn.classList.remove('flex');
+            });
+        }
+
+        // Initialize Google Places Autocomplete restricted to South Africa
+        window.addEventListener('load', function() {
+            const pickupInput = document.getElementById('pickup');
+            const dropoffInput = document.getElementById('dropoff');
+            const resellerAddressInput = document.getElementById('resellerAddress');
+            const options = { componentRestrictions: { country: "za" } };
+            
+            if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+                if (pickupInput) new google.maps.places.Autocomplete(pickupInput, options);
+                if (dropoffInput) new google.maps.places.Autocomplete(dropoffInput, options);
+                if (resellerAddressInput) new google.maps.places.Autocomplete(resellerAddressInput, options);
+            }
+        });
+
+        // Strict 10-digit South African Phone Validation helper
+        function validatePhone(phoneValue) {
+            const phoneRegex = /^0[0-9]{9}$/;
+            return phoneRegex.test(phoneValue);
+        }
+
+        // Intercept main booking form phone validation check
+        const bookingFormEl = document.getElementById('bookingForm');
+        if (bookingFormEl) {
+            bookingFormEl.addEventListener('submit', function(e) {
+                const phoneInput = document.getElementById('phone');
+                if (phoneInput && !validatePhone(phoneInput.value.trim())) {
+                    e.preventDefault();
+                    alert("Please enter a valid 10-digit South African mobile number starting with 0 (e.g., 0821234567).");
+                    phoneInput.focus();
+                }
+            });
+        }
+
+        // Dynamic WhatsApp Reseller Dispatch Builder
+        const resellerWaBtn = document.getElementById('resellerWaBtn');
+        if (resellerWaBtn) {
+            resellerWaBtn.addEventListener('click', function() {
+                const addressEl = document.getElementById('resellerAddress');
+                const zoneEl = document.getElementById('resellerZone');
+                const phoneEl = document.getElementById('resellerPhone');
+
+                const address = addressEl ? addressEl.value.trim() : "";
+                const zone = zoneEl ? zoneEl.value : "Urban (R90)";
+                const phone = phoneEl ? phoneEl.value.trim() : "";
+
+                if (!address) {
+                    alert("Please enter your collection address.");
+                    if (addressEl) addressEl.focus();
+                    return;
+                }
+                if (!validatePhone(phone)) {
+                    alert("Please enter a valid 10-digit mobile number starting with 0 for the collection contact.");
+                    if (phoneEl) phoneEl.focus();
+                    return;
+                }
+
+                const message = `📦 *TAKEALOT / AMAZON COLLECTION REQUEST*%0A%0A*Collection Address:* ${encodeURIComponent(address)}%0A*Zone:* ${encodeURIComponent(zone)}%0A*Contact Phone:* ${encodeURIComponent(phone)}%0A%0APlease dispatch driver for next-day DC delivery.`;
+                
+                const whatsappUrl = `https://wa.me/27821234567?text=${message}`;
+                window.open(whatsappUrl, '_blank');
+            });
+        }
+
+        // Dynamic price feedback simulation based on vehicle selection & assistant quantity
+        function updateEstimate() {
+            const vehicleTypeEl = document.getElementById('vehicleType');
+            const assistantCountEl = document.getElementById('assistantCount');
+            const priceEstimateEl = document.getElementById('priceEstimate');
+
+            if (!vehicleTypeEl || !priceEstimateEl) return;
+
+            const vehicleType = vehicleTypeEl.value;
+            const assistantCount = assistantCountEl ? parseInt(assistantCountEl.value) || 0 : 0;
+            
+            const basePrices = {
+                bakkie: 350,
+                closedbakkie: 400,
+                panelvan: 520,
+                medtruck: 890,
+                "8ton": 2200,
+                "8tonside": 2500,
+                flatbed: 3000,
+                towtruck: 1800
+            };
+            
+            let currentTotal = basePrices[vehicleType] || 350;
+            currentTotal += assistantCount * 200;
+            
+            priceEstimateEl.innerText = `R ${currentTotal}.00`;
+        }
+
+        const vehicleTypeSelect = document.getElementById('vehicleType');
+        const assistantCountInput = document.getElementById('assistantCount');
+
+        if (vehicleTypeSelect) vehicleTypeSelect.addEventListener('change', updateEstimate);
+        if (assistantCountInput) {
+            assistantCountInput.addEventListener('input', updateEstimate);
+            assistantCountInput.addEventListener('change', updateEstimate);
+        }
+    </script>
+</body>
+</html>
