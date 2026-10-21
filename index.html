@@ -70,13 +70,13 @@
     <!-- Google Places Autocomplete SDK -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBO20O0U8J3-wQI-YLBQy09pdtpYpNCGrM&libraries=places&loading=async" async></script>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-orange-500 selection:text-white">
+<body class="bg-slate-50 text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
 
     <!-- Navigation Header -->
     <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 bg-orange-600 rounded-xl flex items-center justify-center text-white font-black tracking-tighter text-base shadow-md shadow-orange-600/30">
+                <div class="w-9 h-9 bg-orange-600 rounded-lg flex items-center justify-center text-white font-black tracking-tighter text-base shadow-md shadow-orange-600/30">
                     KP
                 </div>
                 <div>
@@ -84,14 +84,14 @@
                     <span class="text-[9px] text-orange-400 font-semibold uppercase tracking-widest block mt-0.5">Client Portal</span>
                 </div>
             </div>
-            <nav class="hidden md:flex items-center space-x-1 text-xs font-semibold tracking-wide uppercase">
-                <a href="index.html" class="text-orange-400 bg-slate-800/80 px-3 py-2 rounded-lg transition">Book a Truck</a>
-                <a href="driver.html" class="text-slate-300 hover:text-orange-400 hover:bg-slate-800/50 px-3 py-2 rounded-lg transition">Drive With Us</a>
+            <nav class="hidden md:flex items-center space-x-6 text-xs font-semibold tracking-wide uppercase">
+                <a href="index.html" class="text-orange-400 transition">Book a Truck</a>
+                <a href="driver.html" class="text-slate-300 hover:text-orange-400 transition">Drive With Us</a>
             </nav>
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-3">
                 <button id="installAppBtn" class="hidden bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition shadow-md shadow-orange-500/20 uppercase tracking-wider items-center space-x-1.5">
                     <i class="fa-solid fa-download"></i>
-                    <span class="hidden sm:inline">Install App</span>
+                    <span>Install App</span>
                 </button>
                 <a href="driver.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl transition border border-slate-700 uppercase tracking-wider">
                     Partner Fleet
@@ -100,379 +100,347 @@
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-
-        <!-- Hero + Booking Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-
-            <!-- Left Hero Text (mobile-first: order-2 on mobile, order-1 on desktop) -->
-            <div class="lg:col-span-6 order-2 lg:order-1 space-y-6">
-                <div class="inline-flex items-center space-x-2 bg-orange-100 text-orange-800 px-3.5 py-1.5 rounded-full text-xs font-semibold">
-                    <i class="fa-solid fa-bolt-lightning text-orange-600"></i>
-                    <span>Instant Dispatch & Verified Drivers</span>
-                </div>
-                <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
-                    Move Anything, <span class="text-orange-600">Anywhere</span> Across Town.
-                </h2>
-                <p class="text-base sm:text-lg text-slate-600 leading-relaxed">
-                    Connect instantly with trusted local bakkie, van, and heavy truck operators. Transparent pricing, secure escrow handling, and live tracking for retail deliveries, home moves, and industrial freight.
-                </p>
-                <div class="grid grid-cols-3 gap-4 pt-5 border-t border-slate-200">
-                    <div>
-                        <p class="text-2xl font-black text-slate-900">100%</p>
-                        <p class="text-xs text-slate-500 font-medium">Vetted Drivers</p>
-                    </div>
-                    <div>
-                        <p class="text-2xl font-black text-slate-900">Instant</p>
-                        <p class="text-xs text-slate-500 font-medium">Price Estimates</p>
-                    </div>
-                    <div>
-                        <p class="text-2xl font-black text-slate-900">24/7</p>
-                        <p class="text-xs text-slate-500 font-medium">Support Access</p>
-                    </div>
-                </div>
+    <!-- Hero Section & Booking Engine -->
+    <main class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        <!-- Left Hero Text -->
+        <div class="lg:col-span-6 space-y-6">
+            <div class="inline-flex items-center space-x-2 bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-semibold">
+                <i class="fa-solid fa-bolt-lightning text-orange-600"></i>
+                <span>Instant Dispatch & Verified Drivers</span>
             </div>
-
-            <!-- Right Booking Widget Card (mobile-first: order-1 on mobile, order-2 on desktop) -->
-            <div class="lg:col-span-6 order-1 lg:order-2 w-full">
-                <div class="bg-white p-5 sm:p-7 rounded-3xl shadow-xl border border-slate-200/80 relative overflow-hidden">
-                    <!-- Top accent line -->
-                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 to-amber-500"></div>
-
-                    <div class="flex items-center justify-between mb-5">
-                        <h3 class="text-lg sm:text-xl font-bold text-slate-900">Book Your Transport</h3>
-                        <div class="w-9 h-9 bg-orange-50 rounded-xl flex items-center justify-center">
-                            <i class="fa-solid fa-truck-fast text-orange-600 text-base"></i>
-                        </div>
-                    </div>
-
-                    <!-- Session banner -->
-                    <div id="userSessionBanner" style="display: none;" class="mb-4 p-3 bg-slate-50 rounded-xl flex justify-between items-center text-xs border border-slate-200">
-                        <div>
-                            <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-wider">Signed In Account</span>
-                            <span id="userEmailDisplay" class="font-bold text-slate-700"></span>
-                        </div>
-                        <button type="button" onclick="logoutUser()" class="bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition font-semibold text-[11px]">
-                            Sign Out
-                        </button>
-                    </div>
-
-                    <form id="bookingForm" class="space-y-4">
-                        <!-- Pickup -->
-                        <div>
-                            <label for="pickup" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Pickup Address</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-orange-600">
-                                    <i class="fa-solid fa-location-dot text-sm"></i>
-                                </span>
-                                <input type="text" id="pickup" required
-                                    class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/70 focus:border-orange-500 focus:bg-white outline-none transition text-sm placeholder:text-slate-400"
-                                    placeholder="e.g., 12 Mokone Street, Benoni">
-                            </div>
-                        </div>
-
-                        <!-- Dropoff -->
-                        <div>
-                            <label for="dropoff" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Drop-off Address</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                                    <i class="fa-solid fa-flag-checkered text-sm"></i>
-                                </span>
-                                <input type="text" id="dropoff" required
-                                    class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/70 focus:border-orange-500 focus:bg-white outline-none transition text-sm placeholder:text-slate-400"
-                                    placeholder="e.g., 45 Voortrekker Road, Germiston">
-                            </div>
-                        </div>
-
-                        <!-- Zone -->
-                        <div>
-                            <label for="bookingZone" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Operating Region / Zone</label>
-                            <select id="bookingZone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/70 focus:border-orange-500 focus:bg-white outline-none transition text-sm">
-                                <option value="East Rand">East Rand (Benoni, Springs, Boksburg, Kempton Park, Germiston)</option>
-                                <option value="Johannesburg">Johannesburg Central & Surrounds</option>
-                                <option value="Pretoria">Pretoria / Tshwane</option>
-                                <option value="West Rand">West Rand (Roodepoort, Krugersdorp, Randfontein)</option>
-                                <option value="Vaal">Vaal Triangle (Vereeniging, Vanderbijlpark)</option>
-                            </select>
-                        </div>
-
-                        <!-- Vehicle + Phone -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label for="vehicleType" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Vehicle Category</label>
-                                <select id="vehicleType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/70 focus:border-orange-500 focus:bg-white outline-none transition text-sm">
-                                    <option value="bakkie" selected>Light Bakkie (1-Ton)</option>
-                                    <option value="closedbakkie">Canopy Bakkie (Protected)</option>
-                                    <option value="panelvan">Panel Van</option>
-                                    <option value="medtruck">Medium Truck (4-Ton)</option>
-                                    <option value="8ton">8-Ton Heavy Truck (Box)</option>
-                                    <option value="8tonside">8-Ton Open Side / Curtain</option>
-                                    <option value="flatbed">Flatbed Truck (Machinery/Steel)</option>
-                                    <option value="towtruck">Tow Truck / Breakdown Recovery</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="phone" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Phone Number (10 Digits)</label>
-                                <input type="tel" id="phone" required maxlength="10" placeholder="0821234567"
-                                    class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/70 focus:border-orange-500 focus:bg-white outline-none transition text-sm placeholder:text-slate-400">
-                            </div>
-                        </div>
-
-                        <!-- Assistants -->
-                        <div>
-                            <label for="assistantCount" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Driver Assistants / Loaders <span class="text-slate-400 font-medium normal-case">(R200 each)</span></label>
-                            <input type="number" id="assistantCount" min="0" max="10" value="0"
-                                class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/70 focus:border-orange-500 focus:bg-white outline-none transition text-sm">
-                        </div>
-
-                        <!-- Price Estimate -->
-                        <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-between">
-                            <div>
-                                <p class="text-[11px] text-orange-800 font-semibold uppercase tracking-wide">Estimated Fare Quote</p>
-                                <p id="priceEstimate" class="text-2xl font-black text-orange-600 mt-0.5">R 350.00</p>
-                            </div>
-                            <span class="text-[11px] text-slate-500 text-right leading-tight max-w-[100px]">Includes base distance<br>& selected add-ons</span>
-                        </div>
-
-                        <!-- Submit CTA -->
-                        <button type="submit"
-                            class="w-full bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-orange-600/30 flex items-center justify-center space-x-2 text-sm uppercase tracking-wide">
-                            <span>Dispatch Driver Now</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </form>
+            <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                Move Anything, <span class="text-orange-600">Anywhere</span> Across Town.
+            </h2>
+            <p class="text-lg text-slate-600 leading-relaxed">
+                Connect instantly with trusted local bakkie, van, and heavy truck operators. Transparent pricing, secure escrow handling, and live tracking for retail deliveries, home moves, and industrial freight.
+            </p>
+            <div class="grid grid-cols-3 gap-4 pt-4 border-t border-slate-200">
+                <div>
+                    <p class="text-2xl font-bold text-slate-900">100%</p>
+                    <p class="text-xs text-slate-500">Vetted Drivers</p>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-slate-900">Instant</p>
+                    <p class="text-xs text-slate-500">Price Estimates</p>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-slate-900">24/7</p>
+                    <p class="text-xs text-slate-500">Support Access</p>
                 </div>
             </div>
         </div>
 
-        <!-- Earnings Comparison Section -->
-        <section class="mt-12 lg:mt-16">
-            <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 rounded-3xl p-6 sm:p-8 md:p-12 text-white shadow-2xl border border-slate-800 relative overflow-hidden">
-                <div class="absolute -right-20 -top-20 w-80 h-80 bg-orange-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
-                <div class="max-w-xl space-y-3 mb-8 md:mb-10 relative">
-                    <span class="bg-orange-500/20 text-orange-400 border border-orange-500/30 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-widest inline-block">
-                        Transparent Driver Earnings
-                    </span>
-                    <h3 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">Keep more of every rand you earn.</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed">
-                        Traditional logistics platforms take up to 35% to 40% in commission on every trip. KP Logistics keeps your commission minimal and predictable so your hard-earned cash stays where it belongs: in your wallet.
-                    </p>
+        <!-- Right Booking Widget Card -->
+        <div class="lg:col-span-6">
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500"></div>
+                
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+                        <span>Book Your Transport</span>
+                    </h3>
+                    <i class="fa-solid fa-truck-fast text-orange-600 text-xl"></i>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-stretch relative">
-                    <!-- Traditional -->
-                    <div class="bg-slate-950/60 p-5 sm:p-6 md:p-8 rounded-2xl border border-slate-800/80 flex flex-col justify-between space-y-5 relative">
-                        <div class="absolute top-4 right-4 text-[10px] font-bold uppercase tracking-wider text-red-400 bg-red-500/10 px-2.5 py-1 rounded-lg border border-red-500/20">
-                            Traditional Apps
-                        </div>
-                        <div class="pt-6 md:pt-0">
-                            <h4 class="text-base font-bold text-slate-300 mb-1">High Commission Model</h4>
-                            <p class="text-xs text-slate-500">40 trips × R85 average fare</p>
-                        </div>
-
-                        <div class="space-y-3 py-4 border-y border-slate-800/80 text-sm">
-                            <div class="flex justify-between items-center text-slate-300">
-                                <span>Gross Earnings (40 Trips)</span>
-                                <span class="font-bold">R 3 400</span>
-                            </div>
-                            <div class="flex justify-between items-center text-red-400">
-                                <span>Platform Commission (35–40%)</span>
-                                <span class="font-bold">- R 1 275</span>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-between items-baseline pt-1">
-                            <div>
-                                <span class="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">Driver Take Home</span>
-                                <span class="text-2xl font-black text-slate-300 line-through decoration-red-500/80">R 2 125</span>
-                            </div>
-                            <span class="text-xs text-red-400 font-semibold"><i class="fa-solid fa-arrow-trend-down mr-1"></i> R1,275 lost</span>
-                        </div>
+                <div id="userSessionBanner" style="display: none;" class="mb-4 p-3 bg-slate-100 rounded-xl flex justify-between items-center text-xs border border-slate-200">
+                    <div>
+                        <span class="text-[9px] uppercase font-bold text-slate-400 block">Signed In Account</span>
+                        <span id="userEmailDisplay" class="font-bold text-slate-700"></span>
                     </div>
-
-                    <!-- KP Logistics -->
-                    <div class="bg-gradient-to-br from-orange-600/20 via-slate-950/80 to-slate-950 p-5 sm:p-6 md:p-8 rounded-2xl border-2 border-orange-500/50 flex flex-col justify-between space-y-5 relative shadow-xl shadow-orange-950/30">
-                        <div class="absolute top-4 right-4 text-[10px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/20 px-2.5 py-1 rounded-lg border border-orange-500/30">
-                            KP Logistics Model
-                        </div>
-                        <div class="pt-6 md:pt-0">
-                            <h4 class="text-base font-bold text-white mb-1">Fair Wallet & Commission</h4>
-                            <p class="text-xs text-slate-400">40 trips × R85 average fare · 12% commission</p>
-                        </div>
-
-                        <div class="space-y-3 py-4 border-y border-slate-800/80 text-sm">
-                            <div class="flex justify-between items-center text-slate-300">
-                                <span>Gross Earnings (40 Trips)</span>
-                                <span class="font-bold">R 3 400</span>
-                            </div>
-                            <div class="flex justify-between items-center text-orange-400">
-                                <span>Commission Deduction (12%)</span>
-                                <span class="font-bold">- R 408</span>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-between items-baseline pt-1">
-                            <div>
-                                <span class="text-[10px] uppercase font-bold text-orange-400 block tracking-wider">Driver Take Home</span>
-                                <span class="text-3xl font-black text-white">R 2 992</span>
-                            </div>
-                            <span class="text-xs text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20"><i class="fa-solid fa-arrow-trend-up mr-1"></i> +R867 saved</span>
-                        </div>
-                    </div>
+                    <button type="button" onclick="logoutUser()" class="bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-2.5 py-1 rounded-lg transition font-semibold">
+                        Sign Out
+                    </button>
                 </div>
 
-                <p class="text-[11px] text-slate-500 text-center mt-6 relative">Example illustration based on typical weekly hauling volume and fare averages. Actual earnings scale dynamically with vehicle category and completed distance.</p>
-            </div>
-        </section>
-
-        <!-- SEO Vehicle Indexing Section -->
-        <section class="mt-12">
-            <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm space-y-5">
-                <div>
-                    <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">South Africa's Trusted On-Demand Vehicle & Truck Hire Fleet</h3>
-                    <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-                        Whether you need a quick <strong class="text-slate-900">bakkie for hire</strong> for home furniture, a secure <strong class="text-slate-900">van for hire</strong> for retail stock, or heavy commercial logistics like an <strong class="text-slate-900">8 ton truck for hire</strong>, KP-Logistics connects you with verified local operators instantly.
-                    </p>
-                </div>
-
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 text-xs">
-                    <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-truck-pickup mr-1"></i> Light Transport</span>
-                        <span class="text-slate-500 leading-snug block">1-Ton Bakkie, Canopy Bakkie, Panel Van for hire across Gauteng.</span>
-                    </div>
-                    <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-truck mr-1"></i> Medium Logistics</span>
-                        <span class="text-slate-500 leading-snug block">4-Ton Medium Trucks & Industrial delivery vehicles.</span>
-                    </div>
-                    <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-truck-moving mr-1"></i> Heavy Freight</span>
-                        <span class="text-slate-500 leading-snug block">8-Ton Box Trucks & 8-Ton Open Side Curtainside trucks for bulk cargo.</span>
-                    </div>
-                    <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-wrench mr-1"></i> Specialized</span>
-                        <span class="text-slate-500 leading-snug block">Flatbed trucks for steel/machinery & Breakdown Tow Trucks.</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Takealot & Amazon Reseller Section -->
-        <section class="mt-12">
-            <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-6 sm:p-8 md:p-12 text-white shadow-xl flex flex-col lg:flex-row items-center justify-between gap-8 border border-slate-700">
-                <div class="space-y-4 max-w-xl w-full">
-                    <span class="bg-orange-500/20 text-orange-400 border border-orange-500/30 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-widest inline-block">
-                        E-Commerce Reseller Solutions
-                    </span>
-                    <h3 class="text-2xl md:text-3xl font-black tracking-tight">Stop Queuing at Takealot & Amazon Hubs.</h3>
-                    <p class="text-slate-300 text-sm leading-relaxed">
-                        We collect your stock directly from your door and deliver next-day straight to fulfillment centers. Skip the traffic and let our commercial bakkies handle your distribution.
-                    </p>
-                    <div class="flex flex-wrap gap-3 pt-2">
-                        <div class="bg-slate-800/80 border border-slate-700 px-4 py-3 rounded-xl flex items-center space-x-3">
-                            <i class="fa-solid fa-box-archive text-orange-400 text-lg"></i>
-                            <div>
-                                <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Urban Areas</p>
-                                <p class="text-lg font-black text-white">R90 <span class="text-xs font-normal text-slate-400">/ parcel</span></p>
-                            </div>
-                        </div>
-                        <div class="bg-slate-800/80 border border-slate-700 px-4 py-3 rounded-xl flex items-center space-x-3">
-                            <i class="fa-solid fa-truck-ramp-box text-orange-400 text-lg"></i>
-                            <div>
-                                <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Outlying Areas</p>
-                                <p class="text-lg font-black text-white">R120 <span class="text-xs font-normal text-slate-400">/ parcel</span></p>
-                            </div>
+                <form id="bookingForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Pickup Address</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-orange-600"><i class="fa-solid fa-location-dot"></i></span>
+                            <input type="text" id="pickup" required class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm" placeholder="e.g., 12 Mokone Street, Benoni">
                         </div>
                     </div>
-                </div>
-
-                <!-- WhatsApp Collection Form -->
-                <div class="w-full lg:w-96 bg-slate-950/80 p-5 sm:p-6 rounded-2xl border border-slate-700 space-y-3.5">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400 flex items-center space-x-2">
-                        <i class="fa-brands fa-whatsapp"></i>
-                        <span>Quick WhatsApp Booking</span>
-                    </h4>
 
                     <div>
-                        <label for="resellerAddress" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Your Exact Collection Address</label>
-                        <input type="text" id="resellerAddress" placeholder="e.g., 24 Vilakazi St, Orlando West"
-                            class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500/70 focus:border-orange-500 transition placeholder:text-slate-500">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Drop-off Address</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-flag-checkered"></i></span>
+                            <input type="text" id="dropoff" required class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm" placeholder="e.g., 45 Voortrekker Road, Germiston">
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Operating Region / Zone</label>
+                        <select id="bookingZone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
+                            <option value="East Rand">East Rand (Benoni, Springs, Boksburg, Kempton Park, Germiston)</option>
+                            <option value="Johannesburg">Johannesburg Central & Surrounds</option>
+                            <option value="Pretoria">Pretoria / Tshwane</option>
+                            <option value="West Rand">West Rand (Roodepoort, Krugersdorp, Randfontein)</option>
+                            <option value="Vaal">Vaal Triangle (Vereeniging, Vanderbijlpark)</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="resellerZone" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Zone</label>
-                            <select id="resellerZone" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500/70 focus:border-orange-500 transition">
-                                <option value="Urban (R90)">Urban (R90)</option>
-                                <option value="Outlying (R120)">Outlying (R120)</option>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle Category</label>
+                            <select id="vehicleType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
+                                <option value="bakkie" selected>Light Bakkie (1-Ton)</option>
+                                <option value="closedbakkie">Canopy Bakkie (Protected)</option>
+                                <option value="panelvan">Panel Van</option>
+                                <option value="medtruck">Medium Truck (4-Ton)</option>
+                                <option value="8ton">8-Ton Heavy Truck (Box)</option>
+                                <option value="8tonside">8-Ton Open Side / Curtain</option>
+                                <option value="flatbed">Flatbed Truck (Machinery/Steel)</option>
+                                <option value="towtruck">Tow Truck / Breakdown Recovery</option>
                             </select>
                         </div>
                         <div>
-                            <label for="resellerPhone" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Phone Number</label>
-                            <input type="tel" id="resellerPhone" maxlength="10" placeholder="0821234567"
-                                class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500/70 focus:border-orange-500 transition placeholder:text-slate-500">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Phone Number (10 Digits)</label>
+                            <input type="tel" id="phone" required maxlength="10" placeholder="0821234567" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
                         </div>
                     </div>
 
-                    <button id="resellerWaBtn"
-                        class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold py-3 px-4 rounded-xl text-xs transition inline-flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/20">
-                        <i class="fa-brands fa-whatsapp text-base"></i>
-                        <span>Send Collection to WhatsApp</span>
-                    </button>
-                    <p class="text-[10px] text-slate-400 text-center leading-relaxed">Cut-off: 1:00 PM (Late collections accommodated if driver is in area)</p>
-                </div>
-            </div>
-        </section>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Driver Assistants / Loaders (R200 each)</label>
+                        <input type="number" id="assistantCount" min="0" max="10" value="0" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
+                    </div>
 
-        <!-- Why KP-Logistics -->
-        <section class="mt-14 lg:mt-20 border-t border-slate-200 pt-12 lg:pt-16">
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-10 gap-3">
-                <div>
-                    <span class="text-xs font-bold uppercase tracking-widest text-orange-600">Why KP Logistics</span>
-                    <h3 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 mt-1 tracking-tight">The easy way to move.</h3>
-                </div>
-                <p class="text-sm text-slate-500 max-w-sm">
-                    A dependable logistics partner for homes, retailers and industrial projects across town.
+                    <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-orange-800 font-medium">Estimated Fare Quote</p>
+                            <p id="priceEstimate" class="text-2xl font-black text-orange-600">R 350.00</p>
+                        </div>
+                        <span class="text-[11px] text-slate-500 text-right">Includes base distance<br>& selected add-ons</span>
+                    </div>
+
+                    <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-orange-600/30 flex items-center justify-center space-x-2">
+                        <span>Dispatch Driver Now</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Earnings Comparison Section -->
+    <section class="max-w-7xl mx-auto px-6 py-12">
+        <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 rounded-3xl p-8 md:p-12 text-white shadow-2xl border border-slate-800 relative overflow-hidden">
+            <div class="absolute -right-20 -top-20 w-80 h-80 bg-orange-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-xl space-y-3 mb-10">
+                <span class="bg-orange-500/20 text-orange-400 border border-orange-500/30 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-widest inline-block">
+                    Transparent Driver Earnings
+                </span>
+                <h3 class="text-3xl md:text-4xl font-black tracking-tight">Keep more of every rand you earn.</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">
+                    Traditional logistics platforms take up to 35% to 40% in commission on every trip. KP Logistics keeps your commission minimal and predictable so your hard-earned cash stays where it belongs: in your wallet.
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-                <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
-                    <div class="w-12 h-12 bg-slate-900 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4">
-                        <i class="fa-solid fa-shield-halved"></i>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+                <div class="bg-slate-950/60 p-6 md:p-8 rounded-2xl border border-slate-800/80 flex flex-col justify-between space-y-6 relative">
+                    <div class="absolute top-4 right-4 text-xs font-bold uppercase tracking-wider text-red-400 bg-red-500/10 px-2.5 py-1 rounded-lg border border-red-500/20">
+                        Traditional Apps
                     </div>
-                    <h4 class="text-base sm:text-lg font-bold text-slate-900 mb-1">Vetted Drivers</h4>
-                    <p class="text-sm text-slate-500">Verified & reliable operators</p>
+                    <div>
+                        <h4 class="text-base font-bold text-slate-300 mb-1">High Commission Model</h4>
+                        <p class="text-xs text-slate-500">40 trips × R85 average fare</p>
+                    </div>
+
+                    <div class="space-y-3 py-4 border-y border-slate-800/80 text-sm">
+                        <div class="flex justify-between items-center text-slate-300">
+                            <span>Gross Earnings (40 Trips)</span>
+                            <span class="font-bold">R 3 400</span>
+                        </div>
+                        <div class="flex justify-between items-center text-red-400">
+                            <span>Platform Commission (35–40%)</span>
+                            <span class="font-bold">- R 1 275</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-baseline pt-2">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-slate-500 block">Driver Take Home</span>
+                            <span class="text-2xl font-black text-slate-300 line-through decoration-red-500/80">R 2 125</span>
+                        </div>
+                        <span class="text-xs text-red-400 font-semibold"><i class="fa-solid fa-arrow-trend-down mr-1"></i> R1,275 lost to fees</span>
+                    </div>
                 </div>
 
-                <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
-                    <div class="w-12 h-12 bg-slate-900 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4">
-                        <i class="fa-solid fa-bolt"></i>
+                <div class="bg-gradient-to-br from-orange-600/20 via-slate-950/80 to-slate-950 p-6 md:p-8 rounded-2xl border-2 border-orange-500/50 flex flex-col justify-between space-y-6 relative shadow-xl shadow-orange-950/30">
+                    <div class="absolute top-4 right-4 text-xs font-bold uppercase tracking-wider text-orange-400 bg-orange-500/20 px-2.5 py-1 rounded-lg border border-orange-500/30">
+                        KP Logistics Model
                     </div>
-                    <h4 class="text-base sm:text-lg font-bold text-slate-900 mb-1">Instant Dispatch</h4>
-                    <p class="text-sm text-slate-500">Fast vehicle matching</p>
-                </div>
+                    <div>
+                        <h4 class="text-base font-bold text-white mb-1">Fair Wallet & Commission</h4>
+                        <p class="text-xs text-slate-400">40 trips × R85 average fare · 12% commission</p>
+                    </div>
 
-                <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
-                    <div class="w-12 h-12 bg-slate-900 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4">
-                        <i class="fa-solid fa-headset"></i>
+                    <div class="space-y-3 py-4 border-y border-slate-800/80 text-sm">
+                        <div class="flex justify-between items-center text-slate-300">
+                            <span>Gross Earnings (40 Trips)</span>
+                            <span class="font-bold">R 3 400</span>
+                        </div>
+                        <div class="flex justify-between items-center text-orange-400">
+                            <span>Commission Deduction (12%)</span>
+                            <span class="font-bold">- R 408</span>
+                        </div>
                     </div>
-                    <h4 class="text-base sm:text-lg font-bold text-slate-900 mb-1">24/7 Support</h4>
-                    <p class="text-sm text-slate-500">Always here to help</p>
+
+                    <div class="flex justify-between items-baseline pt-2">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-orange-400 block">Driver Take Home</span>
+                            <span class="text-3xl font-black text-white">R 2 992</span>
+                        </div>
+                        <span class="text-xs text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20"><i class="fa-solid fa-arrow-trend-up mr-1"></i> +R867 saved</span>
+                    </div>
                 </div>
             </div>
-        </section>
-    </main>
+            
+            <p class="text-[11px] text-slate-500 text-center mt-6">Example illustration based on typical weekly hauling volume and fare averages. Actual earnings scale dynamically with vehicle category and completed distance.</p>
+        </div>
+    </section>
 
-    <!-- Footer -->
-    <footer class="bg-slate-950 text-slate-400 py-6 border-t border-slate-800 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
+    <!-- SEO Vehicle Indexing & Keyword Targeting Section -->
+    <section class="max-w-7xl mx-auto px-6 py-8">
+        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+            <div>
+                <h3 class="text-2xl font-black text-slate-900 tracking-tight">South Africa's Trusted On-Demand Vehicle & Truck Hire Fleet</h3>
+                <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                    Whether you need a quick <strong class="text-slate-900">bakkie for hire</strong> for home furniture, a secure <strong class="text-slate-900">van for hire</strong> for retail stock, or heavy commercial logistics like an <strong class="text-slate-900">8 ton truck for hire</strong>, KP-Logistics connects you with verified local operators instantly.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-truck-pickup mr-1"></i> Light Transport</span>
+                    <span class="text-slate-500">1-Ton Bakkie, Canopy Bakkie, Panel Van for hire across Gauteng.</span>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-truck mr-1"></i> Medium Logistics</span>
+                    <span class="text-slate-500">4-Ton Medium Trucks & Industrial delivery vehicles.</span>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-truck-moving mr-1"></i> Heavy Freight</span>
+                    <span class="text-slate-500">8-Ton Box Trucks & 8-Ton Open Side Curtainside trucks for bulk cargo.</span>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-wrench mr-1"></i> Specialized</span>
+                    <span class="text-slate-500">Flatbed trucks for steel/machinery & Breakdown Tow Trucks.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Takealot & Amazon Reseller Dedicated Section -->
+    <section class="max-w-7xl mx-auto px-6 py-12">
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-8 md:p-12 text-white shadow-xl flex flex-col lg:flex-row items-center justify-between gap-8 border border-slate-700">
+            <div class="space-y-4 max-w-xl">
+                <span class="bg-orange-500/20 text-orange-400 border border-orange-500/30 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-widest inline-block">
+                    E-Commerce Reseller Solutions
+                </span>
+                <h3 class="text-2xl md:text-3xl font-black tracking-tight">Stop Queuing at Takealot & Amazon Hubs.</h3>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    We collect your stock directly from your door and deliver next-day straight to fulfillment centers. Skip the traffic and let our commercial bakkies handle your distribution.
+                </p>
+                <div class="flex flex-wrap gap-4 pt-2">
+                    <div class="bg-slate-800/80 border border-slate-700 px-4 py-3 rounded-xl flex items-center space-x-3">
+                        <i class="fa-solid fa-box-archive text-orange-400 text-lg"></i>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-slate-400">Urban Areas</p>
+                            <p class="text-lg font-black text-white">R90 <span class="text-xs font-normal text-slate-400">/ parcel</span></p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/80 border border-slate-700 px-4 py-3 rounded-xl flex items-center space-x-3">
+                        <i class="fa-solid fa-truck-ramp-box text-orange-400 text-lg"></i>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-slate-400">Outlying Areas</p>
+                            <p class="text-lg font-black text-white">R120 <span class="text-xs font-normal text-slate-400">/ parcel</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WhatsApp Collection Form Widget -->
+            <div class="w-full lg:w-96 bg-slate-950/80 p-6 rounded-2xl border border-slate-700 space-y-3">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400">Quick WhatsApp Booking</h4>
+                
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Your Exact Collection Address</label>
+                    <input type="text" id="resellerAddress" placeholder="e.g., 24 Vilakazi St, Orlando West" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Zone</label>
+                        <select id="resellerZone" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500">
+                            <option value="Urban (R90)">Urban (R90)</option>
+                            <option value="Outlying (R120)">Outlying (R120)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Phone Number</label>
+                        <input type="tel" id="resellerPhone" maxlength="10" placeholder="0821234567" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+                </div>
+
+                <button id="resellerWaBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-xs transition inline-flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/20">
+                    <i class="fa-brands fa-whatsapp text-base"></i>
+                    <span>Send Collection to WhatsApp</span>
+                </button>
+                <p class="text-[10px] text-slate-400 text-center">Cut-off: 1:00 PM (Late collections accommodated if driver is in area)</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why KP-Logistics Section -->
+    <section class="max-w-7xl mx-auto px-6 py-16 border-t border-slate-200">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-widest text-orange-600">Why KP Logistics</span>
+                <h3 class="text-3xl md:text-4xl font-extrabold text-slate-900 mt-1 tracking-tight">The easy way to move.</h3>
+            </div>
+            <p class="text-sm text-slate-500 max-w-sm mt-3 md:mt-0">
+                A dependable logistics partner for homes, retailers and industrial projects across town.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-slate-900 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h4 class="text-lg font-bold text-slate-900 mb-1">Vetted Drivers</h4>
+                <p class="text-sm text-slate-500">Verified & reliable operators</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-slate-900 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <h4 class="text-lg font-bold text-slate-900 mb-1">Instant Dispatch</h4>
+                <p class="text-sm text-slate-500">Fast vehicle matching</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-slate-900 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h4 class="text-lg font-bold text-slate-900 mb-1">24/7 Support</h4>
+                <p class="text-sm text-slate-500">Always here to help</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="bg-slate-950 text-slate-400 py-6 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-xs space-y-4 md:space-y-0">
             <div class="flex items-center space-x-3">
                 <div class="bg-orange-600 text-white font-black px-2 py-1 rounded text-[10px]">KP</div>
                 <p>&copy; 2026 Kasiplus (PTY) Ltd. All rights reserved.</p>
             </div>
-            <div class="flex items-center space-x-5 text-slate-400">
+            <div class="flex items-center space-x-6 text-slate-400">
                 <span class="flex items-center space-x-1.5"><i class="fa-solid fa-lock text-orange-500 text-[11px]"></i><span>Secure escrow bookings</span></span>
                 <span class="flex items-center space-x-1.5"><i class="fa-solid fa-clock text-orange-500 text-[11px]"></i><span>Support available 24/7</span></span>
             </div>
@@ -494,4 +462,118 @@
                 installBtn.classList.add('flex');
             });
 
-            install
+            installBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                }
+                deferredPrompt = null;
+                installBtn.classList.add('hidden');
+                installBtn.classList.remove('flex');
+            });
+        }
+
+        // Initialize Google Places Autocomplete restricted to South Africa
+        window.addEventListener('load', function() {
+            const pickupInput = document.getElementById('pickup');
+            const dropoffInput = document.getElementById('dropoff');
+            const resellerAddressInput = document.getElementById('resellerAddress');
+            const options = { componentRestrictions: { country: "za" } };
+            
+            if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+                if (pickupInput) new google.maps.places.Autocomplete(pickupInput, options);
+                if (dropoffInput) new google.maps.places.Autocomplete(dropoffInput, options);
+                if (resellerAddressInput) new google.maps.places.Autocomplete(resellerAddressInput, options);
+            }
+        });
+
+        // Strict 10-digit South African Phone Validation helper
+        function validatePhone(phoneValue) {
+            const phoneRegex = /^0[0-9]{9}$/;
+            return phoneRegex.test(phoneValue);
+        }
+
+        // Intercept main booking form phone validation check
+        const bookingFormEl = document.getElementById('bookingForm');
+        if (bookingFormEl) {
+            bookingFormEl.addEventListener('submit', function(e) {
+                const phoneInput = document.getElementById('phone');
+                if (phoneInput && !validatePhone(phoneInput.value.trim())) {
+                    e.preventDefault();
+                    alert("Please enter a valid 10-digit South African mobile number starting with 0 (e.g., 0821234567).");
+                    phoneInput.focus();
+                }
+            });
+        }
+
+        // Dynamic WhatsApp Reseller Dispatch Builder
+        const resellerWaBtn = document.getElementById('resellerWaBtn');
+        if (resellerWaBtn) {
+            resellerWaBtn.addEventListener('click', function() {
+                const addressEl = document.getElementById('resellerAddress');
+                const zoneEl = document.getElementById('resellerZone');
+                const phoneEl = document.getElementById('resellerPhone');
+
+                const address = addressEl ? addressEl.value.trim() : "";
+                const zone = zoneEl ? zoneEl.value : "Urban (R90)";
+                const phone = phoneEl ? phoneEl.value.trim() : "";
+
+                if (!address) {
+                    alert("Please enter your collection address.");
+                    if (addressEl) addressEl.focus();
+                    return;
+                }
+                if (!validatePhone(phone)) {
+                    alert("Please enter a valid 10-digit mobile number starting with 0 for the collection contact.");
+                    if (phoneEl) phoneEl.focus();
+                    return;
+                }
+
+                const message = `📦 *TAKEALOT / AMAZON COLLECTION REQUEST*%0A%0A*Collection Address:* ${encodeURIComponent(address)}%0A*Zone:* ${encodeURIComponent(zone)}%0A*Contact Phone:* ${encodeURIComponent(phone)}%0A%0APlease dispatch driver for next-day DC delivery.`;
+                
+                const whatsappUrl = `https://wa.me/27821234567?text=${message}`;
+                window.open(whatsappUrl, '_blank');
+            });
+        }
+
+        // Dynamic price feedback simulation based on vehicle selection & assistant quantity
+        function updateEstimate() {
+            const vehicleTypeEl = document.getElementById('vehicleType');
+            const assistantCountEl = document.getElementById('assistantCount');
+            const priceEstimateEl = document.getElementById('priceEstimate');
+
+            if (!vehicleTypeEl || !priceEstimateEl) return;
+
+            const vehicleType = vehicleTypeEl.value;
+            const assistantCount = assistantCountEl ? parseInt(assistantCountEl.value) || 0 : 0;
+            
+            const basePrices = {
+                bakkie: 350,
+                closedbakkie: 400,
+                panelvan: 520,
+                medtruck: 890,
+                "8ton": 2200,
+                "8tonside": 2500,
+                flatbed: 3000,
+                towtruck: 1800
+            };
+            
+            let currentTotal = basePrices[vehicleType] || 350;
+            currentTotal += assistantCount * 200;
+            
+            priceEstimateEl.innerText = `R ${currentTotal}.00`;
+        }
+
+        const vehicleTypeSelect = document.getElementById('vehicleType');
+        const assistantCountInput = document.getElementById('assistantCount');
+
+        if (vehicleTypeSelect) vehicleTypeSelect.addEventListener('change', updateEstimate);
+        if (assistantCountInput) {
+            assistantCountInput.addEventListener('input', updateEstimate);
+            assistantCountInput.addEventListener('change', updateEstimate);
+        }
+    </script>
+</body>
+</html>
