@@ -1,0 +1,14 @@
+{
+  "name": "kp-logistics",
+  "version": "1.0.0",
+  "description": "KP Logistics Web App and Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "nodemailer": "^6.9.12"
+  }
+}
