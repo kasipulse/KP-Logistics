@@ -164,7 +164,7 @@ function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants,
     console.log('Driver SMS trigger dispatched.');
 }
 
-// Helper 3: Trigger Zoho Mail via Render Backend
+// Helper 3: Trigger Zoho Mail via Render Backend (uses no-cors mode to bypass browser preflight blocking)
 async function triggerZohoEmailDispatch(clientEmail, bookingData) {
     if (RENDER_BACKEND_URL.includes("your-render-app.onrender.com")) {
         console.warn('Render backend URL not configured yet. Skipping email trigger.');
@@ -174,15 +174,16 @@ async function triggerZohoEmailDispatch(clientEmail, bookingData) {
     try {
         await fetch(`${RENDER_BACKEND_URL}/api/bookings/confirm`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({
                 clientEmail: clientEmail,
                 bookingData: bookingData
             })
         });
-        console.log('Render Zoho email dispatch triggered.');
+        console.log('Render Zoho email dispatch request sent.');
     } catch (err) {
-        console.warn('Backend email endpoint unreachable or blocked by CORS:', err);
+        console.warn('Backend email endpoint notice:', err);
     }
 }
 
