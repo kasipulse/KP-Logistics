@@ -1,7 +1,7 @@
 {
   "name": "kp-logistics",
   "version": "1.0.0",
-  "description": "KP Logistics Web App and Backend",
+  "description": "KP Logistics Full-Stack Web App",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
