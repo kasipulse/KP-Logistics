@@ -67,6 +67,10 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Yoco Web SDK -->
+    <script src="https://js.yoco.com/sdk/v1/yoco-sdk-web.js"></script>
+
     <!-- Google Places Autocomplete SDK -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBO20O0U8J3-wQI-YLBQy09pdtpYpNCGrM&libraries=places&loading=async" async></script>
 </head>
@@ -212,6 +216,12 @@
                             <p id="priceEstimate" class="text-2xl font-black text-orange-600">R 350.00</p>
                         </div>
                         <span class="text-[11px] text-slate-500 text-right">Includes base distance<br>& selected add-ons</span>
+                    </div>
+
+                    <!-- Yoco Secure Card Payment Frame Container -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Secure Card Payment</label>
+                        <div id="card-frame" class="p-3 bg-slate-50 border border-slate-200 rounded-xl"></div>
                     </div>
 
                     <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-orange-600/30 flex items-center justify-center space-x-2">
@@ -493,86 +503,6 @@
         function validatePhone(phoneValue) {
             const phoneRegex = /^0[0-9]{9}$/;
             return phoneRegex.test(phoneValue);
-        }
-
-        // Intercept main booking form phone validation check
-        const bookingFormEl = document.getElementById('bookingForm');
-        if (bookingFormEl) {
-            bookingFormEl.addEventListener('submit', function(e) {
-                const phoneInput = document.getElementById('phone');
-                if (phoneInput && !validatePhone(phoneInput.value.trim())) {
-                    e.preventDefault();
-                    alert("Please enter a valid 10-digit South African mobile number starting with 0 (e.g., 0821234567).");
-                    phoneInput.focus();
-                }
-            });
-        }
-
-        // Dynamic WhatsApp Reseller Dispatch Builder
-        const resellerWaBtn = document.getElementById('resellerWaBtn');
-        if (resellerWaBtn) {
-            resellerWaBtn.addEventListener('click', function() {
-                const addressEl = document.getElementById('resellerAddress');
-                const zoneEl = document.getElementById('resellerZone');
-                const phoneEl = document.getElementById('resellerPhone');
-
-                const address = addressEl ? addressEl.value.trim() : "";
-                const zone = zoneEl ? zoneEl.value : "Urban (R90)";
-                const phone = phoneEl ? phoneEl.value.trim() : "";
-
-                if (!address) {
-                    alert("Please enter your collection address.");
-                    if (addressEl) addressEl.focus();
-                    return;
-                }
-                if (!validatePhone(phone)) {
-                    alert("Please enter a valid 10-digit mobile number starting with 0 for the collection contact.");
-                    if (phoneEl) phoneEl.focus();
-                    return;
-                }
-
-                const message = `📦 *TAKEALOT / AMAZON COLLECTION REQUEST*%0A%0A*Collection Address:* ${encodeURIComponent(address)}%0A*Zone:* ${encodeURIComponent(zone)}%0A*Contact Phone:* ${encodeURIComponent(phone)}%0A%0APlease dispatch driver for next-day DC delivery.`;
-                
-                const whatsappUrl = `https://wa.me/27821234567?text=${message}`;
-                window.open(whatsappUrl, '_blank');
-            });
-        }
-
-        // Dynamic price feedback simulation based on vehicle selection & assistant quantity
-        function updateEstimate() {
-            const vehicleTypeEl = document.getElementById('vehicleType');
-            const assistantCountEl = document.getElementById('assistantCount');
-            const priceEstimateEl = document.getElementById('priceEstimate');
-
-            if (!vehicleTypeEl || !priceEstimateEl) return;
-
-            const vehicleType = vehicleTypeEl.value;
-            const assistantCount = assistantCountEl ? parseInt(assistantCountEl.value) || 0 : 0;
-            
-            const basePrices = {
-                bakkie: 350,
-                closedbakkie: 400,
-                panelvan: 520,
-                medtruck: 890,
-                "8ton": 2200,
-                "8tonside": 2500,
-                flatbed: 3000,
-                towtruck: 1800
-            };
-            
-            let currentTotal = basePrices[vehicleType] || 350;
-            currentTotal += assistantCount * 200;
-            
-            priceEstimateEl.innerText = `R ${currentTotal}.00`;
-        }
-
-        const vehicleTypeSelect = document.getElementById('vehicleType');
-        const assistantCountInput = document.getElementById('assistantCount');
-
-        if (vehicleTypeSelect) vehicleTypeSelect.addEventListener('change', updateEstimate);
-        if (assistantCountInput) {
-            assistantCountInput.addEventListener('input', updateEstimate);
-            assistantCountInput.addEventListener('change', updateEstimate);
         }
     </script>
 </body>
