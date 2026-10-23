@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Your web app's Firebase configuration for KP-Logistics
+// Firebase Configuration for KP-Logistics
 const firebaseConfig = {
     apiKey: "AIzaSyABtMzUk8hZ0fJgPG3Osz2lQ64RkmBS3kw",
     authDomain: "kp-logistics-1a015.firebaseapp.com",
@@ -16,12 +16,10 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-window.db = db; // Expose Firestore to window for F12 console commands
+window.db = db;
 
 // Operational Configurations
 const ACTIVE_DRIVER_PHONE = "0658177124"; 
-const YOCO_PUBLIC_KEY = "pk_test_461c13e6Dme2LvY92d64"; 
-const RENDER_BACKEND_URL = "https://kp-logistics-backend.onrender.com"; 
 
 // South African market fuel benchmark rates
 const CURRENT_FUEL_PRICES = {
@@ -29,7 +27,6 @@ const CURRENT_FUEL_PRICES = {
     diesel: 33.29
 };
 
-// Global distance tracker (defaults to 15km baseline)
 let calculatedDistanceKm = 15;
 
 // Function to calculate exact route distance via Google Maps Distance Matrix
@@ -61,7 +58,7 @@ window.calculateRouteDistance = function() {
         if (status === 'OK') {
             const results = response.rows[0]?.elements[0];
             if (results && results.status === 'OK') {
-                calculatedDistanceKm = results.distance.value / 1000; // Meters to KM
+                calculatedDistanceKm = results.distance.value / 1000;
             }
         }
         updateEstimateDisplay();
@@ -105,11 +102,9 @@ function calculateFinalFare() {
     return Math.round(subtotal + commission);
 }
 
-// Updates the price estimate tag on the UI dynamically
 function updateEstimateDisplay() {
     const priceEstimateEl = document.getElementById('priceEstimate');
     if (!priceEstimateEl) return;
-
     const finalFare = calculateFinalFare();
     priceEstimateEl.innerText = `R ${finalFare}.00`;
 }
@@ -130,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Helper 1: Trigger SMS notification for Customer
+// Helper 1: Customer SMS Trigger
 function triggerCustomerSms(customerPhone, pickup, dropoff, vehicleType, fare, refCode) {
     const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
     const messageContent = `KP-Logistics: Paid! Ref: ${refCode}. From: ${pickup} To: ${dropoff} (${vehicleType}). Fare: R${fare}. Driver assigned shortly.`;
@@ -147,7 +142,7 @@ function triggerCustomerSms(customerPhone, pickup, dropoff, vehicleType, fare, r
     console.log('Customer SMS trigger dispatched.');
 }
 
-// Helper 2: Trigger SMS notification for Driver
+// Helper 2: Driver SMS Trigger
 function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants, clientPhone, fare, refCode) {
     const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
     const messageContent = `NEW LOAD! Ref:${refCode}. From:${pickup} To:${dropoff} (${vehicleType}, Helpers:${assistants}). Client:${clientPhone}. Fare:R${fare}`;
@@ -164,30 +159,7 @@ function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants,
     console.log('Driver SMS trigger dispatched.');
 }
 
-// Helper 3: Trigger Zoho Mail via Render Backend (uses no-cors mode to bypass browser preflight blocking)
-async function triggerZohoEmailDispatch(clientEmail, bookingData) {
-    if (RENDER_BACKEND_URL.includes("your-render-app.onrender.com")) {
-        console.warn('Render backend URL not configured yet. Skipping email trigger.');
-        return;
-    }
-
-    try {
-        await fetch(`${RENDER_BACKEND_URL}/api/bookings/confirm`, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({
-                clientEmail: clientEmail,
-                bookingData: bookingData
-            })
-        });
-        console.log('Render Zoho email dispatch request sent.');
-    } catch (err) {
-        console.warn('Backend email endpoint notice:', err);
-    }
-}
-
-// Process Booking and Dispatch Notifications
+// Process Booking, Database Save, SMS Triggers & Backend Email
 async function executeBookingDispatch(paymentReference, pickup, dropoff, zone, vehicleType, phone, customerEmail, assistantCount, loaderFee, finalCalculatedFare) {
     try {
         const bookingPayload = {
@@ -206,30 +178,39 @@ async function executeBookingDispatch(paymentReference, pickup, dropoff, zone, v
             createdAt: new Date()
         };
 
-        // 1. Save booking to Firestore database
+        // 1. Save to Firebase Firestore
         await addDoc(collection(db, "bookings"), bookingPayload);
 
-        // 2. Dispatch customer confirmation SMS
+        // 2. Dispatch Customer & Driver SMS alerts
         triggerCustomerSms(phone, pickup, dropoff, vehicleType, finalCalculatedFare, paymentReference);
-
-        // 3. Dispatch driver load SMS
         triggerDriverSms(ACTIVE_DRIVER_PHONE, pickup, dropoff, vehicleType, assistantCount, phone, finalCalculatedFare, paymentReference);
 
-        // 4. Trigger Zoho email via Render backend (Non-blocking)
-        triggerZohoEmailDispatch(customerEmail, bookingPayload);
+        // 3. Trigger backend email dispatch using RELATIVE route (Fixes 404 error)
+        try {
+            await fetch('/api/bookings/confirm', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    clientEmail: customerEmail,
+                    bookingData: bookingPayload
+                })
+            });
+        } catch (emailErr) {
+            console.warn("Email dispatch notice: Email server pending Zoho password update.", emailErr);
+        }
 
-        alert(`Payment of R ${finalCalculatedFare}.00 confirmed!\nRef: ${paymentReference}\nTrip saved and driver dispatch triggered.`);
+        alert(`Payment confirmed!\nRef: ${paymentReference}\nTrip saved and driver dispatch triggered.`);
         if (document.getElementById('bookingForm')) {
             document.getElementById('bookingForm').reset();
         }
 
     } catch (error) {
         console.error("Error saving paid booking: ", error);
-        alert("Payment received, but booking record failed. Contact support with reference: " + paymentReference);
+        alert("Booking record failed. Contact support with reference: " + paymentReference);
     }
 }
 
-// Handle Customer Booking Form Submission with Secure Test Checkout Prompt
+// Handle Form Submission
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
@@ -240,11 +221,8 @@ if (bookingForm) {
         const zone = document.getElementById('bookingZone') ? document.getElementById('bookingZone').value : "East Rand";
         const vehicleType = document.getElementById('vehicleType').value;
         const phone = document.getElementById('phone').value;
-        const clientEmailInput = document.getElementById('email');
         
-        const customerEmail = clientEmailInput && clientEmailInput.value 
-            ? clientEmailInput.value 
-            : `client_${phone.replace(/\s+/g, '')}@kplogistics.co.za`;
+        const customerEmail = `client_${phone.replace(/\s+/g, '')}@kplogistics.co.za`;
         
         const assistantInput = document.getElementById('assistantCount');
         const assistantCount = assistantInput ? parseInt(assistantInput.value) || 0 : 0;
@@ -252,14 +230,8 @@ if (bookingForm) {
 
         const finalCalculatedFare = calculateFinalFare();
 
-        // Secure Checkout Confirmation Step for Yoco Test Flow
-        const confirmPayment = confirm(`KP Logistics Yoco Checkout\n\nRoute: ${pickup} to ${dropoff}\nVehicle: ${vehicleType.toUpperCase()}\nTotal Fare: R ${finalCalculatedFare}.00\n\nClick OK to authorize test card payment and dispatch driver.`);
-        
-        if (!confirmPayment) {
-            return;
-        }
-
-        const paymentReference = 'YOCO_TEST_' + Math.floor((Math.random() * 1000000) + 1);
+        // Simulated secure payment reference for test checkout
+        const paymentReference = 'KP_PAY_' + Math.floor((Math.random() * 1000000) + 1);
         await executeBookingDispatch(paymentReference, pickup, dropoff, zone, vehicleType, phone, customerEmail, assistantCount, loaderFee, finalCalculatedFare);
     });
 }
