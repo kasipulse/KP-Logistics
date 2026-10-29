@@ -185,7 +185,7 @@ async function executeBookingDispatch(paymentReference, pickup, dropoff, zone, v
         triggerCustomerSms(phone, pickup, dropoff, vehicleType, finalCalculatedFare, paymentReference);
         triggerDriverSms(ACTIVE_DRIVER_PHONE, pickup, dropoff, vehicleType, assistantCount, phone, finalCalculatedFare, paymentReference);
 
-        // 3. Trigger backend email dispatch using RELATIVE route (Fixes 404 error)
+        // 3. Trigger backend email dispatch using RELATIVE route
         try {
             await fetch('/api/bookings/confirm', {
                 method: 'POST',
@@ -199,18 +199,12 @@ async function executeBookingDispatch(paymentReference, pickup, dropoff, zone, v
             console.warn("Email dispatch notice: Email server pending Zoho password update.", emailErr);
         }
 
-        alert(`Payment confirmed!\nRef: ${paymentReference}\nTrip saved and driver dispatch triggered.`);
-        if (document.getElementById('bookingForm')) {
-            document.getElementById('bookingForm').reset();
-        }
-
     } catch (error) {
         console.error("Error saving paid booking: ", error);
-        alert("Booking record failed. Contact support with reference: " + paymentReference);
     }
 }
 
-// Handle Form Submission
+// Handle Form Submission with Real Yoco Checkout Redirect
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
@@ -229,9 +223,35 @@ if (bookingForm) {
         const loaderFee = assistantCount * 200;
 
         const finalCalculatedFare = calculateFinalFare();
-
-        // Simulated secure payment reference for test checkout
         const paymentReference = 'KP_PAY_' + Math.floor((Math.random() * 1000000) + 1);
-        await executeBookingDispatch(paymentReference, pickup, dropoff, zone, vehicleType, phone, customerEmail, assistantCount, loaderFee, finalCalculatedFare);
+        const fareInCents = finalCalculatedFare * 100; // Yoco requires amounts in cents
+
+        try {
+            // 1. Request a Yoco Checkout session from unified Render backend
+            const response = await fetch('/api/payments/create-checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amountInCents: fareInCents,
+                    currency: 'ZAR',
+                    bookingRef: paymentReference
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.redirectUrl) {
+                // 2. Pre-save booking record & trigger notifications
+                await executeBookingDispatch(paymentReference, pickup, dropoff, zone, vehicleType, phone, customerEmail, assistantCount, loaderFee, finalCalculatedFare);
+
+                // 3. Redirect user directly to Yoco's secure hosted payment page
+                window.location.href = data.redirectUrl;
+            } else {
+                alert("Could not load payment gateway. Please check your YOCO_SECRET_KEY configuration on Render.");
+            }
+        } catch (error) {
+            console.error("Checkout redirection error:", error);
+            alert("Error connecting to payment gateway. Please try again.");
+        }
     });
 }
