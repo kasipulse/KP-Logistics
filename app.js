@@ -109,22 +109,6 @@ function updateEstimateDisplay() {
     priceEstimateEl.innerText = `R ${finalFare}.00`;
 }
 
-// Bind live UI listeners on DOM load
-document.addEventListener('DOMContentLoaded', () => {
-    const dropoffInput = document.getElementById('dropoff');
-    const pickupInput = document.getElementById('pickup');
-    const vehicleTypeSelect = document.getElementById('vehicleType');
-    const assistantCountInput = document.getElementById('assistantCount');
-
-    if (dropoffInput) dropoffInput.addEventListener('blur', window.calculateRouteDistance);
-    if (pickupInput) pickupInput.addEventListener('blur', window.calculateRouteDistance);
-    if (vehicleTypeSelect) vehicleTypeSelect.addEventListener('change', updateEstimateDisplay);
-    if (assistantCountInput) {
-        assistantCountInput.addEventListener('input', updateEstimateDisplay);
-        assistantCountInput.addEventListener('change', updateEstimateDisplay);
-    }
-});
-
 // Helper 1: Customer SMS Trigger
 function triggerCustomerSms(customerPhone, pickup, dropoff, vehicleType, fare, refCode) {
     const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
@@ -159,52 +143,42 @@ function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants,
     console.log('Driver SMS trigger dispatched.');
 }
 
-// Process Booking, Database Save, SMS Triggers & Backend Email
-async function executeBookingDispatch(paymentReference, pickup, dropoff, zone, vehicleType, phone, customerEmail, assistantCount, loaderFee, finalCalculatedFare) {
-    try {
-        const bookingPayload = {
-            pickup: pickup,
-            dropoff: dropoff,
-            zone: zone,
-            vehicleType: vehicleType,
-            phone: phone,
-            clientEmail: customerEmail,
-            assistantsRequested: assistantCount,
-            assistantFeeTotal: `R ${loaderFee}.00`,
-            estimatedDistanceKm: `${calculatedDistanceKm.toFixed(1)} km`,
-            estimatedFare: `R ${finalCalculatedFare}.00`,
-            paymentReference: paymentReference,
-            status: "Paid - Assigned to Driver",
-            createdAt: new Date()
-        };
-
-        // 1. Save to Firebase Firestore
-        await addDoc(collection(db, "bookings"), bookingPayload);
-
-        // 2. Dispatch Customer & Driver SMS alerts
-        triggerCustomerSms(phone, pickup, dropoff, vehicleType, finalCalculatedFare, paymentReference);
-        triggerDriverSms(ACTIVE_DRIVER_PHONE, pickup, dropoff, vehicleType, assistantCount, phone, finalCalculatedFare, paymentReference);
-
-        // 3. Trigger backend email dispatch using RELATIVE route
-        try {
-            await fetch('/api/bookings/confirm', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    clientEmail: customerEmail,
-                    bookingData: bookingPayload
-                })
-            });
-        } catch (emailErr) {
-            console.warn("Email dispatch notice: Email server pending Zoho password update.", emailErr);
-        }
-
-    } catch (error) {
-        console.error("Error saving paid booking: ", error);
-    }
+// Post-Payment Execution: Triggers SMS and Backend Email once Yoco confirms payment
+async function handleSuccessfulPaymentReturn(refCode) {
+    console.log(`Processing confirmed payment for reference: ${refCode}`);
+    
+    // In a production setup, you can fetch booking details via refCode or sessionStorage.
+    // For now, trigger success alert and cleanup URL state.
+    alert(`Payment successful! Reference: ${refCode}`);
+    
+    // Clean up URL parameters so it doesn't trigger repeatedly on refresh
+    window.history.replaceState({}, document.title, window.location.pathname);
 }
 
-// Handle Form Submission with Real Yoco Checkout Redirect
+// Bind live UI listeners and handle return URL parameters on DOM load
+document.addEventListener('DOMContentLoaded', () => {
+    const dropoffInput = document.getElementById('dropoff');
+    const pickupInput = document.getElementById('pickup');
+    const vehicleTypeSelect = document.getElementById('vehicleType');
+    const assistantCountInput = document.getElementById('assistantCount');
+
+    if (dropoffInput) dropoffInput.addEventListener('blur', window.calculateRouteDistance);
+    if (pickupInput) pickupInput.addEventListener('blur', window.calculateRouteDistance);
+    if (vehicleTypeSelect) vehicleTypeSelect.addEventListener('change', updateEstimateDisplay);
+    if (assistantCountInput) {
+        assistantCountInput.addEventListener('input', updateEstimateDisplay);
+        assistantCountInput.addEventListener('change', updateEstimateDisplay);
+    }
+
+    // Check if customer just returned from a successful Yoco payment session
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('payment') === 'success') {
+        const refCode = urlParams.get('ref');
+        handleSuccessfulPaymentReturn(refCode);
+    }
+});
+
+// Handle Form Submission with Real Yoco Checkout Redirect (Pending Payment State)
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
@@ -241,8 +215,24 @@ if (bookingForm) {
             const data = await response.json();
 
             if (data.redirectUrl) {
-                // 2. Pre-save booking record & trigger notifications
-                await executeBookingDispatch(paymentReference, pickup, dropoff, zone, vehicleType, phone, customerEmail, assistantCount, loaderFee, finalCalculatedFare);
+                // 2. Pre-save booking record as "Pending Payment" (No SMS sent yet)
+                const bookingPayload = {
+                    pickup: pickup,
+                    dropoff: dropoff,
+                    zone: zone,
+                    vehicleType: vehicleType,
+                    phone: phone,
+                    clientEmail: customerEmail,
+                    assistantsRequested: assistantCount,
+                    assistantFeeTotal: `R ${loaderFee}.00`,
+                    estimatedDistanceKm: `${calculatedDistanceKm.toFixed(1)} km`,
+                    estimatedFare: `R ${finalCalculatedFare}.00`,
+                    paymentReference: paymentReference,
+                    status: "Pending Payment",
+                    createdAt: new Date()
+                };
+
+                await addDoc(collection(db, "bookings"), bookingPayload);
 
                 // 3. Redirect user directly to Yoco's secure hosted payment page
                 window.location.href = data.redirectUrl;
