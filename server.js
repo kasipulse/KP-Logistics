@@ -17,14 +17,14 @@ app.get('/health', (req, res) => {
     res.status(200).send('OK');
 });
 
-// 4. Yoco Checkout Session Creator Route
+// 4. Yoco Checkout Session Creator Route (Updated to correct Yoco endpoint)
 app.post('/api/payments/create-checkout', async (req, res) => {
     try {
         const { amountInCents, currency, bookingRef } = req.body;
 
         const yocoSecretKey = process.env.YOCO_SECRET_KEY || '';
 
-        const response = await fetch('https://online.yoco.com/v1/checkouts', {
+        const response = await fetch('https://payments.yoco.com/api/checkouts', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
