@@ -17,7 +17,43 @@ app.get('/health', (req, res) => {
     res.status(200).send('OK');
 });
 
-// 4. Zoho SMTP Email Transporter
+// 4. Yoco Checkout Session Creator Route
+app.post('/api/payments/create-checkout', async (req, res) => {
+    try {
+        const { amountInCents, currency, bookingRef } = req.body;
+
+        const yocoSecretKey = process.env.YOCO_SECRET_KEY || '';
+
+        const response = await fetch('https://online.yoco.com/v1/checkouts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${yocoSecretKey}`
+            },
+            body: JSON.stringify({
+                amount: amountInCents,
+                currency: currency || 'ZAR',
+                cancelUrl: 'https://kplogistics.online',
+                successUrl: `https://kplogistics.online?payment=success&ref=${bookingRef}`,
+                metadata: { bookingRef: bookingRef }
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.redirectUrl) {
+            return res.status(200).json({ redirectUrl: data.redirectUrl, id: data.id });
+        } else {
+            console.error("Yoco API Error:", data);
+            return res.status(400).json({ error: "Failed to initialize Yoco session." });
+        }
+    } catch (err) {
+        console.error("Checkout creation error:", err);
+        return res.status(500).json({ error: "Server error initiating payment." });
+    }
+});
+
+// 5. Zoho SMTP Email Transporter
 const transporter = nodemailer.createTransport({
     host: 'smtp.zoho.com',
     port: 465,
@@ -28,7 +64,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// 5. Booking Confirmation Email Route
+// 6. Booking Confirmation Email Route
 app.post('/api/bookings/confirm', async (req, res) => {
     try {
         const { clientEmail, bookingData } = req.body;
@@ -64,7 +100,7 @@ app.post('/api/bookings/confirm', async (req, res) => {
     }
 });
 
-// 6. Wildcard Fallback Route to serve index.html
+// 7. Wildcard Fallback Route to serve index.html
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
