@@ -147,8 +147,6 @@ function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants,
 async function handleSuccessfulPaymentReturn(refCode) {
     console.log(`Processing confirmed payment for reference: ${refCode}`);
     
-    // In a production setup, you can fetch booking details via refCode or sessionStorage.
-    // For now, trigger success alert and cleanup URL state.
     alert(`Payment successful! Reference: ${refCode}`);
     
     // Clean up URL parameters so it doesn't trigger repeatedly on refresh
@@ -178,11 +176,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Handle Form Submission with Real Yoco Checkout Redirect (Pending Payment State)
+// Handle Form Submission with Instant Yoco Checkout Redirect
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        const submitBtn = bookingForm.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Connecting to Payment...";
+        }
         
         const pickup = document.getElementById('pickup').value;
         const dropoff = document.getElementById('dropoff').value;
@@ -215,8 +219,8 @@ if (bookingForm) {
             const data = await response.json();
 
             if (data.redirectUrl) {
-                // 2. Pre-save booking record as "Pending Payment" (No SMS sent yet)
-                const bookingPayload = {
+                // 2. Pre-save booking record in the background without blocking or triggering SMS
+                addDoc(collection(db, "bookings"), {
                     pickup: pickup,
                     dropoff: dropoff,
                     zone: zone,
@@ -230,18 +234,24 @@ if (bookingForm) {
                     paymentReference: paymentReference,
                     status: "Pending Payment",
                     createdAt: new Date()
-                };
+                }).catch(err => console.error("Background Firestore save note:", err));
 
-                await addDoc(collection(db, "bookings"), bookingPayload);
-
-                // 3. Redirect user directly to Yoco's secure hosted payment page
+                // 3. Immediately redirect user to Yoco's secure hosted payment page
                 window.location.href = data.redirectUrl;
             } else {
                 alert("Could not load payment gateway. Please check your YOCO_SECRET_KEY configuration on Render.");
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Dispatch Driver Now";
+                }
             }
         } catch (error) {
             console.error("Checkout redirection error:", error);
             alert("Error connecting to payment gateway. Please try again.");
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Dispatch Driver Now";
+            }
         }
     });
 }
