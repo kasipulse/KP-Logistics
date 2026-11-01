@@ -17,42 +17,6 @@ app.get('/health', (req, res) => {
     res.status(200).send('OK');
 });
 
-// 4. Yoco Checkout Session Creator Route (Updated to correct Yoco endpoint)
-app.post('/api/payments/create-checkout', async (req, res) => {
-    try {
-        const { amountInCents, currency, bookingRef } = req.body;
-
-        const yocoSecretKey = process.env.YOCO_SECRET_KEY || '';
-
-        const response = await fetch('https://payments.yoco.com/api/checkouts', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${yocoSecretKey}`
-            },
-            body: JSON.stringify({
-                amount: amountInCents,
-                currency: currency || 'ZAR',
-                cancelUrl: 'https://kplogistics.online',
-                successUrl: `https://kplogistics.online?payment=success&ref=${bookingRef}`,
-                metadata: { bookingRef: bookingRef }
-            })
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.redirectUrl) {
-            return res.status(200).json({ redirectUrl: data.redirectUrl, id: data.id });
-        } else {
-            console.error("Yoco API Error:", data);
-            return res.status(400).json({ error: "Failed to initialize Yoco session." });
-        }
-    } catch (err) {
-        console.error("Checkout creation error:", err);
-        return res.status(500).json({ error: "Server error initiating payment." });
-    }
-});
-
 // Helper: Fetch OAuth Access Token from Stitch API
 async function getStitchAccessToken() {
     const clientId = process.env.STITCH_CLIENT_ID || 'test-05990af1-a234-4071-b275-d7d1c00b2a9b';
@@ -80,7 +44,7 @@ async function getStitchAccessToken() {
     return data.access_token;
 }
 
-// 5. Stitch Payment Initiation Route (Instant EFT)
+// 4. Stitch Payment Initiation Route (Instant EFT)
 app.post('/api/payments/stitch-initiate', async (req, res) => {
     try {
         const { amountInCents, bookingRef } = req.body;
@@ -142,7 +106,7 @@ app.post('/api/payments/stitch-initiate', async (req, res) => {
     }
 });
 
-// 6. Zoho SMTP Email Transporter
+// 5. Zoho SMTP Email Transporter
 const transporter = nodemailer.createTransport({
     host: 'smtp.zoho.com',
     port: 465,
@@ -153,7 +117,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// 7. Booking Confirmation Email Route
+// 6. Booking Confirmation Email Route
 app.post('/api/bookings/confirm', async (req, res) => {
     try {
         const { clientEmail, bookingData } = req.body;
@@ -189,7 +153,7 @@ app.post('/api/bookings/confirm', async (req, res) => {
     }
 });
 
-// 8. Wildcard Fallback Route to serve index.html
+// 7. Wildcard Fallback Route to serve index.html
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
