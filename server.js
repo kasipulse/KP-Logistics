@@ -17,21 +17,27 @@ app.get('/health', (req, res) => {
     res.status(200).send('OK');
 });
 
-// Helper: Fetch OAuth Access Token from Stitch API
+// Helper: Fetch OAuth Access Token from Stitch API using Basic Auth
 async function getStitchAccessToken() {
-    const clientId = process.env.STITCH_CLIENT_ID || 'test-05990af1-a234-4071-b275-d7d1c00b2a9b';
-    const clientSecret = process.env.STITCH_CLIENT_SECRET || 'rwfn9+8fgDQOff0TjKBm/TeNm3uUs89fsEnNcndrAewpHdjYyA2KkQRachJRoNy3';
+    // 1. Sanitize credentials (trim spaces)
+    const rawClientId = process.env.STITCH_CLIENT_ID || 'test-05990af1-a234-4071-b275-d7d1c00b2a9b';
+    const rawClientSecret = process.env.STITCH_CLIENT_SECRET || 'rwfn9+8fgDQOff0TjKBm/TeNm3uUs89fsEnNcndrAewpHdjYyA2KkQRachJRoNy3';
+
+    const clientId = rawClientId.trim();
+    const clientSecret = rawClientSecret.trim();
+
+    // 2. Base64 encode credentials for Basic Auth Header to handle '+' and '/' in secrets cleanly
+    const authHeader = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
     const params = new URLSearchParams();
     params.append('grant_type', 'client_credentials');
-    params.append('client_id', clientId);
-    params.append('client_secret', clientSecret);
-    params.append('scope', 'client_paymentrequest'); // Updated scope for Stitch payment requests
+    params.append('scope', 'client_paymentrequest');
 
     const response = await fetch('https://secure.stitch.money/connect/token', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Basic ${authHeader}`
         },
         body: params
     });
