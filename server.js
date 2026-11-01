@@ -53,7 +53,96 @@ app.post('/api/payments/create-checkout', async (req, res) => {
     }
 });
 
-// 5. Zoho SMTP Email Transporter
+// Helper: Fetch OAuth Access Token from Stitch API
+async function getStitchAccessToken() {
+    const clientId = process.env.STITCH_CLIENT_ID || 'test-05990af1-a234-4071-b275-d7d1c00b2a9b';
+    const clientSecret = process.env.STITCH_CLIENT_SECRET || 'rwfn9+8fgDQOff0TjKBm/TeNm3uUs89fsEnNcndrAewpHdjYyA2KkQRachJRoNy3';
+
+    const params = new URLSearchParams();
+    params.append('grant_type', 'client_credentials');
+    params.append('client_id', clientId);
+    params.append('client_secret', clientSecret);
+    params.append('scope', 'execute_payments');
+
+    const response = await fetch('https://connect.stitch.money/connect/token', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: params
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.error_description || 'Failed to authenticate with Stitch API');
+    }
+
+    return data.access_token;
+}
+
+// 5. Stitch Payment Initiation Route (Instant EFT)
+app.post('/api/payments/stitch-initiate', async (req, res) => {
+    try {
+        const { amountInCents, bookingRef } = req.body;
+
+        // 1. Get Access Token
+        const token = await getStitchAccessToken();
+
+        // 2. Define Stitch GraphQL Payment Initiation Mutation
+        const query = `
+            mutation CreatePaymentInitiation($amount: MoneyInput!, $payerReference: String!, $beneficiaryReference: String!) {
+                paymentInitiationCreate(input: {
+                    amount: $amount,
+                    payerReference: $payerReference,
+                    beneficiaryReference: $beneficiaryReference
+                }) {
+                    paymentInitiation {
+                        id
+                        url
+                    }
+                }
+            }
+        `;
+
+        const variables = {
+            amount: {
+                quantity: (amountInCents / 100).toFixed(2),
+                currency: "ZAR"
+            },
+            payerReference: bookingRef,
+            beneficiaryReference: "KP LOGISTICS"
+        };
+
+        // 3. Request Payment Request URL from Stitch GraphQL API
+        const graphqlResponse = await fetch('https://api.stitch.money/graphql', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ query, variables })
+        });
+
+        const result = await graphqlResponse.json();
+
+        if (result.data && result.data.paymentInitiationCreate) {
+            const redirectUrl = result.data.paymentInitiationCreate.paymentInitiation.url;
+            return res.status(200).json({ 
+                redirectUrl, 
+                id: result.data.paymentInitiationCreate.paymentInitiation.id 
+            });
+        } else {
+            console.error("Stitch GraphQL Errors:", result.errors);
+            return res.status(400).json({ error: "Failed to create Stitch payment request." });
+        }
+
+    } catch (err) {
+        console.error("Stitch payment error:", err);
+        return res.status(500).json({ error: "Server error initiating Stitch payment." });
+    }
+});
+
+// 6. Zoho SMTP Email Transporter
 const transporter = nodemailer.createTransport({
     host: 'smtp.zoho.com',
     port: 465,
@@ -64,7 +153,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// 6. Booking Confirmation Email Route
+// 7. Booking Confirmation Email Route
 app.post('/api/bookings/confirm', async (req, res) => {
     try {
         const { clientEmail, bookingData } = req.body;
@@ -100,7 +189,7 @@ app.post('/api/bookings/confirm', async (req, res) => {
     }
 });
 
-// 7. Wildcard Fallback Route to serve index.html
+// 8. Wildcard Fallback Route to serve index.html
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
