@@ -28,7 +28,8 @@ async function getStitchAccessToken() {
     params.append('client_secret', clientSecret);
     params.append('scope', 'execute_payments');
 
-    const response = await fetch('https://connect.stitch.money/connect/token', {
+    // Updated to secure.stitch.money to fix ENOTFOUND DNS resolution errors
+    const response = await fetch('https://secure.stitch.money/connect/token', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -101,8 +102,8 @@ app.post('/api/payments/stitch-initiate', async (req, res) => {
         }
 
     } catch (err) {
-        console.error("Stitch payment error:", err);
-        return res.status(500).json({ error: "Server error initiating Stitch payment." });
+        console.error("Stitch payment error details:", err.message);
+        return res.status(500).json({ error: err.message || "Server error initiating Stitch payment." });
     }
 });
 
