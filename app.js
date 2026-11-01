@@ -143,7 +143,7 @@ function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants,
     console.log('Driver SMS trigger dispatched.');
 }
 
-// Post-Payment Execution: Triggers SMS and Backend Email once Yoco confirms payment
+// Post-Payment Execution: Triggers SMS and Backend Email once payment confirms
 async function handleSuccessfulPaymentReturn(refCode) {
     console.log(`Processing confirmed payment for reference: ${refCode}`);
     
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         assistantCountInput.addEventListener('change', updateEstimateDisplay);
     }
 
-    // Check if customer just returned from a successful Yoco payment session
+    // Check if customer just returned from a successful payment session
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('payment') === 'success') {
         const refCode = urlParams.get('ref');
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Handle Form Submission with Instant Yoco Checkout Redirect
+// Handle Form Submission with Instant Stitch Instant EFT Checkout Redirect
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
@@ -185,7 +185,7 @@ if (bookingForm) {
         const submitBtn = bookingForm.querySelector('button[type="submit"]');
         if (submitBtn) {
             submitBtn.disabled = true;
-            submitBtn.innerText = "Connecting to Payment...";
+            submitBtn.innerText = "Connecting to Stitch Instant EFT...";
         }
         
         const pickup = document.getElementById('pickup').value;
@@ -202,16 +202,15 @@ if (bookingForm) {
 
         const finalCalculatedFare = calculateFinalFare();
         const paymentReference = 'KP_PAY_' + Math.floor((Math.random() * 1000000) + 1);
-        const fareInCents = finalCalculatedFare * 100; // Yoco requires amounts in cents
+        const fareInCents = finalCalculatedFare * 100;
 
         try {
-            // 1. Request a Yoco Checkout session from unified Render backend
-            const response = await fetch('/api/payments/create-checkout', {
+            // 1. Request Stitch payment initiation session from Render backend
+            const response = await fetch('/api/payments/stitch-initiate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     amountInCents: fareInCents,
-                    currency: 'ZAR',
                     bookingRef: paymentReference
                 })
             });
@@ -219,7 +218,7 @@ if (bookingForm) {
             const data = await response.json();
 
             if (data.redirectUrl) {
-                // 2. Pre-save booking record in the background without blocking or triggering SMS
+                // 2. Pre-save booking record in the background as "Pending Payment"
                 addDoc(collection(db, "bookings"), {
                     pickup: pickup,
                     dropoff: dropoff,
@@ -236,17 +235,17 @@ if (bookingForm) {
                     createdAt: new Date()
                 }).catch(err => console.error("Background Firestore save note:", err));
 
-                // 3. Immediately redirect user to Yoco's secure hosted payment page
+                // 3. Immediately redirect user to Stitch's secure instant EFT payment page
                 window.location.href = data.redirectUrl;
             } else {
-                alert("Could not load payment gateway. Please check your YOCO_SECRET_KEY configuration on Render.");
+                alert("Could not load Stitch gateway. Please check your Stitch credentials on Render.");
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Dispatch Driver Now";
                 }
             }
         } catch (error) {
-            console.error("Checkout redirection error:", error);
+            console.error("Stitch redirection error:", error);
             alert("Error connecting to payment gateway. Please try again.");
             if (submitBtn) {
                 submitBtn.disabled = false;
