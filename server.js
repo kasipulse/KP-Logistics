@@ -26,9 +26,8 @@ async function getStitchAccessToken() {
     params.append('grant_type', 'client_credentials');
     params.append('client_id', clientId);
     params.append('client_secret', clientSecret);
-    params.append('scope', 'execute_payments');
+    params.append('scope', 'client_paymentrequest'); // Updated scope for Stitch payment requests
 
-    // Updated to secure.stitch.money to fix ENOTFOUND DNS resolution errors
     const response = await fetch('https://secure.stitch.money/connect/token', {
         method: 'POST',
         headers: {
@@ -38,8 +37,10 @@ async function getStitchAccessToken() {
     });
 
     const data = await response.json();
+    
     if (!response.ok) {
-        throw new Error(data.error_description || 'Failed to authenticate with Stitch API');
+        console.error("Stitch Token Request Failed:", data);
+        throw new Error(data.error_description || data.error || 'Failed to authenticate with Stitch API');
     }
 
     return data.access_token;
