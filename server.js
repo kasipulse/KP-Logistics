@@ -31,7 +31,7 @@ async function getStitchAccessToken() {
 
     const params = new URLSearchParams();
     params.append('grant_type', 'client_credentials');
-    params.append('scope', 'client_paymentrequest');
+    params.append('scope', 'client_paymentrequest'); // Required scope for client payment requests
 
     const response = await fetch('https://secure.stitch.money/connect/token', {
         method: 'POST',
@@ -60,15 +60,29 @@ app.post('/api/payments/stitch-initiate', async (req, res) => {
         // 1. Get Access Token
         const token = await getStitchAccessToken();
 
-        // 2. Define Stitch GraphQL Payment Initiation Mutation
+        // 2. Define Stitch GraphQL Client Payment Initiation Request Mutation
         const query = `
-            mutation CreatePaymentInitiation($amount: MoneyInput!, $payerReference: String!, $beneficiaryReference: String!) {
-                paymentInitiationCreate(input: {
+            mutation CreatePaymentRequest(
+                $amount: MoneyInput!, 
+                $payerReference: String!, 
+                $beneficiaryReference: String!,
+                $beneficiaryName: String!,
+                $beneficiaryBankId: BankBeneficiaryBankId!,
+                $beneficiaryAccountNumber: String!
+            ) {
+                clientPaymentInitiationRequestCreate(input: {
                     amount: $amount,
                     payerReference: $payerReference,
-                    beneficiaryReference: $beneficiaryReference
+                    beneficiaryReference: $beneficiaryReference,
+                    beneficiary: {
+                        bankAccount: {
+                            name: $beneficiaryName,
+                            bankId: $beneficiaryBankId,
+                            accountNumber: $beneficiaryAccountNumber
+                        }
+                    }
                 }) {
-                    paymentInitiation {
+                    paymentInitiationRequest {
                         id
                         url
                     }
@@ -82,7 +96,10 @@ app.post('/api/payments/stitch-initiate', async (req, res) => {
                 currency: "ZAR"
             },
             payerReference: bookingRef,
-            beneficiaryReference: "KP LOGISTICS"
+            beneficiaryReference: "KP LOGISTICS",
+            beneficiaryName: "Kasiplus (Pty) Ltd",
+            beneficiaryBankId: "fnb", // Replace with your receiving bank (e.g. fnb, standardBank, absa, nedbank, capitec)
+            beneficiaryAccountNumber: "62000000000" // Replace with your actual receiving bank account number
         };
 
         // 3. Request Payment Request URL from Stitch GraphQL API
@@ -97,14 +114,14 @@ app.post('/api/payments/stitch-initiate', async (req, res) => {
 
         const result = await graphqlResponse.json();
 
-        if (result.data && result.data.paymentInitiationCreate) {
-            const redirectUrl = result.data.paymentInitiationCreate.paymentInitiation.url;
+        if (result.data && result.data.clientPaymentInitiationRequestCreate) {
+            const reqData = result.data.clientPaymentInitiationRequestCreate.paymentInitiationRequest;
             return res.status(200).json({ 
-                redirectUrl, 
-                id: result.data.paymentInitiationCreate.paymentInitiation.id 
+                redirectUrl: reqData.url, 
+                id: reqData.id 
             });
         } else {
-            console.error("Stitch GraphQL Errors:", result.errors);
+            console.error("Stitch GraphQL Errors:", JSON.stringify(result.errors, null, 2));
             return res.status(400).json({ error: "Failed to create Stitch payment request." });
         }
 
