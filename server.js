@@ -19,13 +19,14 @@ app.get('/health', (req, res) => {
 
 // Helper: Fetch OAuth Access Token from Stitch API using Basic Auth
 async function getStitchAccessToken() {
+    // 1. Sanitize credentials (trim spaces)
     const rawClientId = process.env.STITCH_CLIENT_ID || 'test-05990af1-a234-4071-b275-d7d1c00b2a9b';
     const rawClientSecret = process.env.STITCH_CLIENT_SECRET || 'rwfn9+8fgDQOff0TjKBm/TeNm3uUs89fsEnNcndrAewpHdjYyA2KkQRachJRoNy3';
 
     const clientId = rawClientId.trim();
     const clientSecret = rawClientSecret.trim();
 
-    // Base64 encode credentials for Basic Auth Header
+    // 2. Base64 encode credentials for Basic Auth Header to handle '+' and '/' in secrets cleanly
     const authHeader = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
     const params = new URLSearchParams();
@@ -56,92 +57,60 @@ app.post('/api/payments/stitch-initiate', async (req, res) => {
     try {
         const { amountInCents, bookingRef } = req.body;
 
-        if (!amountInCents || !bookingRef) {
-            return res.status(400).json({ error: "Missing amountInCents or bookingRef in request body." });
-        }
+        // 1. Get Access Token
+        const token = await getStitchAccessToken();
 
-        let redirectUrl;
-        let paymentId = bookingRef;
-
-        try {
-            // 1. Attempt Real Token & GraphQL Generation via Stitch API
-            const token = await getStitchAccessToken();
-
-            const query = `
-                mutation CreatePaymentRequest(
-                    $amount: MoneyInput!, 
-                    $payerReference: String!, 
-                    $beneficiaryReference: String!,
-                    $beneficiaryName: String!,
-                    $beneficiaryBankId: BankBeneficiaryBankId!,
-                    $beneficiaryAccountNumber: String!
-                ) {
-                    clientPaymentInitiationRequestCreate(input: {
-                        amount: $amount,
-                        payerReference: $payerReference,
-                        beneficiaryReference: $beneficiaryReference,
-                        beneficiary: {
-                            bankAccount: {
-                                name: $beneficiaryName,
-                                bankId: $beneficiaryBankId,
-                                accountNumber: $beneficiaryAccountNumber
-                            }
-                        }
-                    }) {
-                        paymentInitiationRequest {
-                            id
-                            url
-                        }
+        // 2. Define Stitch GraphQL Payment Initiation Mutation
+        const query = `
+            mutation CreatePaymentInitiation($amount: MoneyInput!, $payerReference: String!, $beneficiaryReference: String!) {
+                paymentInitiationCreate(input: {
+                    amount: $amount,
+                    payerReference: $payerReference,
+                    beneficiaryReference: $beneficiaryReference
+                }) {
+                    paymentInitiation {
+                        id
+                        url
                     }
                 }
-            `;
-
-            const variables = {
-                amount: {
-                    quantity: (amountInCents / 100).toFixed(2),
-                    currency: "ZAR"
-                },
-                payerReference: bookingRef,
-                beneficiaryReference: "KP LOGISTICS",
-                beneficiaryName: "Kasiplus (Pty) Ltd",
-                beneficiaryBankId: "fnb",
-                beneficiaryAccountNumber: "62000000000"
-            };
-
-            const graphqlResponse = await fetch('https://api.stitch.money/graphql', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ query, variables })
-            });
-
-            const result = await graphqlResponse.json();
-
-            if (result.data && result.data.clientPaymentInitiationRequestCreate) {
-                const reqData = result.data.clientPaymentInitiationRequestCreate.paymentInitiationRequest;
-                redirectUrl = reqData.url;
-                paymentId = reqData.id;
-            } else {
-                throw new Error(result.errors?.[0]?.message || "GraphQL payment creation failed.");
             }
+        `;
 
-        } catch (apiErr) {
-            console.warn("Stitch API live call bypassed using test simulator fallback:", apiErr.message);
-            
-            // Seamless fallback redirection loop for testing without valid live/sandbox keys
-            redirectUrl = `/?payment=success&ref=${bookingRef}`;
-        }
+        const variables = {
+            amount: {
+                quantity: (amountInCents / 100).toFixed(2),
+                currency: "ZAR"
+            },
+            payerReference: bookingRef,
+            beneficiaryReference: "KP LOGISTICS"
+        };
 
-        return res.status(200).json({ 
-            redirectUrl, 
-            id: paymentId 
+        // 3. Request Payment Request URL from Stitch GraphQL API
+        const graphqlResponse = await fetch('https://api.stitch.money/graphql', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ query, variables })
         });
 
+        const result = await graphqlResponse.json();
+
+        if (result.data && result.data.paymentInitiationCreate) {
+            const redirectUrl = result.data.paymentInitiationCreate.paymentInitiation.url;
+            return res.status(200).json({ 
+                redirectUrl, 
+                id: result.data.paymentInitiationCreate.paymentInitiation.id 
+            });
+        } else {
+            console.error("Stitch GraphQL Errors:", result.errors);
+            return res.status(400).json({ error: "Failed to create Stitch payment request." });
+        }
+
     } catch (err) {
-        console.error("Stitch payment unhandled exception:", err);
-        return res.status(500).json({ error: "Server error initiating Stitch payment." });
+        console.error("Stitch payment error details:", err.message);
+        return res.status(500).json({ error: err.message || "Server error initiating Stitch payment." });
     }
 });
 
