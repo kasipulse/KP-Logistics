@@ -63,18 +63,42 @@
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#f97316">
+    <meta name="theme-color" content="#ea580c">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Leaflet.js Dark Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <!-- Google Places Autocomplete SDK -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBO20O0U8J3-wQI-YLBQy09pdtpYpNCGrM&libraries=places&loading=async" async></script>
+
+    <style>
+        .leaflet-container { background: #0f172a !important; }
+        .leaflet-control-container .leaflet-routing-container-hide { display: none; }
+        
+        /* Pulse animations for map pin dots */
+        @keyframes radar-pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            70% { transform: scale(1.6); opacity: 0; }
+            100% { transform: scale(0.95); opacity: 0; }
+        }
+        .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid #ea580c;
+            animation: radar-pulse 2s infinite ease-out;
+        }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 font-sans selection:bg-orange-600 selection:text-white relative">
 
     <!-- Navigation Header -->
-    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white">
+    <header class="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 text-white">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <div class="w-9 h-9 bg-orange-600 rounded-lg flex items-center justify-center text-white font-black tracking-tighter text-base shadow-md shadow-orange-600/30">
@@ -82,151 +106,162 @@
                 </div>
                 <div>
                     <h1 class="text-sm font-extrabold tracking-wider uppercase leading-none text-white">KP Logistics</h1>
-                    <span class="text-[9px] text-orange-400 font-semibold uppercase tracking-widest block mt-0.5">Client Portal</span>
+                    <span class="text-[9px] text-orange-400 font-semibold uppercase tracking-widest block mt-0.5">E-Hailing Fleet Portal</span>
                 </div>
             </div>
             <nav class="hidden md:flex items-center space-x-6 text-xs font-semibold tracking-wide uppercase">
-                <a href="index.html" class="text-orange-400 transition">Book a Truck</a>
+                <a href="index.html" class="text-orange-400 transition">Book Transport</a>
                 <a href="driver.html" class="text-slate-300 hover:text-orange-400 transition">Drive With Us</a>
             </nav>
             <div class="flex items-center space-x-3">
-                <button id="installAppBtn" class="hidden bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition shadow-md shadow-orange-500/20 uppercase tracking-wider items-center space-x-1.5">
+                <button id="installAppBtn" class="hidden bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition shadow-md shadow-orange-600/20 uppercase tracking-wider items-center space-x-1.5">
                     <i class="fa-solid fa-download"></i>
                     <span>Install App</span>
                 </button>
-                <a href="driver.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl transition border border-slate-700 uppercase tracking-wider">
+                <a href="driver.html" class="bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl transition border border-slate-800 uppercase tracking-wider">
                     Partner Fleet
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- Hero Section & Booking Engine -->
-    <main class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+    <!-- Main Hero Section with E-Hailing Dark Map Background -->
+    <div class="relative w-full min-h-[640px] flex items-center overflow-hidden border-b border-slate-800">
         
-        <!-- Left Hero Text -->
-        <div class="lg:col-span-6 space-y-6">
-            <div class="inline-flex items-center space-x-2 bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-semibold">
-                <i class="fa-solid fa-bolt-lightning text-orange-600"></i>
-                <span>Instant Dispatch & Verified Drivers</span>
+        <!-- Background Live Aesthetic Dark Map -->
+        <div id="ehailingHeroMap" class="absolute inset-0 z-0"></div>
+
+        <!-- Vignette & Glow Overlay for Map Readability -->
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-transparent pointer-events-none z-10"></div>
+        <div class="absolute inset-0 bg-slate-950/40 pointer-events-none z-10"></div>
+
+        <main class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-20 w-full">
+            
+            <!-- Left Hero Text -->
+            <div class="lg:col-span-6 space-y-6">
+                <div class="inline-flex items-center space-x-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md">
+                    <span class="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
+                    <i class="fa-solid fa-bolt-lightning text-orange-500"></i>
+                    <span>Instant Live Dispatch · Verified Drivers Nearby</span>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                    Move Anything, <span class="text-orange-500">Anywhere</span> Across Town.
+                </h2>
+                <p class="text-lg text-slate-300 leading-relaxed">
+                    Connect instantly with trusted local bakkie, van, and heavy truck operators. Transparent pricing, secure escrow handling, and live tracking for retail deliveries, home moves, and industrial freight.
+                </p>
+                <div class="grid grid-cols-3 gap-4 pt-4 border-t border-slate-800/80">
+                    <div>
+                        <p class="text-2xl font-bold text-white">100%</p>
+                        <p class="text-xs text-slate-400">Vetted Drivers</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-white">Instant</p>
+                        <p class="text-xs text-slate-400">Price Estimates</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-white">24/7</p>
+                        <p class="text-xs text-slate-400">Support Access</p>
+                    </div>
+                </div>
             </div>
-            <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                Move Anything, <span class="text-orange-600">Anywhere</span> Across Town.
-            </h2>
-            <p class="text-lg text-slate-600 leading-relaxed">
-                Connect instantly with trusted local bakkie, van, and heavy truck operators. Transparent pricing, secure escrow handling, and live tracking for retail deliveries, home moves, and industrial freight.
-            </p>
-            <div class="grid grid-cols-3 gap-4 pt-4 border-t border-slate-200">
-                <div>
-                    <p class="text-2xl font-bold text-slate-900">100%</p>
-                    <p class="text-xs text-slate-500">Vetted Drivers</p>
-                </div>
-                <div>
-                    <p class="text-2xl font-bold text-slate-900">Instant</p>
-                    <p class="text-xs text-slate-500">Price Estimates</p>
-                </div>
-                <div>
-                    <p class="text-2xl font-bold text-slate-900">24/7</p>
-                    <p class="text-xs text-slate-500">Support Access</p>
-                </div>
-            </div>
-        </div>
 
-        <!-- Right Booking Widget Card -->
-        <div class="lg:col-span-6">
-            <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 relative overflow-hidden">
-                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500"></div>
-                
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
-                        <span>Book Your Transport</span>
-                    </h3>
-                    <i class="fa-solid fa-truck-fast text-orange-600 text-xl"></i>
-                </div>
-
-                <div id="userSessionBanner" style="display: none;" class="mb-4 p-3 bg-slate-100 rounded-xl flex justify-between items-center text-xs border border-slate-200">
-                    <div>
-                        <span class="text-[9px] uppercase font-bold text-slate-400 block">Signed In Account</span>
-                        <span id="userEmailDisplay" class="font-bold text-slate-700"></span>
-                    </div>
-                    <button type="button" onclick="logoutUser()" class="bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-2.5 py-1 rounded-lg transition font-semibold">
-                        Sign Out
-                    </button>
-                </div>
-
-                <form id="bookingForm" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Pickup Address</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-orange-600"><i class="fa-solid fa-location-dot"></i></span>
-                            <input type="text" id="pickup" required class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm" placeholder="e.g., 12 Mokone Street, Benoni">
-                        </div>
+            <!-- Right Booking Card Floating over Map -->
+            <div class="lg:col-span-6">
+                <div class="bg-slate-900/90 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-slate-800 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-600 to-amber-500"></div>
+                    
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-white flex items-center space-x-2">
+                            <span>Book Your Transport</span>
+                        </h3>
+                        <i class="fa-solid fa-truck-pickup text-orange-500 text-xl"></i>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Drop-off Address</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-flag-checkered"></i></span>
-                            <input type="text" id="dropoff" required class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm" placeholder="e.g., 45 Voortrekker Road, Germiston">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Operating Region / Zone</label>
-                        <select id="bookingZone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
-                            <option value="East Rand">East Rand (Benoni, Springs, Boksburg, Kempton Park, Germiston)</option>
-                            <option value="Johannesburg">Johannesburg Central & Surrounds</option>
-                            <option value="Pretoria">Pretoria / Tshwane</option>
-                            <option value="West Rand">West Rand (Roodepoort, Krugersdorp, Randfontein)</option>
-                            <option value="Vaal">Vaal Triangle (Vereeniging, Vanderbijlpark)</option>
-                        </select>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div id="userSessionBanner" style="display: none;" class="mb-4 p-3 bg-slate-800/60 rounded-xl flex justify-between items-center text-xs border border-slate-700">
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Vehicle Category</label>
-                            <select id="vehicleType" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
-                                <option value="bakkie" selected>Light Bakkie (1-Ton)</option>
-                                <option value="closedbakkie">Canopy Bakkie (Protected)</option>
-                                <option value="panelvan">Panel Van</option>
-                                <option value="medtruck">Medium Truck (4-Ton)</option>
-                                <option value="8ton">8-Ton Heavy Truck (Box)</option>
-                                <option value="8tonside">8-Ton Open Side / Curtain</option>
-                                <option value="flatbed">Flatbed Truck (Machinery/Steel)</option>
-                                <option value="towtruck">Tow Truck / Breakdown Recovery</option>
+                            <span class="text-[9px] uppercase font-bold text-slate-400 block">Signed In Account</span>
+                            <span id="userEmailDisplay" class="font-bold text-slate-200"></span>
+                        </div>
+                        <button type="button" onclick="logoutUser()" class="bg-slate-700 border border-slate-600 text-slate-200 hover:bg-slate-600 px-2.5 py-1 rounded-lg transition font-semibold">
+                            Sign Out
+                        </button>
+                    </div>
+
+                    <form id="bookingForm" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Pickup Address</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-orange-500"><i class="fa-solid fa-location-dot"></i></span>
+                                <input type="text" id="pickup" required class="w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 text-white rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-slate-950 outline-none transition text-sm" placeholder="e.g., 12 Mokone Street, Benoni">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Drop-off Address</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-solid fa-flag-checkered"></i></span>
+                                <input type="text" id="dropoff" required class="w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 text-white rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-slate-950 outline-none transition text-sm" placeholder="e.g., 45 Voortrekker Road, Germiston">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Operating Region / Zone</label>
+                            <select id="bookingZone" class="w-full p-3 bg-slate-950/80 border border-slate-800 text-white rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition text-sm">
+                                <option value="East Rand">East Rand (Benoni, Springs, Boksburg, Kempton Park, Germiston)</option>
+                                <option value="Johannesburg">Johannesburg Central & Surrounds</option>
+                                <option value="Pretoria">Pretoria / Tshwane</option>
+                                <option value="West Rand">West Rand (Roodepoort, Krugersdorp, Randfontein)</option>
+                                <option value="Vaal">Vaal Triangle (Vereeniging, Vanderbijlpark)</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Phone Number (10 Digits)</label>
-                            <input type="tel" id="phone" required maxlength="10" placeholder="0821234567" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Vehicle Category</label>
+                                <select id="vehicleType" class="w-full p-3 bg-slate-950/80 border border-slate-800 text-white rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition text-sm">
+                                    <option value="bakkie" selected>Light Bakkie (1-Ton)</option>
+                                    <option value="closedbakkie">Canopy Bakkie (Protected)</option>
+                                    <option value="panelvan">Panel Van</option>
+                                    <option value="medtruck">Medium Truck (4-Ton)</option>
+                                    <option value="8ton">8-Ton Heavy Truck (Box)</option>
+                                    <option value="8tonside">8-Ton Open Side / Curtain</option>
+                                    <option value="flatbed">Flatbed Truck (Machinery/Steel)</option>
+                                    <option value="towtruck">Tow Truck / Breakdown Recovery</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Phone Number (10 Digits)</label>
+                                <input type="tel" id="phone" required maxlength="10" placeholder="0821234567" class="w-full p-3 bg-slate-950/80 border border-slate-800 text-white rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition text-sm">
+                            </div>
                         </div>
-                    </div>
 
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Driver Assistants / Loaders (R200 each)</label>
-                        <input type="number" id="assistantCount" min="0" max="10" value="0" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition text-sm">
-                    </div>
-
-                    <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-between">
                         <div>
-                            <p class="text-xs text-orange-800 font-medium">Estimated Fare Quote</p>
-                            <p id="priceEstimate" class="text-2xl font-black text-orange-600">R 350.00</p>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Driver Assistants / Loaders (R200 each)</label>
+                            <input type="number" id="assistantCount" min="0" max="10" value="0" class="w-full p-3 bg-slate-950/80 border border-slate-800 text-white rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition text-sm">
                         </div>
-                        <span class="text-[11px] text-slate-500 text-right">Includes base distance<br>& selected add-ons</span>
-                    </div>
 
-                    <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-orange-600/30 flex items-center justify-center space-x-2">
-                        <span>Dispatch Driver Now</span>
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </button>
-                </form>
+                        <div class="p-4 bg-orange-500/10 rounded-xl border border-orange-500/20 flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-orange-400 font-medium">Estimated Fare Quote</p>
+                                <p id="priceEstimate" class="text-2xl font-black text-orange-500">R 350.00</p>
+                            </div>
+                            <span class="text-[11px] text-slate-400 text-right">Includes base distance<br>& selected add-ons</span>
+                        </div>
+
+                        <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-orange-600/30 flex items-center justify-center space-x-2">
+                            <span>Dispatch Driver Now</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <!-- Earnings Comparison Section -->
     <section class="max-w-7xl mx-auto px-6 py-12">
-        <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 rounded-3xl p-8 md:p-12 text-white shadow-2xl border border-slate-800 relative overflow-hidden">
+        <div class="bg-slate-900 rounded-3xl p-8 md:p-12 text-white shadow-2xl border border-slate-800 relative overflow-hidden">
             <div class="absolute -right-20 -top-20 w-80 h-80 bg-orange-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
             <div class="max-w-xl space-y-3 mb-10">
@@ -240,7 +275,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-                <div class="bg-slate-950/60 p-6 md:p-8 rounded-2xl border border-slate-800/80 flex flex-col justify-between space-y-6 relative">
+                <div class="bg-slate-950/80 p-6 md:p-8 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-6 relative">
                     <div class="absolute top-4 right-4 text-xs font-bold uppercase tracking-wider text-red-400 bg-red-500/10 px-2.5 py-1 rounded-lg border border-red-500/20">
                         Traditional Apps
                     </div>
@@ -249,7 +284,7 @@
                         <p class="text-xs text-slate-500">40 trips × R85 average fare</p>
                     </div>
 
-                    <div class="space-y-3 py-4 border-y border-slate-800/80 text-sm">
+                    <div class="space-y-3 py-4 border-y border-slate-800 text-sm">
                         <div class="flex justify-between items-center text-slate-300">
                             <span>Gross Earnings (40 Trips)</span>
                             <span class="font-bold">R 3 400</span>
@@ -269,7 +304,7 @@
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-br from-orange-600/20 via-slate-950/80 to-slate-950 p-6 md:p-8 rounded-2xl border-2 border-orange-500/50 flex flex-col justify-between space-y-6 relative shadow-xl shadow-orange-950/30">
+                <div class="bg-gradient-to-br from-orange-600/20 via-slate-950 to-slate-950 p-6 md:p-8 rounded-2xl border-2 border-orange-500/50 flex flex-col justify-between space-y-6 relative shadow-xl shadow-orange-950/30">
                     <div class="absolute top-4 right-4 text-xs font-bold uppercase tracking-wider text-orange-400 bg-orange-500/20 px-2.5 py-1 rounded-lg border border-orange-500/30">
                         KP Logistics Model
                     </div>
@@ -278,7 +313,7 @@
                         <p class="text-xs text-slate-400">40 trips × R85 average fare · 12% commission</p>
                     </div>
 
-                    <div class="space-y-3 py-4 border-y border-slate-800/80 text-sm">
+                    <div class="space-y-3 py-4 border-y border-slate-800 text-sm">
                         <div class="flex justify-between items-center text-slate-300">
                             <span>Gross Earnings (40 Trips)</span>
                             <span class="font-bold">R 3 400</span>
@@ -305,30 +340,30 @@
 
     <!-- SEO Vehicle Indexing & Keyword Targeting Section -->
     <section class="max-w-7xl mx-auto px-6 py-8">
-        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+        <div class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-sm space-y-6">
             <div>
-                <h3 class="text-2xl font-black text-slate-900 tracking-tight">South Africa's Trusted On-Demand Vehicle & Truck Hire Fleet</h3>
-                <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-                    Whether you need a quick <strong class="text-slate-900">bakkie for hire</strong> for home furniture, a secure <strong class="text-slate-900">van for hire</strong> for retail stock, or heavy commercial logistics like an <strong class="text-slate-900">8 ton truck for hire</strong>, KP-Logistics connects you with verified local operators instantly.
+                <h3 class="text-2xl font-black text-white tracking-tight">South Africa's Trusted On-Demand Vehicle & Truck Hire Fleet</h3>
+                <p class="text-sm text-slate-400 mt-2 leading-relaxed">
+                    Whether you need a quick <strong class="text-white">bakkie for hire</strong> for home furniture, a secure <strong class="text-white">van for hire</strong> for retail stock, or heavy commercial logistics like an <strong class="text-white">8 ton truck for hire</strong>, KP-Logistics connects you with verified local operators instantly.
                 </p>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-truck-pickup mr-1"></i> Light Transport</span>
-                    <span class="text-slate-500">1-Ton Bakkie, Canopy Bakkie, Panel Van for hire across Gauteng.</span>
+                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                    <span class="font-bold text-orange-500 block mb-1"><i class="fa-solid fa-truck-pickup mr-1"></i> Light Transport</span>
+                    <span class="text-slate-400">1-Ton Bakkie, Canopy Bakkie, Panel Van for hire across Gauteng.</span>
                 </div>
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-truck mr-1"></i> Medium Logistics</span>
-                    <span class="text-slate-500">4-Ton Medium Trucks & Industrial delivery vehicles.</span>
+                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                    <span class="font-bold text-orange-500 block mb-1"><i class="fa-solid fa-truck mr-1"></i> Medium Logistics</span>
+                    <span class="text-slate-400">4-Ton Medium Trucks & Industrial delivery vehicles.</span>
                 </div>
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-truck-moving mr-1"></i> Heavy Freight</span>
-                    <span class="text-slate-500">8-Ton Box Trucks & 8-Ton Open Side Curtainside trucks for bulk cargo.</span>
+                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                    <span class="font-bold text-orange-500 block mb-1"><i class="fa-solid fa-truck-moving mr-1"></i> Heavy Freight</span>
+                    <span class="text-slate-400">8-Ton Box Trucks & 8-Ton Open Side Curtainside trucks for bulk cargo.</span>
                 </div>
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <span class="font-bold text-orange-600 block mb-1"><i class="fa-solid fa-wrench mr-1"></i> Specialized</span>
-                    <span class="text-slate-500">Flatbed trucks for steel/machinery & Breakdown Tow Trucks.</span>
+                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                    <span class="font-bold text-orange-500 block mb-1"><i class="fa-solid fa-wrench mr-1"></i> Specialized</span>
+                    <span class="text-slate-400">Flatbed trucks for steel/machinery & Breakdown Tow Trucks.</span>
                 </div>
             </div>
         </div>
@@ -336,7 +371,7 @@
 
     <!-- Takealot & Amazon Reseller Dedicated Section -->
     <section class="max-w-7xl mx-auto px-6 py-12">
-        <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-8 md:p-12 text-white shadow-xl flex flex-col lg:flex-row items-center justify-between gap-8 border border-slate-700">
+        <div class="bg-slate-900 rounded-3xl p-8 md:p-12 text-white shadow-xl flex flex-col lg:flex-row items-center justify-between gap-8 border border-slate-800">
             <div class="space-y-4 max-w-xl">
                 <span class="bg-orange-500/20 text-orange-400 border border-orange-500/30 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-widest inline-block">
                     E-Commerce Reseller Solutions
@@ -346,15 +381,15 @@
                     We collect your stock directly from your door and deliver next-day straight to fulfillment centers. Skip the traffic and let our commercial bakkies handle your distribution.
                 </p>
                 <div class="flex flex-wrap gap-4 pt-2">
-                    <div class="bg-slate-800/80 border border-slate-700 px-4 py-3 rounded-xl flex items-center space-x-3">
-                        <i class="fa-solid fa-box-archive text-orange-400 text-lg"></i>
+                    <div class="bg-slate-950 border border-slate-800 px-4 py-3 rounded-xl flex items-center space-x-3">
+                        <i class="fa-solid fa-box-archive text-orange-500 text-lg"></i>
                         <div>
                             <p class="text-[10px] uppercase font-bold text-slate-400">Urban Areas</p>
                             <p class="text-lg font-black text-white">R90 <span class="text-xs font-normal text-slate-400">/ parcel</span></p>
                         </div>
                     </div>
-                    <div class="bg-slate-800/80 border border-slate-700 px-4 py-3 rounded-xl flex items-center space-x-3">
-                        <i class="fa-solid fa-truck-ramp-box text-orange-400 text-lg"></i>
+                    <div class="bg-slate-950 border border-slate-800 px-4 py-3 rounded-xl flex items-center space-x-3">
+                        <i class="fa-solid fa-truck-ramp-box text-orange-500 text-lg"></i>
                         <div>
                             <p class="text-[10px] uppercase font-bold text-slate-400">Outlying Areas</p>
                             <p class="text-lg font-black text-white">R120 <span class="text-xs font-normal text-slate-400">/ parcel</span></p>
@@ -364,25 +399,25 @@
             </div>
 
             <!-- WhatsApp Collection Form Widget -->
-            <div class="w-full lg:w-96 bg-slate-950/80 p-6 rounded-2xl border border-slate-700 space-y-3">
+            <div class="w-full lg:w-96 bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-3">
                 <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400">Quick WhatsApp Booking</h4>
                 
                 <div>
                     <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Your Exact Collection Address</label>
-                    <input type="text" id="resellerAddress" placeholder="e.g., 24 Vilakazi St, Orlando West" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500">
+                    <input type="text" id="resellerAddress" placeholder="e.g., 24 Vilakazi St, Orlando West" class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500">
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Zone</label>
-                        <select id="resellerZone" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500">
+                        <select id="resellerZone" class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500">
                             <option value="Urban (R90)">Urban (R90)</option>
                             <option value="Outlying (R120)">Outlying (R120)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Phone Number</label>
-                        <input type="tel" id="resellerPhone" maxlength="10" placeholder="0821234567" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500">
+                        <input type="tel" id="resellerPhone" maxlength="10" placeholder="0821234567" class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500">
                     </div>
                 </div>
 
@@ -396,40 +431,40 @@
     </section>
 
     <!-- Why KP-Logistics Section -->
-    <section class="max-w-7xl mx-auto px-6 py-16 border-t border-slate-200">
+    <section class="max-w-7xl mx-auto px-6 py-16 border-t border-slate-800">
         <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
             <div>
-                <span class="text-xs font-bold uppercase tracking-widest text-orange-600">Why KP Logistics</span>
-                <h3 class="text-3xl md:text-4xl font-extrabold text-slate-900 mt-1 tracking-tight">The easy way to move.</h3>
+                <span class="text-xs font-bold uppercase tracking-widest text-orange-500">Why KP Logistics</span>
+                <h3 class="text-3xl md:text-4xl font-extrabold text-white mt-1 tracking-tight">The easy way to move.</h3>
             </div>
-            <p class="text-sm text-slate-500 max-w-sm mt-3 md:mt-0">
+            <p class="text-sm text-slate-400 max-w-sm mt-3 md:mt-0">
                 A dependable logistics partner for homes, retailers and industrial projects across town.
             </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
-                <div class="w-12 h-12 bg-slate-900 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4">
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm hover:border-slate-700 transition">
+                <div class="w-12 h-12 bg-slate-950 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4 border border-slate-800">
                     <i class="fa-solid fa-shield-halved"></i>
                 </div>
-                <h4 class="text-lg font-bold text-slate-900 mb-1">Vetted Drivers</h4>
-                <p class="text-sm text-slate-500">Verified & reliable operators</p>
+                <h4 class="text-lg font-bold text-white mb-1">Vetted Drivers</h4>
+                <p class="text-sm text-slate-400">Verified & reliable operators</p>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
-                <div class="w-12 h-12 bg-slate-900 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4">
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm hover:border-slate-700 transition">
+                <div class="w-12 h-12 bg-slate-950 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4 border border-slate-800">
                     <i class="fa-solid fa-bolt"></i>
                 </div>
-                <h4 class="text-lg font-bold text-slate-900 mb-1">Instant Dispatch</h4>
-                <p class="text-sm text-slate-500">Fast vehicle matching</p>
+                <h4 class="text-lg font-bold text-white mb-1">Instant Dispatch</h4>
+                <p class="text-sm text-slate-400">Fast vehicle matching</p>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
-                <div class="w-12 h-12 bg-slate-900 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4">
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm hover:border-slate-700 transition">
+                <div class="w-12 h-12 bg-slate-950 text-orange-500 rounded-xl flex items-center justify-center text-xl mb-4 border border-slate-800">
                     <i class="fa-solid fa-headset"></i>
                 </div>
-                <h4 class="text-lg font-bold text-slate-900 mb-1">24/7 Support</h4>
-                <p class="text-sm text-slate-500">Always here to help</p>
+                <h4 class="text-lg font-bold text-white mb-1">24/7 Support</h4>
+                <p class="text-sm text-slate-400">Always here to help</p>
             </div>
         </div>
     </section>
@@ -448,7 +483,7 @@
         </div>
     </footer>
 
-    <!-- Firebase Connection Script -->
+    <!-- Script imports -->
     <script type="module" src="app.js"></script>
     <script>
         // PWA Install Prompt Handler
@@ -488,6 +523,104 @@
                 if (dropoffInput) new google.maps.places.Autocomplete(dropoffInput, options);
                 if (resellerAddressInput) new google.maps.places.Autocomplete(resellerAddressInput, options);
             }
+        });
+
+        // Initialize Hero E-Hailing Dark Aesthetic Map
+        document.addEventListener('DOMContentLoaded', function() {
+            const map = L.map('ehailingHeroMap', { 
+                zoomControl: false,
+                dragging: false,
+                scrollWheelZoom: false,
+                doubleClickZoom: false,
+                touchZoom: false
+            }).setView([-26.1891, 28.3188], 12); // Centered on Benoni / East Rand
+
+            // Dark map tile layer (CARTO Dark Matter)
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap & CARTO',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Custom SVG Bakkie with Loaded Goods in the Bed Icon
+            const loadedBakkieSVG = `
+                <div style="position: relative; width: 44px; height: 44px; transform: rotate(40deg);">
+                    <!-- Pulse effect -->
+                    <div class="pulse-ring"></div>
+                    
+                    <!-- Vehicle SVG Body -->
+                    <svg viewBox="0 0 64 64" width="44" height="44" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0px 6px 10px rgba(0,0,0,0.8));">
+                        <!-- Vehicle Shadow -->
+                        <ellipse cx="32" cy="34" rx="22" ry="26" fill="#000000" fill-opacity="0.5"/>
+                        
+                        <!-- Bakkie Cab (Front) -->
+                        <path d="M22 46 L42 46 L40 28 L24 28 Z" fill="#ea580c"/> <!-- Orange Cab Body -->
+                        <path d="M25 38 L39 38 L37 30 L27 30 Z" fill="#0f172a"/> <!-- Windshield -->
+                        
+                        <!-- Bakkie Bed / Load Area (Back) -->
+                        <rect x="20" y="8" width="24" height="20" rx="2" fill="#334155" stroke="#ea580c" stroke-width="2"/>
+                        
+                        <!-- Loaded Cargo Boxes & Wooden Crates inside bed -->
+                        <rect x="22" y="10" width="10" height="9" rx="1" fill="#d97706" stroke="#78350f" stroke-width="1"/> <!-- Brown Crate -->
+                        <rect x="33" y="11" width="9" height="7" rx="1" fill="#f59e0b" stroke="#78350f" stroke-width="1"/> <!-- Box 2 -->
+                        <rect x="23" y="18" width="18" height="8" rx="1" fill="#0284c7" stroke="#0369a1" stroke-width="1"/> <!-- Blue Tarp Load -->
+                        
+                        <!-- Side Mirrors -->
+                        <rect x="19" y="32" width="3" height="5" rx="1" fill="#ea580c"/>
+                        <rect x="42" y="32" width="3" height="5" rx="1" fill="#ea580c"/>
+                        
+                        <!-- Headlights -->
+                        <circle cx="25" cy="45" r="2" fill="#fef08a"/>
+                        <circle cx="39" cy="45" r="2" fill="#fef08a"/>
+                    </svg>
+                </div>
+            `;
+
+            const bakkieIcon = L.divIcon({
+                className: 'custom-bakkie-marker',
+                html: loadedBakkieSVG,
+                iconSize: [44, 44],
+                iconAnchor: [22, 22]
+            });
+
+            // Pickup / Dropoff Pins
+            const pinSVG = (color) => `
+                <div style="position: relative; width: 24px; height: 24px; background: ${color}; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;">
+                    <div style="width: 8px; height: 8px; background: #ffffff; border-radius: 50%;"></div>
+                </div>
+            `;
+
+            const pickupIcon = L.divIcon({
+                className: 'pin-marker',
+                html: pinSVG('#ea580c'),
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+
+            const dropoffIcon = L.divIcon({
+                className: 'pin-marker',
+                html: pinSVG('#10b981'),
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+
+            // Route Coordinates across Benoni / East Rand
+            const pickupCoords = [-26.1950, 28.3100];
+            const vehicleCoords = [-26.1891, 28.3188];
+            const dropoffCoords = [-26.1750, 28.3320];
+
+            // Add Markers
+            L.marker(pickupCoords, { icon: pickupIcon }).addTo(map);
+            L.marker(vehicleCoords, { icon: bakkieIcon }).addTo(map);
+            L.marker(dropoffCoords, { icon: dropoffIcon }).addTo(map);
+
+            // Draw E-Hailing Aesthetic Route Path (Dashed glowing line)
+            const routePolyline = L.polyline([pickupCoords, vehicleCoords, dropoffCoords], {
+                color: '#ea580c',
+                weight: 4,
+                opacity: 0.8,
+                dashArray: '8, 8',
+                lineCap: 'round'
+            }).addTo(map);
         });
     </script>
 </body>
