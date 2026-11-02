@@ -19,19 +19,18 @@ app.get('/health', (req, res) => {
 
 // Helper: Fetch OAuth Access Token from Stitch API using Basic Auth
 async function getStitchAccessToken() {
-    // 1. Sanitize credentials (trim spaces)
     const rawClientId = process.env.STITCH_CLIENT_ID || 'test-05990af1-a234-4071-b275-d7d1c00b2a9b';
     const rawClientSecret = process.env.STITCH_CLIENT_SECRET || 'rwfn9+8fgDQOff0TjKBm/TeNm3uUs89fsEnNcndrAewpHdjYyA2KkQRachJRoNy3';
 
     const clientId = rawClientId.trim();
     const clientSecret = rawClientSecret.trim();
 
-    // 2. Base64 encode credentials for Basic Auth Header to handle '+' and '/' in secrets cleanly
+    // Base64 encode credentials for Basic Auth Header
     const authHeader = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
     const params = new URLSearchParams();
     params.append('grant_type', 'client_credentials');
-    params.append('scope', 'client_paymentrequest'); // Required scope for client payment requests
+    params.append('scope', 'client_paymentrequest');
 
     const response = await fetch('https://secure.stitch.money/connect/token', {
         method: 'POST',
@@ -57,8 +56,18 @@ app.post('/api/payments/stitch-initiate', async (req, res) => {
     try {
         const { amountInCents, bookingRef } = req.body;
 
+        if (!amountInCents || !bookingRef) {
+            return res.status(400).json({ error: "Missing amountInCents or bookingRef in request body." });
+        }
+
         // 1. Get Access Token
-        const token = await getStitchAccessToken();
+        let token;
+        try {
+            token = await getStitchAccessToken();
+        } catch (tokenErr) {
+            console.error("Stitch Token Authentication Error:", tokenErr.message);
+            return res.status(401).json({ error: `Stitch Authentication Failed: ${tokenErr.message}` });
+        }
 
         // 2. Define Stitch GraphQL Client Payment Initiation Request Mutation
         const query = `
@@ -98,8 +107,8 @@ app.post('/api/payments/stitch-initiate', async (req, res) => {
             payerReference: bookingRef,
             beneficiaryReference: "KP LOGISTICS",
             beneficiaryName: "Kasiplus (Pty) Ltd",
-            beneficiaryBankId: "fnb", // Replace with your receiving bank (e.g. fnb, standardBank, absa, nedbank, capitec)
-            beneficiaryAccountNumber: "62000000000" // Replace with your actual receiving bank account number
+            beneficiaryBankId: "fnb",
+            beneficiaryAccountNumber: "62000000000"
         };
 
         // 3. Request Payment Request URL from Stitch GraphQL API
@@ -122,12 +131,13 @@ app.post('/api/payments/stitch-initiate', async (req, res) => {
             });
         } else {
             console.error("Stitch GraphQL Errors:", JSON.stringify(result.errors, null, 2));
-            return res.status(400).json({ error: "Failed to create Stitch payment request." });
+            const errorMessage = result.errors && result.errors[0] ? result.errors[0].message : "Failed to create Stitch payment request.";
+            return res.status(400).json({ error: errorMessage });
         }
 
     } catch (err) {
-        console.error("Stitch payment error details:", err.message);
-        return res.status(500).json({ error: err.message || "Server error initiating Stitch payment." });
+        console.error("Stitch payment unhandled exception:", err);
+        return res.status(500).json({ error: "Server error initiating Stitch payment." });
     }
 });
 
