@@ -2,115 +2,136 @@ const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const path = require('path');
+const crypto = require('crypto');
 
 const app = express();
 
 // 1. Core Middleware
 app.use(cors());
+
+// IMPORTANT: Yoco webhook must be registered BEFORE express.json()
+// so it receives the raw body for signature verification.
+app.post('/api/webhooks/yoco', express.raw({ type: 'application/json' }), async (req, res) => {
+    try {
+        const webhookSecret = process.env.YOCO_WEBHOOK_SECRET;
+        if (!webhookSecret) {
+            console.error('YOCO_WEBHOOK_SECRET not set');
+            return res.status(500).send('Webhook secret not configured');
+        }
+
+        const webhookId = req.headers['webhook-id'];
+        const webhookTimestamp = req.headers['webhook-timestamp'];
+        const webhookSignature = req.headers['webhook-signature'];
+
+        if (!webhookId || !webhookTimestamp || !webhookSignature) {
+            return res.status(400).send('Missing webhook headers');
+        }
+
+        // Replay protection: 3 minutes
+        const ts = Number(webhookTimestamp);
+        if (!Number.isInteger(ts) || Math.abs(Date.now() / 1000 - ts) > 180) {
+            return res.status(400).send('Timestamp outside tolerance');
+        }
+
+        const rawBody = req.body.toString('utf8');
+        const signedContent = `${webhookId}.${webhookTimestamp}.${rawBody}`;
+        const secretKey = webhookSecret.replace('whsec_', '');
+        const decodedKey = Buffer.from(secretKey, 'base64');
+
+        const expectedSignature = crypto
+            .createHmac('sha256', decodedKey)
+            .update(signedContent)
+            .digest('base64');
+
+        const signatures = webhookSignature.split(' ');
+        let valid = false;
+        for (const sig of signatures) {
+            const sigValue = sig.replace('v1,', '');
+            if (sigValue === expectedSignature) {
+                valid = true;
+                break;
+            }
+        }
+
+        if (!valid) {
+            console.error('Yoco webhook signature mismatch');
+            return res.status(401).send('Invalid signature');
+        }
+
+        const event = JSON.parse(rawBody);
+        console.log('Yoco webhook received:', event.type);
+
+        if (event.type === 'payment.succeeded') {
+            const metadata = event.payload?.metadata || {};
+            const bookingRef = metadata.bookingRef;
+
+            if (!bookingRef) {
+                console.error('No bookingRef in webhook metadata');
+                return res.status(200).send('OK');
+            }
+
+            console.log(`[Yoco] Payment confirmed for booking: ${bookingRef}`);
+
+            // TODO: fetch booking from Firestore by paymentReference=bookingRef,
+            // then triggerCustomerSms + triggerDriverSms + transporter.sendMail here.
+        }
+
+        return res.status(200).send('OK');
+    } catch (err) {
+        console.error('Yoco webhook error:', err);
+        return res.status(500).send('Webhook processing error');
+    }
+});
+
 app.use(express.json());
 
-// 2. Serve static frontend assets (index.html, app.js, images, sitemaps, etc.)
+// 2. Serve static frontend assets
 app.use(express.static(__dirname));
 
-// 3. Health Check Endpoint for UptimeRobot (Keeps Render instance warm 24/7)
+// 3. Health Check Endpoint for UptimeRobot
 app.get('/health', (req, res) => {
     res.status(200).send('OK');
 });
 
-// Helper: Fetch OAuth Access Token from Stitch API using Basic Auth
-async function getStitchAccessToken() {
-    // 1. Sanitize credentials (trim spaces)
-    const rawClientId = process.env.STITCH_CLIENT_ID || 'test-05990af1-a234-4071-b275-d7d1c00b2a9b';
-    const rawClientSecret = process.env.STITCH_CLIENT_SECRET || 'rwfn9+8fgDQOff0TjKBm/TeNm3uUs89fsEnNcndrAewpHdjYyA2KkQRachJRoNy3';
-
-    const clientId = rawClientId.trim();
-    const clientSecret = rawClientSecret.trim();
-
-    // 2. Base64 encode credentials for Basic Auth Header to handle '+' and '/' in secrets cleanly
-    const authHeader = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
-
-    const params = new URLSearchParams();
-    params.append('grant_type', 'client_credentials');
-    params.append('scope', 'client_paymentrequest');
-
-    const response = await fetch('https://secure.stitch.money/connect/token', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Basic ${authHeader}`
-        },
-        body: params
-    });
-
-    const data = await response.json();
-    
-    if (!response.ok) {
-        console.error("Stitch Token Request Failed:", data);
-        throw new Error(data.error_description || data.error || 'Failed to authenticate with Stitch API');
-    }
-
-    return data.access_token;
-}
-
-// 4. Stitch Payment Initiation Route (Instant EFT)
-app.post('/api/payments/stitch-initiate', async (req, res) => {
+// 4. Yoco Checkout Initiation (replaces Stitch)
+app.post('/api/payments/yoco-initiate', async (req, res) => {
     try {
         const { amountInCents, bookingRef } = req.body;
 
-        // 1. Get Access Token
-        const token = await getStitchAccessToken();
-
-        // 2. Define Stitch GraphQL Payment Initiation Mutation
-        const query = `
-            mutation CreatePaymentInitiation($amount: MoneyInput!, $payerReference: String!, $beneficiaryReference: String!) {
-                paymentInitiationCreate(input: {
-                    amount: $amount,
-                    payerReference: $payerReference,
-                    beneficiaryReference: $beneficiaryReference
-                }) {
-                    paymentInitiation {
-                        id
-                        url
-                    }
-                }
-            }
-        `;
-
-        const variables = {
-            amount: {
-                quantity: (amountInCents / 100).toFixed(2),
-                currency: "ZAR"
-            },
-            payerReference: bookingRef,
-            beneficiaryReference: "KP LOGISTICS"
-        };
-
-        // 3. Request Payment Request URL from Stitch GraphQL API
-        const graphqlResponse = await fetch('https://api.stitch.money/graphql', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ query, variables })
-        });
-
-        const result = await graphqlResponse.json();
-
-        if (result.data && result.data.paymentInitiationCreate) {
-            const redirectUrl = result.data.paymentInitiationCreate.paymentInitiation.url;
-            return res.status(200).json({ 
-                redirectUrl, 
-                id: result.data.paymentInitiationCreate.paymentInitiation.id 
-            });
-        } else {
-            console.error("Stitch GraphQL Errors:", result.errors);
-            return res.status(400).json({ error: "Failed to create Stitch payment request." });
+        if (!amountInCents || !bookingRef) {
+            return res.status(400).json({ error: 'Missing amount or reference' });
         }
 
+        const response = await fetch('https://payments.yoco.com/api/checkouts', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.YOCO_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                amount: amountInCents,
+                currency: 'ZAR',
+                successUrl: `https://kplogistics.online/?payment=success&ref=${bookingRef}`,
+                cancelUrl: `https://kplogistics.online/?payment=cancelled`,
+                failureUrl: `https://kplogistics.online/?payment=failed`,
+                metadata: { bookingRef: bookingRef }
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error('Yoco checkout creation failed:', data);
+            return res.status(400).json({ error: data.message || 'Yoco checkout failed' });
+        }
+
+        return res.status(200).json({
+            redirectUrl: data.redirectUrl,
+            id: data.id
+        });
     } catch (err) {
-        console.error("Stitch payment error details:", err.message);
-        return res.status(500).json({ error: err.message || "Server error initiating Stitch payment." });
+        console.error('Yoco initiation error:', err.message);
+        return res.status(500).json({ error: 'Server error initiating Yoco payment.' });
     }
 });
 
