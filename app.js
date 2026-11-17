@@ -110,6 +110,8 @@ function updateEstimateDisplay() {
 }
 
 // Helper 1: Customer SMS Trigger
+// NOTE: Now unused from the frontend. Will be called from the Yoco webhook
+// on the server once the Firestore lookup is wired in.
 function triggerCustomerSms(customerPhone, pickup, dropoff, vehicleType, fare, refCode) {
     const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
     const messageContent = `KP-Logistics: Paid! Ref: ${refCode}. From: ${pickup} To: ${dropoff} (${vehicleType}). Fare: R${fare}. Driver assigned shortly.`;
@@ -127,6 +129,8 @@ function triggerCustomerSms(customerPhone, pickup, dropoff, vehicleType, fare, r
 }
 
 // Helper 2: Driver SMS Trigger
+// NOTE: Now unused from the frontend. Will be called from the Yoco webhook
+// on the server once the Firestore lookup is wired in.
 function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants, clientPhone, fare, refCode) {
     const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
     const messageContent = `NEW LOAD! Ref:${refCode}. From:${pickup} To:${dropoff} (${vehicleType}, Helpers:${assistants}). Client:${clientPhone}. Fare:R${fare}`;
@@ -143,12 +147,14 @@ function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants,
     console.log('Driver SMS trigger dispatched.');
 }
 
-// Post-Payment Execution: Triggers SMS and Backend Email once payment confirms
+// Post-Payment Execution
+// IMPORTANT: Payment success is confirmed by the Yoco webhook on the server,
+// NOT by the ?payment=success URL parameter. Do not send SMS or email or show
+// "Payment successful!" here — the user may have cancelled, or the webhook may
+// still be in flight. The webhook handler on the server is the source of truth.
 async function handleSuccessfulPaymentReturn(refCode) {
-    console.log(`Processing confirmed payment for reference: ${refCode}`);
-    
-    alert(`Payment successful! Reference: ${refCode}`);
-    
+    console.log(`Payment return for reference: ${refCode}`);
+
     // Clean up URL parameters so it doesn't trigger repeatedly on refresh
     window.history.replaceState({}, document.title, window.location.pathname);
 }
@@ -176,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Handle Form Submission with Instant Stitch Instant EFT Checkout Redirect
+// Handle Form Submission with Yoco Checkout Redirect
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
@@ -185,7 +191,7 @@ if (bookingForm) {
         const submitBtn = bookingForm.querySelector('button[type="submit"]');
         if (submitBtn) {
             submitBtn.disabled = true;
-            submitBtn.innerText = "Connecting to Stitch Instant EFT...";
+            submitBtn.innerText = "Connecting to Yoco Secure Checkout...";
         }
         
         const pickup = document.getElementById('pickup').value;
@@ -205,8 +211,8 @@ if (bookingForm) {
         const fareInCents = finalCalculatedFare * 100;
 
         try {
-            // 1. Request Stitch payment initiation session from Render backend
-            const response = await fetch('/api/payments/stitch-initiate', {
+            // 1. Request Yoco payment initiation session from Render backend
+            const response = await fetch('/api/payments/yoco-initiate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -235,17 +241,17 @@ if (bookingForm) {
                     createdAt: new Date()
                 }).catch(err => console.error("Background Firestore save note:", err));
 
-                // 3. Immediately redirect user to Stitch's secure instant EFT payment page
+                // 3. Immediately redirect user to Yoco's secure checkout page
                 window.location.href = data.redirectUrl;
             } else {
-                alert("Could not load Stitch gateway. Please check your Stitch credentials on Render.");
+                alert("Could not load Yoco gateway. Please check your Yoco credentials on Render.");
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Dispatch Driver Now";
                 }
             }
         } catch (error) {
-            console.error("Stitch redirection error:", error);
+            console.error("Yoco redirection error:", error);
             alert("Error connecting to payment gateway. Please try again.");
             if (submitBtn) {
                 submitBtn.disabled = false;
