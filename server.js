@@ -3,7 +3,6 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const path = require('path');
 const crypto = require('crypto');
-const axios = require('axios');
 const admin = require('firebase-admin');
 
 const app = express();
@@ -104,7 +103,7 @@ app.post('/api/webhooks/yoco', express.raw({ type: 'application/json' }), async 
       console.log(`[Yoco] Payment confirmed for booking: ${bookingRef}`);
 
       // ───────────────────────────────────────────────────────
-      // ✅ FILLED-IN TODO: look up booking, send SMS + email
+      // Post-payment: mark paid, send SMS to customer + driver, email
       // ───────────────────────────────────────────────────────
       try {
         const snap = await db
@@ -122,7 +121,7 @@ app.post('/api/webhooks/yoco', express.raw({ type: 'application/json' }), async 
         const booking = bookingDoc.data();
         const bookingId = bookingDoc.id;
 
-        // 1) Mark booking paid (so track.html stops showing "Pending Payment")
+        // 1) Mark booking paid
         await bookingDoc.ref.set(
           {
             status: 'Paid',
@@ -142,7 +141,8 @@ app.post('/api/webhooks/yoco', express.raw({ type: 'application/json' }), async 
           `NEW LOAD! Ref:${bookingRef}. ` +
           `From:${booking.pickup} To:${booking.dropoff} ` +
           `(${booking.vehicleType}, Helpers:${booking.assistantsRequested || 0}). ` +
-          `Client:${booking.phone}. Fare:${booking.estimatedFare}`;
+          `Client:${booking.phone}. Fare:${booking.estimatedFare}. ` +
+          `Open: kplogistics.online/driver-update.html?ref=${bookingId}`;
 
         // 3) Fire customer + driver SMS in parallel
         await Promise.allSettled([
@@ -150,7 +150,7 @@ app.post('/api/webhooks/yoco', express.raw({ type: 'application/json' }), async 
           sendSmsInternal(ACTIVE_DRIVER_PHONE, driverMsg, bookingId, 'driver'),
         ]);
 
-        // 4) Fire confirmation email (best-effort, don't block webhook)
+        // 4) Fire confirmation email (best-effort)
         if (booking.clientEmail) {
           sendConfirmationEmail(booking.clientEmail, {
             paymentReference: bookingRef,
@@ -161,7 +161,6 @@ app.post('/api/webhooks/yoco', express.raw({ type: 'application/json' }), async 
           }).catch((e) => console.error('[Zoho] Email failed:', e.message));
         }
       } catch (innerErr) {
-        // Never fail the webhook — Yoco would retry and we'd double-send
         console.error('[Yoco post-payment error]', innerErr);
       }
     }
@@ -241,7 +240,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // ─────────────────────────────────────────────────────────────
-// 6. Booking Confirmation Email Route (keep for manual calls)
+// 6. Booking Confirmation Email Route (manual call)
 // ─────────────────────────────────────────────────────────────
 app.post('/api/bookings/confirm', async (req, res) => {
   try {
@@ -284,22 +283,27 @@ async function sendConfirmationEmail(clientEmail, bookingData) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// 7. SMS SEND (server-side; called from Yoco webhook AND any client)
+// 7. SMS SEND (uses Node's built-in fetch — no axios needed)
 // ─────────────────────────────────────────────────────────────
 async function sendSmsInternal(recipientNumber, message, bookingRef, kind) {
   const phone = normalisePhone(recipientNumber);
 
   try {
-    const url = `${SMS_BASE}/sms/send-url/${SMS_SEND_UUID}`;
-    const response = await axios.get(url, {
-      params: { recipientNumber: phone, message },
-      timeout: 10000,
-    });
+    const params = new URLSearchParams({ recipientNumber: phone, message });
+    const url = `${SMS_BASE}/sms/send-url/${SMS_SEND_UUID}?${params.toString()}`;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(url, { method: 'GET', signal: controller.signal });
+    clearTimeout(timeout);
+
+    const data = await response.json().catch(() => ({}));
 
     const messageId =
-      response.data?.messageId ||
-      response.data?.message_id ||
-      response.data?.id ||
+      data?.messageId ||
+      data?.message_id ||
+      data?.id ||
       null;
 
     if (bookingRef) {
@@ -346,7 +350,7 @@ async function sendSmsInternal(recipientNumber, message, bookingRef, kind) {
   }
 }
 
-// Public SMS endpoint (optional — useful for manual re-sends or the reseller widget)
+// Public SMS endpoint (for manual re-sends / testing)
 app.post('/api/sms/send', async (req, res) => {
   const { recipientNumber, message, bookingRef, kind } = req.body;
 
@@ -360,11 +364,10 @@ app.post('/api/sms/send', async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────
 // 8. SMS DELIVERY REPORT WEBHOOK
-// Register this URL in SMSMessenger:
-//   https://YOUR-RENDER-APP.onrender.com/api/sms/dlr
+// Register in SMSMessenger: https://YOUR-RENDER-APP.onrender.com/api/sms/dlr
 // ─────────────────────────────────────────────────────────────
 app.all('/api/sms/dlr', async (req, res) => {
-  // Ack immediately — gateways retry on non-2xx and can flood you
+  // Ack immediately — gateways retry on non-2xx
   res.status(200).send('OK');
 
   try {
