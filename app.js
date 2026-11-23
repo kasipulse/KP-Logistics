@@ -1,6 +1,6 @@
 // Import Firebase SDKs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // Firebase Configuration for KP-Logistics
 const firebaseConfig = {
@@ -19,7 +19,7 @@ const db = getFirestore(app);
 window.db = db;
 
 // Operational Configurations
-const ACTIVE_DRIVER_PHONE = "0658177124"; 
+const ACTIVE_DRIVER_PHONE = "0658177124";
 
 // South African market fuel benchmark rates
 const CURRENT_FUEL_PRICES = {
@@ -29,8 +29,10 @@ const CURRENT_FUEL_PRICES = {
 
 let calculatedDistanceKm = 15;
 
-// Function to calculate exact route distance via Google Maps Distance Matrix
-window.calculateRouteDistance = function() {
+// ─────────────────────────────────────────────────────────────
+// ROUTE DISTANCE CALCULATION (Google Maps Distance Matrix)
+// ─────────────────────────────────────────────────────────────
+window.calculateRouteDistance = function () {
     const pickupInput = document.getElementById('pickup');
     const dropoffInput = document.getElementById('dropoff');
 
@@ -65,7 +67,9 @@ window.calculateRouteDistance = function() {
     });
 };
 
-// Centralized Fare Calculation Engine
+// ─────────────────────────────────────────────────────────────
+// FARE CALCULATION ENGINE
+// ─────────────────────────────────────────────────────────────
 function calculateFinalFare() {
     const vehicleTypeEl = document.getElementById('vehicleType');
     const assistantCountEl = document.getElementById('assistantCount');
@@ -109,57 +113,28 @@ function updateEstimateDisplay() {
     priceEstimateEl.innerText = `R ${finalFare}.00`;
 }
 
-// Helper 1: Customer SMS Trigger
-// NOTE: Now unused from the frontend. Will be called from the Yoco webhook
-// on the server once the Firestore lookup is wired in.
-function triggerCustomerSms(customerPhone, pickup, dropoff, vehicleType, fare, refCode) {
-    const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
-    const messageContent = `KP-Logistics: Paid! Ref: ${refCode}. From: ${pickup} To: ${dropoff} (${vehicleType}). Fare: R${fare}. Driver assigned shortly.`;
-    const messageText = encodeURIComponent(messageContent);
-    
-    let formattedPhone = customerPhone.replace(/\s+/g, '').replace('+', '');
-    if (formattedPhone.startsWith('0')) {
-        formattedPhone = '27' + formattedPhone.slice(1);
-    }
-
-    const targetUrl = `${baseUrl}?recipientNumber=${formattedPhone}&message=${messageText}`;
-    const img = new Image();
-    img.src = targetUrl;
-    console.log('Customer SMS trigger dispatched.');
-}
-
-// Helper 2: Driver SMS Trigger
-// NOTE: Now unused from the frontend. Will be called from the Yoco webhook
-// on the server once the Firestore lookup is wired in.
-function triggerDriverSms(driverPhone, pickup, dropoff, vehicleType, assistants, clientPhone, fare, refCode) {
-    const baseUrl = 'https://sms1.smsmessenger.co.za/app/api/rest/v1/sms/send-url/3dc29cfc-7483-4465-8dfd-da0384db1b86';
-    const messageContent = `NEW LOAD! Ref:${refCode}. From:${pickup} To:${dropoff} (${vehicleType}, Helpers:${assistants}). Client:${clientPhone}. Fare:R${fare}`;
-    const messageText = encodeURIComponent(messageContent);
-    
-    let formattedPhone = driverPhone.replace(/\s+/g, '').replace('+', '');
-    if (formattedPhone.startsWith('0')) {
-        formattedPhone = '27' + formattedPhone.slice(1);
-    }
-
-    const targetUrl = `${baseUrl}?recipientNumber=${formattedPhone}&message=${messageText}`;
-    const img = new Image();
-    img.src = targetUrl;
-    console.log('Driver SMS trigger dispatched.');
-}
-
-// Post-Payment Execution
+// ─────────────────────────────────────────────────────────────
+// POST-PAYMENT EXECUTION
 // IMPORTANT: Payment success is confirmed by the Yoco webhook on the server,
-// NOT by the ?payment=success URL parameter. Do not send SMS or email or show
-// "Payment successful!" here — the user may have cancelled, or the webhook may
-// still be in flight. The webhook handler on the server is the source of truth.
+// NOT by the ?payment=success URL parameter. Do not send SMS or email from
+// here — the webhook handler on the server is the source of truth.
+// Our only job here is to send the client to the live tracker.
+// ─────────────────────────────────────────────────────────────
 async function handleSuccessfulPaymentReturn(refCode) {
     console.log(`Payment return for reference: ${refCode}`);
 
     // Clean up URL parameters so it doesn't trigger repeatedly on refresh
     window.history.replaceState({}, document.title, window.location.pathname);
+
+    // Send the client to the live status tracker
+    if (refCode) {
+        window.location.href = `/track.html?ref=${encodeURIComponent(refCode)}`;
+    }
 }
 
-// Bind live UI listeners and handle return URL parameters on DOM load
+// ─────────────────────────────────────────────────────────────
+// DOM READY — bind listeners & handle return URL params
+// ─────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     const dropoffInput = document.getElementById('dropoff');
     const pickupInput = document.getElementById('pickup');
@@ -182,26 +157,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Handle Form Submission with Yoco Checkout Redirect
+// ─────────────────────────────────────────────────────────────
+// FORM SUBMISSION — Yoco Checkout Redirect
+// ─────────────────────────────────────────────────────────────
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const submitBtn = bookingForm.querySelector('button[type="submit"]');
         if (submitBtn) {
             submitBtn.disabled = true;
             submitBtn.innerText = "Connecting to Yoco Secure Checkout...";
         }
-        
+
         const pickup = document.getElementById('pickup').value;
         const dropoff = document.getElementById('dropoff').value;
         const zone = document.getElementById('bookingZone') ? document.getElementById('bookingZone').value : "East Rand";
         const vehicleType = document.getElementById('vehicleType').value;
         const phone = document.getElementById('phone').value;
-        
+
         const customerEmail = `client_${phone.replace(/\s+/g, '')}@kplogistics.co.za`;
-        
+
         const assistantInput = document.getElementById('assistantCount');
         const assistantCount = assistantInput ? parseInt(assistantInput.value) || 0 : 0;
         const loaderFee = assistantCount * 200;
@@ -224,8 +201,10 @@ if (bookingForm) {
             const data = await response.json();
 
             if (data.redirectUrl) {
-                // 2. Pre-save booking record in the background as "Pending Payment"
-                addDoc(collection(db, "bookings"), {
+                // 2. Pre-save booking record using paymentReference as the doc ID.
+                // This makes track.html?ref=KP_PAY_XXXXXX work directly with
+                // doc(db, 'bookings', ref) — no extra query needed.
+                await setDoc(doc(db, "bookings", paymentReference), {
                     pickup: pickup,
                     dropoff: dropoff,
                     zone: zone,
@@ -239,7 +218,7 @@ if (bookingForm) {
                     paymentReference: paymentReference,
                     status: "Pending Payment",
                     createdAt: new Date()
-                }).catch(err => console.error("Background Firestore save note:", err));
+                });
 
                 // 3. Immediately redirect user to Yoco's secure checkout page
                 window.location.href = data.redirectUrl;
