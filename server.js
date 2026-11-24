@@ -43,7 +43,8 @@ const db = admin.firestore();
 // SMS CONFIG (SMSMessenger)
 // ─────────────────────────────────────────────────────────────
 const SMS_BASE = 'https://sms1.smsmessenger.co.za/app/api/rest/v1';
-const SMS_SEND_UUID = process.env.SMS_SEND_UUID || '3dc29cfc-7483-4465-8dfd-da0384db1b86';
+const SMS_API_TOKEN = process.env.SMS_API_TOKEN;       // Your SMSMessenger API key
+const SMS_API_EMAIL = process.env.SMS_API_EMAIL;       // Your SMSMessenger account email
 const ACTIVE_DRIVER_PHONE = process.env.ACTIVE_DRIVER_PHONE || '0658177124';
 
 // Normalise any SA phone input to 27xxxxxxxxx
@@ -301,14 +302,24 @@ async function sendConfirmationEmail(clientEmail, bookingData) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// 7. SMS SEND (uses Node's built-in fetch — no axios needed)
+// 7. SMS SEND — using SMSMessenger's documented endpoint
 // ─────────────────────────────────────────────────────────────
 async function sendSmsInternal(recipientNumber, message, bookingRef, kind) {
   const phone = normalisePhone(recipientNumber);
 
+  if (!SMS_API_TOKEN || !SMS_API_EMAIL) {
+    console.error('[SMS FAIL] SMS_API_TOKEN or SMS_API_EMAIL not set');
+    return { success: false, error: 'SMS credentials missing' };
+  }
+
   try {
-    const params = new URLSearchParams({ recipientNumber: phone, message });
-    const url = `${SMS_BASE}/sms/send-url/${SMS_SEND_UUID}?${params.toString()}`;
+    const params = new URLSearchParams({
+      token: SMS_API_TOKEN,
+      email: SMS_API_EMAIL,
+      recipientNumber: phone,
+      message: message,
+    });
+    const url = `${SMS_BASE}/sms/send-url-parameters?${params.toString()}`;
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
