@@ -3,20 +3,38 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const path = require('path');
 const crypto = require('crypto');
+const fs = require('fs');
 const admin = require('firebase-admin');
 
 const app = express();
 
 // ─────────────────────────────────────────────────────────────
-// FIREBASE ADMIN INIT (server-side Firestore access)
+// FIREBASE ADMIN INIT — using a Secret File on Render
 // ─────────────────────────────────────────────────────────────
 if (!admin.apps.length) {
+  // Render injects Secret Files into /etc/secrets/
+  // Fallback to project root for local dev
+  let serviceAccountPath = '/etc/secrets/firebase-service-account.json';
+  if (!fs.existsSync(serviceAccountPath)) {
+    serviceAccountPath = path.join(__dirname, 'firebase-service-account.json');
+  }
+
+  if (!fs.existsSync(serviceAccountPath)) {
+    console.error('FATAL: service account file not found at', serviceAccountPath);
+    process.exit(1);
+  }
+
+  const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+
+  if (!serviceAccount.private_key || typeof serviceAccount.private_key !== 'string') {
+    console.error('FATAL: private_key missing or not a string in service account');
+    process.exit(1);
+  }
+
+  console.log('Firebase credentials loaded for:', serviceAccount.client_email);
+
   admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: 'kp-logistics-1a015',
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
-    }),
+    credential: admin.credential.cert(serviceAccount),
   });
 }
 const db = admin.firestore();
