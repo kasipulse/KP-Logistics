@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Your Booking | KP Logistics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white">
+    <div class="max-w-md mx-auto px-4 py-3.5 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 bg-orange-600 rounded-xl flex items-center justify-center font-black text-sm">KP</div>
+        <div>
+          <p class="text-sm font-extrabold uppercase tracking-wider leading-none">Track Booking</p>
+          <span id="refBadge" class="text-[10px] text-orange-400 font-semibold">—</span>
+        </div>
+      </div>
+      <a href="index.html" class="text-xs text-slate-300 hover:text-orange-400 font-semibold uppercase">Home</a>
+    </div>
+  </header>
+
+  <main class="max-w-md mx-auto px-4 py-5 space-y-4">
+
+    <!-- Live Status Card -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Live Status</span>
+        <span id="pulseDot" class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
+      </div>
+
+      <div class="flex items-start space-x-3">
+        <div id="statusIcon" class="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center text-xl shrink-0">
+          <i class="fa-solid fa-hourglass-half"></i>
+        </div>
+        <div class="min-w-0">
+          <p id="statusTitle" class="text-lg font-bold text-slate-900">Loading…</p>
+          <p id="statusSub" class="text-sm text-slate-500 mt-0.5">Connecting to dispatch…</p>
+        </div>
+      </div>
+
+      <!-- Stepper -->
+      <div class="space-y-3 pt-3 border-t border-slate-100">
+        <div id="step-confirmed" class="flex items-center space-x-3">
+          <div class="step-dot w-7 h-7 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></div>
+          <div>
+            <p class="text-sm font-bold text-slate-700">Booking Confirmed</p>
+            <p id="confirmedAt" class="text-[11px] text-slate-400">—</p>
+          </div>
+        </div>
+        <div id="step-assigned" class="flex items-center space-x-3 opacity-40">
+          <div class="step-dot w-7 h-7 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xs"><i class="fa-solid fa-user-check"></i></div>
+          <div>
+            <p class="text-sm font-bold text-slate-700">Driver Assigned</p>
+            <p id="driverName" class="text-[11px] text-slate-400">Waiting…</p>
+          </div>
+        </div>
+        <div id="step-enroute" class="flex items-center space-x-3 opacity-40">
+          <div class="step-dot w-7 h-7 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xs"><i class="fa-solid fa-truck-fast"></i></div>
+          <div>
+            <p class="text-sm font-bold text-slate-700">Driver En Route</p>
+            <p id="etaText" class="text-[11px] text-slate-400">ETA will appear here</p>
+          </div>
+        </div>
+        <div id="step-arrived" class="flex items-center space-x-3 opacity-40">
+          <div class="step-dot w-7 h-7 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xs"><i class="fa-solid fa-location-dot"></i></div>
+          <div>
+            <p class="text-sm font-bold text-slate-700">Arrived at Pickup</p>
+            <p class="text-[11px] text-slate-400">—</p>
+          </div>
+        </div>
+        <div id="step-completed" class="flex items-center space-x-3 opacity-40">
+          <div class="step-dot w-7 h-7 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xs"><i class="fa-solid fa-check-double"></i></div>
+          <div>
+            <p class="text-sm font-bold text-slate-700">Trip Completed</p>
+            <p class="text-[11px] text-slate-400">—</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SMS Status Banner -->
+    <div id="smsBanner" class="hidden rounded-2xl border p-3.5 flex items-start space-x-3 text-xs">
+      <i id="smsIcon" class="fa-solid fa-paper-plane mt-0.5"></i>
+      <div class="min-w-0">
+        <p id="smsTitle" class="font-bold"></p>
+        <p id="smsSub" class="opacity-80 mt-0.5"></p>
+      </div>
+    </div>
+
+    <!-- Driver Card -->
+    <div id="driverCard" class="hidden bg-white rounded-3xl border border-slate-200 shadow-sm p-5 space-y-3">
+      <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Your Driver</p>
+      <div class="flex items-center space-x-3">
+        <div class="w-12 h-12 rounded-full bg-slate-900 text-orange-500 flex items-center justify-center text-lg font-black" id="driverInitials">?</div>
+        <div class="flex-1 min-w-0">
+          <p id="driverNameCard" class="font-bold text-slate-900">—</p>
+          <p id="vehicleInfo" class="text-xs text-slate-500">—</p>
+        </div>
+        <a id="callDriverBtn" href="#" class="w-11 h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-md shadow-emerald-600/30">
+          <i class="fa-solid fa-phone"></i>
+        </a>
+      </div>
+      <a id="waDriverBtn" href="#" class="w-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 rounded-xl flex items-center justify-center space-x-2">
+        <i class="fa-brands fa-whatsapp"></i>
+        <span>Message Driver on WhatsApp</span>
+      </a>
+    </div>
+
+    <!-- Trip Summary -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 space-y-2 text-sm">
+      <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Trip Summary</p>
+      <div class="flex items-start space-x-2">
+        <i class="fa-solid fa-circle-dot text-orange-600 mt-1 text-xs"></i>
+        <span id="summaryPickup" class="text-slate-700">—</span>
+      </div>
+      <div class="flex items-start space-x-2">
+        <i class="fa-solid fa-flag-checkered text-slate-400 mt-1 text-xs"></i>
+        <span id="summaryDropoff" class="text-slate-700">—</span>
+      </div>
+      <div class="flex justify-between pt-3 mt-2 border-t border-slate-100">
+        <span class="text-slate-500">Total Paid</span>
+        <span id="summaryPrice" class="font-black text-slate-900">—</span>
+      </div>
+    </div>
+
+    <!-- Help -->
+    <a href="https://wa.me/27821234567" class="block text-center text-xs text-slate-500 hover:text-orange-600 font-semibold py-2">
+      Need help? Chat to support →
+    </a>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyABtMzUk8hZ0fJgPG3Osz2lQ64RkmBS3kw",
+      authDomain: "kp-logistics-1a015.firebaseapp.com",
+      projectId: "kp-logistics-1a015",
+      storageBucket: "kp-logistics-1a015.firebasestorage.app",
+      messagingSenderId: "334125590321",
+      appId: "1:334125590321:web:2adf74f76c7a68c6ddb210"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const params = new URLSearchParams(location.search);
+    const ref = params.get('ref');
+    const refBadge = document.getElementById('refBadge');
+
+    if (!ref) {
+      refBadge.textContent = 'No booking reference';
+      document.getElementById('statusTitle').textContent = 'Missing reference';
+      document.getElementById('statusSub').textContent = 'Open the link from your SMS or email.';
+    } else {
+      refBadge.textContent = `Ref: ${ref}`;
+    }
+
+    const STATUS_CONFIG = {
+      'Pending Payment': { title: 'Awaiting Payment',           sub: 'Yoco is confirming your payment…',         icon: 'fa-hourglass-half' },
+      'Paid':            { title: 'Payment Received',           sub: 'Matching you with a driver…',              icon: 'fa-credit-card' },
+      'Assigned':        { title: 'Driver Assigned',            sub: 'Your driver is getting ready.',            icon: 'fa-user-check' },
+      'En Route':        { title: 'Driver En Route',            sub: 'Your driver is on the way to pickup.',     icon: 'fa-truck-fast' },
+      'Arrived':         { title: 'Driver Has Arrived',         sub: 'Your driver is at the pickup point.',      icon: 'fa-location-dot' },
+      'Completed':       { title: 'Trip Completed',             sub: 'Thanks for riding with KP Logistics.',     icon: 'fa-check-double' },
+      'Cancelled':       { title: 'Booking Cancelled',          sub: 'Contact support if unexpected.',           icon: 'fa-xmark' }
+    };
+
+    let current = {};
+
+    function activateStep(id, active) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.toggle('opacity-40', !active);
+      const dot = el.querySelector('.step-dot');
+      if (active) {
+        dot.className = 'step-dot w-7 h-7 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs';
+      } else {
+        dot.className = 'step-dot w-7 h-7 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xs';
+      }
+    }
+
+    function render(b) {
+      current = b;
+      const status = b.status || 'Pending Payment';
+      const cfg = STATUS_CONFIG[status] || STATUS_CONFIG['Pending Payment'];
+
+      document.getElementById('statusTitle').textContent = cfg.title;
+      document.getElementById('statusSub').textContent = cfg.sub;
+      document.getElementById('statusIcon').innerHTML = `<i class="fa-solid ${cfg.icon}"></i>`;
+
+      const dot = document.getElementById('pulseDot');
+      if (status === 'Cancelled') dot.className = 'w-2.5 h-2.5 rounded-full bg-red-500';
+      else if (status === 'Completed') dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
+      else dot.className = 'w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse';
+
+      // Stepper
+      activateStep('step-confirmed', true);
+      const created = b.createdAt?.toDate?.();
+      document.getElementById('confirmedAt').textContent = created ? created.toLocaleString() : '—';
+
+      activateStep('step-assigned', ['Assigned','En Route','Arrived','Completed'].includes(status));
+      if (b.driverName) document.getElementById('driverName').textContent = b.driverName;
+
+      activateStep('step-enroute', ['En Route','Arrived','Completed'].includes(status));
+      if (b.etaMinutes) document.getElementById('etaText').textContent = `ETA: ${b.etaMinutes} min`;
+
+      activateStep('step-arrived', ['Arrived','Completed'].includes(status));
+      activateStep('step-completed', status === 'Completed');
+
+      // Driver card
+      const driverCard = document.getElementById('driverCard');
+      if (b.driverName) {
+        driverCard.classList.remove('hidden');
+        document.getElementById('driverNameCard').textContent = b.driverName;
+        document.getElementById('driverInitials').textContent = b.driverName.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+        document.getElementById('vehicleInfo').textContent = b.vehiclePlate ? `${b.vehiclePlate} · ${b.vehicleType || ''}` : (b.vehicleType || '—');
+        if (b.driverPhone) {
+          const intl = b.driverPhone.replace(/\s+/g, '').replace(/^0/, '27');
+          document.getElementById('callDriverBtn').href = `tel:${b.driverPhone}`;
+          document.getElementById('waDriverBtn').href = `https://wa.me/${intl}`;
+        }
+      }
+
+      // SMS banner
+      const banner = document.getElementById('smsBanner');
+      const icon = document.getElementById('smsIcon');
+      const title = document.getElementById('smsTitle');
+      const sub = document.getElementById('smsSub');
+
+      if (b.sms) {
+        banner.classList.remove('hidden');
+        if (b.smsDLR?.delivered || b.sms?.customer?.status === 'DELIVRD') {
+          banner.className = 'rounded-2xl border p-3.5 flex items-start space-x-3 text-xs bg-emerald-50 border-emerald-200 text-emerald-800';
+          icon.className = 'fa-solid fa-circle-check mt-0.5';
+          title.textContent = 'Confirmation SMS delivered';
+          sub.textContent = `Sent to ${b.phone || 'your phone'}`;
+        } else if (b.smsDLR?.failed || b.sms?.customer?.status === 'FAILED') {
+          banner.className = 'rounded-2xl border p-3.5 flex items-start space-x-3 text-xs bg-red-50 border-red-200 text-red-800';
+          icon.className = 'fa-solid fa-triangle-exclamation mt-0.5';
+          title.textContent = 'Confirmation SMS failed';
+          sub.textContent = 'Tap “Chat to support” below and we’ll resend it.';
+        } else {
+          banner.className = 'rounded-2xl border p-3.5 flex items-start space-x-3 text-xs bg-orange-50 border-orange-200 text-orange-800';
+          icon.className = 'fa-solid fa-paper-plane mt-0.5';
+          title.textContent = 'Confirmation SMS sent';
+          sub.textContent = 'Awaiting delivery confirmation…';
+        }
+      }
+
+      // Trip summary
+      document.getElementById('summaryPickup').textContent = b.pickup || '—';
+      document.getElementById('summaryDropoff').textContent = b.dropoff || '—';
+      document.getElementById('summaryPrice').textContent = b.estimatedFare || '—';
+    }
+
+    async function startListener() {
+      if (!ref) return;
+      const docRef = doc(db, 'bookings', ref);
+
+      // First try direct doc ID
+      const direct = await getDoc(docRef);
+      if (direct.exists()) {
+        onSnapshot(docRef, (snap) => {
+          if (snap.exists()) render(snap.data());
+        });
+        return;
+      }
+
+      // Fallback: query by paymentReference (for older bookings)
+      const { collection, query, where, getDocs } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+      const q = query(collection(db, 'bookings'), where('paymentReference', '==', ref));
+      const results = await getDocs(q);
+      if (!results.empty) {
+        const actualRef = doc(db, 'bookings', results.docs[0].id);
+        onSnapshot(actualRef, (snap) => {
+          if (snap.exists()) render(snap.data());
+        });
+      } else {
+        document.getElementById('statusTitle').textContent = 'Booking not found';
+        document.getElementById('statusSub').textContent = 'Check the reference in your SMS or email.';
+      }
+    }
+
+    startListener();
+  </script>
+</body>
+</html>
