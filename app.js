@@ -18,9 +18,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 window.db = db;
 
-// Operational Configurations
-const ACTIVE_DRIVER_PHONE = "0658177124";
-
 // South African market fuel benchmark rates
 const CURRENT_FUEL_PRICES = {
     petrol: 30.28,
@@ -28,6 +25,10 @@ const CURRENT_FUEL_PRICES = {
 };
 
 let calculatedDistanceKm = 15;
+
+// Variables to store pickup coordinates for dispatch
+let pickupLat = null;
+let pickupLng = null;
 
 // ─────────────────────────────────────────────────────────────
 // ROUTE DISTANCE CALCULATION (Google Maps Distance Matrix)
@@ -115,18 +116,12 @@ function updateEstimateDisplay() {
 
 // ─────────────────────────────────────────────────────────────
 // POST-PAYMENT EXECUTION
-// IMPORTANT: Payment success is confirmed by the Yoco webhook on the server,
-// NOT by the ?payment=success URL parameter. Do not send SMS or email from
-// here — the webhook handler on the server is the source of truth.
-// Our only job here is to send the client to the live tracker.
 // ─────────────────────────────────────────────────────────────
 async function handleSuccessfulPaymentReturn(refCode) {
     console.log(`Payment return for reference: ${refCode}`);
 
-    // Clean up URL parameters so it doesn't trigger repeatedly on refresh
     window.history.replaceState({}, document.title, window.location.pathname);
 
-    // Send the client to the live status tracker
     if (refCode) {
         window.location.href = `/track.html?ref=${encodeURIComponent(refCode)}`;
     }
@@ -147,6 +142,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (assistantCountInput) {
         assistantCountInput.addEventListener('input', updateEstimateDisplay);
         assistantCountInput.addEventListener('change', updateEstimateDisplay);
+    }
+
+    // Initialize Google Places Autocomplete and grab coordinates for pickup
+    if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+        const options = { componentRestrictions: { country: "za" } };
+        
+        if (pickupInput) {
+            const autocomplete = new google.maps.places.Autocomplete(pickupInput, options);
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+                if (place.geometry && place.geometry.location) {
+                    pickupLat = place.geometry.location.lat();
+                    pickupLng = place.geometry.location.lng();
+                    console.log("Pickup coordinates captured:", pickupLat, pickupLng);
+                }
+            });
+        }
+        if (dropoffInput) {
+            new google.maps.places.Autocomplete(dropoffInput, options);
+        }
     }
 
     // Check if customer just returned from a successful payment session
@@ -202,8 +217,6 @@ if (bookingForm) {
 
             if (data.redirectUrl) {
                 // 2. Pre-save booking record using paymentReference as the doc ID.
-                // This makes track.html?ref=KP_PAY_XXXXXX work directly with
-                // doc(db, 'bookings', ref) — no extra query needed.
                 await setDoc(doc(db, "bookings", paymentReference), {
                     pickup: pickup,
                     dropoff: dropoff,
@@ -217,6 +230,8 @@ if (bookingForm) {
                     estimatedFare: `R ${finalCalculatedFare}.00`,
                     paymentReference: paymentReference,
                     status: "Pending Payment",
+                    pickupLat: pickupLat,   // <-- Saved for dispatch
+                    pickupLng: pickupLng,   // <-- Saved for dispatch
                     createdAt: new Date()
                 });
 
