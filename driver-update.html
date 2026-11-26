@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Driver Console | KP Logistics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-white font-sans antialiased min-h-screen">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-slate-950/95 backdrop-blur-md border-b border-slate-800 px-4 py-3.5 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 bg-orange-600 rounded-xl flex items-center justify-center font-black text-sm">KP</div>
+      <div>
+        <p class="text-sm font-extrabold uppercase tracking-wider leading-none">Driver Console</p>
+        <span id="refBadge" class="text-[10px] text-orange-400 font-semibold">—</span>
+      </div>
+    </div>
+    <span id="connDot" class="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
+  </header>
+
+  <main class="max-w-md mx-auto px-4 py-5 space-y-4">
+
+    <!-- Booking card -->
+    <div class="bg-slate-800/80 rounded-3xl border border-slate-700 p-5 space-y-4">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Current Booking</p>
+          <p id="vehicleType" class="text-lg font-black text-white mt-0.5">—</p>
+        </div>
+        <span id="statusPill" class="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-orange-500/20 text-orange-400 border border-orange-500/30">—</span>
+      </div>
+
+      <div class="space-y-3 pt-3 border-t border-slate-700/60 text-sm">
+        <div class="flex items-start space-x-3">
+          <i class="fa-solid fa-circle-dot text-orange-500 mt-1 text-xs"></i>
+          <div>
+            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Pickup</p>
+            <p id="pickupText" class="text-slate-200 font-semibold">—</p>
+          </div>
+        </div>
+        <div class="flex items-start space-x-3">
+          <i class="fa-solid fa-flag-checkered text-slate-500 mt-1 text-xs"></i>
+          <div>
+            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Drop-off</p>
+            <p id="dropoffText" class="text-slate-200 font-semibold">—</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-700/60 text-center">
+        <div>
+          <p class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Fare</p>
+          <p id="fareText" class="text-sm font-black text-orange-400">—</p>
+        </div>
+        <div>
+          <p class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Helpers</p>
+          <p id="helpersText" class="text-sm font-black text-white">0</p>
+        </div>
+        <div>
+          <p class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Distance</p>
+          <p id="distText" class="text-sm font-black text-white">—</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Client contact -->
+    <div class="bg-slate-800/80 rounded-3xl border border-slate-700 p-4 flex items-center space-x-3">
+      <div class="w-11 h-11 rounded-full bg-slate-900 text-orange-500 flex items-center justify-center text-sm font-black">
+        <i class="fa-solid fa-user"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Client</p>
+        <p id="clientPhone" class="text-white font-bold text-sm">—</p>
+      </div>
+      <a id="callClientBtn" href="#" class="w-10 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center text-white shadow-md shadow-emerald-600/30">
+        <i class="fa-solid fa-phone text-sm"></i>
+      </a>
+      <a id="waClientBtn" href="#" class="w-10 h-10 rounded-xl bg-slate-900 hover:bg-slate-700 flex items-center justify-center text-emerald-400 border border-slate-700">
+        <i class="fa-brands fa-whatsapp text-base"></i>
+      </a>
+    </div>
+
+    <!-- Driver identity (once assigned) -->
+    <div class="bg-slate-800/80 rounded-3xl border border-slate-700 p-4 space-y-3">
+      <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Your Details</p>
+      <div class="grid grid-cols-2 gap-2">
+        <input id="driverName" type="text" placeholder="Your name" class="p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500/70 placeholder:text-slate-500">
+        <input id="vehiclePlate" type="text" placeholder="Plate (e.g. JHB 123 GP)" class="p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none focus:ring-2 focus:ring-orange-500/70 placeholder:text-slate-500">
+      </div>
+      <button id="saveDriverBtn" class="w-full bg-slate-900 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-xl uppercase tracking-wider transition">
+        Save My Details
+      </button>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="space-y-2.5">
+      <button id="btnAccept" class="action-btn w-full bg-orange-600 hover:bg-orange-700 text-white font-black py-4 rounded-2xl text-sm uppercase tracking-wider shadow-lg shadow-orange-600/30 disabled:opacity-30 disabled:shadow-none transition flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-hand"></i><span>Accept Trip</span>
+      </button>
+
+      <button id="btnEnroute" class="action-btn w-full bg-sky-600 hover:bg-sky-700 text-white font-black py-4 rounded-2xl text-sm uppercase tracking-wider shadow-lg shadow-sky-600/30 disabled:opacity-30 disabled:shadow-none transition flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-truck-fast"></i><span>I'm En Route</span>
+      </button>
+
+      <button id="btnArrived" class="action-btn w-full bg-amber-600 hover:bg-amber-700 text-white font-black py-4 rounded-2xl text-sm uppercase tracking-wider shadow-lg shadow-amber-600/30 disabled:opacity-30 disabled:shadow-none transition flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-location-dot"></i><span>I've Arrived</span>
+      </button>
+
+      <button id="btnComplete" class="action-btn w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl text-sm uppercase tracking-wider shadow-lg shadow-emerald-600/30 disabled:opacity-30 disabled:shadow-none transition flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-check-double"></i><span>Complete Trip</span>
+      </button>
+    </div>
+
+    <p class="text-[10px] text-slate-500 text-center pt-2">Tap the button that matches your current status. Client sees updates live.</p>
+
+    <!-- Error / status toast -->
+    <div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-950 border border-slate-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow-xl z-50"></div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyABtMzUk8hZ0fJgPG3Osz2lQ64RkmBS3kw",
+      authDomain: "kp-logistics-1a015.firebaseapp.com",
+      projectId: "kp-logistics-1a015",
+      storageBucket: "kp-logistics-1a015.firebasestorage.app",
+      messagingSenderId: "334125590321",
+      appId: "1:334125590321:web:2adf74f76c7a68c6ddb210"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const ref = new URLSearchParams(location.search).get('ref');
+    const refBadge = document.getElementById('refBadge');
+    const connDot = document.getElementById('connDot');
+    const toastEl = document.getElementById('toast');
+
+    if (!ref) {
+      refBadge.textContent = 'No booking ref';
+      alert('Missing ?ref= in URL. Open the link from the SMS.');
+    } else {
+      refBadge.textContent = `Ref: ${ref}`;
+    }
+
+    const bookingRef = ref ? doc(db, 'bookings', ref) : null;
+
+    const FLOW = ['Paid', 'Assigned', 'En Route', 'Arrived', 'Completed'];
+    const BTN_ORDER = ['btnAccept', 'btnEnroute', 'btnArrived', 'btnComplete'];
+    const STATUS_MAP = {
+      'Paid':      { pill: 'AWAITING ACCEPT', next: 'Assigned' },
+      'Assigned':  { pill: 'ASSIGNED',        next: 'En Route' },
+      'En Route':  { pill: 'EN ROUTE',        next: 'Arrived' },
+      'Arrived':   { pill: 'ARRIVED',         next: 'Completed' },
+      'Completed': { pill: 'COMPLETED',       next: null }
+    };
+
+    let current = {};
+
+    function showToast(msg, ok = true) {
+      toastEl.textContent = msg;
+      toastEl.className = `fixed bottom-5 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-xl text-xs font-semibold shadow-xl z-50 border ${
+        ok ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-red-600 border-red-500 text-white'
+      }`;
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => toastEl.classList.add('hidden'), 2500);
+    }
+
+    function render(b) {
+      current = b;
+
+      document.getElementById('vehicleType').textContent = (b.vehicleType || '—').toString().toUpperCase();
+      document.getElementById('pickupText').textContent = b.pickup || '—';
+      document.getElementById('dropoffText').textContent = b.dropoff || '—';
+      document.getElementById('fareText').textContent = b.estimatedFare || '—';
+      document.getElementById('helpersText').textContent = b.assistantsRequested || 0;
+      document.getElementById('distText').textContent = b.estimatedDistanceKm || '—';
+
+      const phone = b.phone || '';
+      document.getElementById('clientPhone').textContent = phone || '—';
+      if (phone) {
+        const intl = phone.replace(/\s+/g, '').replace(/^0/, '27');
+        document.getElementById('callClientBtn').href = `tel:${phone}`;
+        document.getElementById('waClientBtn').href = `https://wa.me/${intl}`;
+      }
+
+      if (b.driverName) document.getElementById('driverName').value = b.driverName;
+      if (b.vehiclePlate) document.getElementById('vehiclePlate').value = b.vehiclePlate;
+
+      const status = b.status || 'Pending Payment';
+      const cfg = STATUS_MAP[status] || { pill: status.toUpperCase(), next: null };
+
+      const pill = document.getElementById('statusPill');
+      pill.textContent = cfg.pill;
+      pill.className = 'text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg border';
+      if (status === 'Completed') pill.classList.add('bg-emerald-500/20','text-emerald-400','border-emerald-500/30');
+      else if (status === 'Arrived') pill.classList.add('bg-amber-500/20','text-amber-400','border-amber-500/30');
+      else if (status === 'En Route') pill.classList.add('bg-sky-500/20','text-sky-400','border-sky-500/30');
+      else if (status === 'Assigned') pill.classList.add('bg-orange-500/20','text-orange-400','border-orange-500/30');
+      else if (status === 'Pending Payment') pill.classList.add('bg-red-500/20','text-red-400','border-red-500/30');
+      else pill.classList.add('bg-orange-500/20','text-orange-400','border-orange-500/30');
+
+      BTN_ORDER.forEach(id => document.getElementById(id).disabled = true);
+      const idx = FLOW.indexOf(status);
+      if (idx >= 0 && idx < FLOW.length - 1) {
+        const nextBtn = BTN_ORDER[idx];
+        if (nextBtn) document.getElementById(nextBtn).disabled = false;
+      }
+    }
+
+    if (bookingRef) {
+      onSnapshot(bookingRef, (snap) => {
+        connDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse';
+        if (!snap.exists()) {
+          showToast('Booking not found', false);
+          return;
+        }
+        render(snap.data());
+      }, (err) => {
+        connDot.className = 'w-2.5 h-2.5 rounded-full bg-red-500';
+        showToast('Live sync lost: ' + err.message, false);
+      });
+    }
+
+    document.getElementById('saveDriverBtn').addEventListener('click', async () => {
+      const name = document.getElementById('driverName').value.trim();
+      const plate = document.getElementById('vehiclePlate').value.trim();
+      if (!name) { showToast('Enter your name first', false); return; }
+      try {
+        await updateDoc(bookingRef, {
+          driverName: name,
+          vehiclePlate: plate || null,
+          driverPhone: '0658177124'
+        });
+        showToast('Details saved');
+      } catch (e) {
+        showToast('Save failed: ' + e.message, false);
+      }
+    });
+
+    async function advanceTo(targetStatus) {
+      const name = document.getElementById('driverName').value.trim();
+      const plate = document.getElementById('vehiclePlate').value.trim();
+      if (!name) { showToast('Save your name first', false); return; }
+
+      const patch = { status: targetStatus, updatedAt: new Date() };
+      if (targetStatus === 'Assigned') {
+        patch.driverName = name;
+        patch.vehiclePlate = plate || null;
+        patch.driverPhone = '0658177124';
+        patch.assignedAt = new Date();
+      }
+      if (targetStatus === 'En Route') patch.enrouteAt = new Date();
+      if (targetStatus === 'Arrived') patch.arrivedAt = new Date();
+      if (targetStatus === 'Completed') patch.completedAt = new Date();
+
+      try {
+        await updateDoc(bookingRef, patch);
+        showToast('Updated → ' + targetStatus);
+      } catch (e) {
+        showToast('Update failed: ' + e.message, false);
+      }
+    }
+
+    document.getElementById('btnAccept').addEventListener('click', () => advanceTo('Assigned'));
+    document.getElementById('btnEnroute').addEventListener('click', () => advanceTo('En Route'));
+    document.getElementById('btnArrived').addEventListener('click', () => advanceTo('Arrived'));
+    document.getElementById('btnComplete').addEventListener('click', () => advanceTo('Completed'));
+  </script>
+</body>
+</html>
