@@ -12,8 +12,6 @@ const app = express();
 // FIREBASE ADMIN INIT — using a Secret File on Render
 // ─────────────────────────────────────────────────────────────
 if (!admin.apps.length) {
-  // Render injects Secret Files into /etc/secrets/
-  // Fallback to project root for local dev
   let serviceAccountPath = '/etc/secrets/firebase-service-account.json';
   if (!fs.existsSync(serviceAccountPath)) {
     serviceAccountPath = path.join(__dirname, 'firebase-service-account.json');
@@ -45,13 +43,25 @@ const db = admin.firestore();
 const SMS_BASE = 'https://sms1.smsmessenger.co.za/app/api/rest/v1';
 const SMS_API_TOKEN = process.env.SMS_API_TOKEN;       // Your SMSMessenger API key
 const SMS_API_EMAIL = process.env.SMS_API_EMAIL;       // Your SMSMessenger account email
-const ACTIVE_DRIVER_PHONE = process.env.ACTIVE_DRIVER_PHONE || '0658177124';
 
 // Normalise any SA phone input to 27xxxxxxxxx
 function normalisePhone(raw) {
   let phone = String(raw || '').replace(/\s+/g, '').replace('+', '');
   if (phone.startsWith('0')) phone = '27' + phone.slice(1);
   return phone;
+}
+
+// Helper: Calculate distance between two coordinates in KM (Haversine)
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of the earth in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2); 
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+  return R * c; 
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -122,7 +132,7 @@ app.post('/api/webhooks/yoco', express.raw({ type: 'application/json' }), async 
       console.log(`[Yoco] Payment confirmed for booking: ${bookingRef}`);
 
       // ───────────────────────────────────────────────────────
-      // Post-payment: mark paid, send SMS to customer + driver, email
+      // Post-payment: mark paid, auto-dispatch driver, send SMS
       // ───────────────────────────────────────────────────────
       try {
         const snap = await db
@@ -149,12 +159,62 @@ app.post('/api/webhooks/yoco', express.raw({ type: 'application/json' }), async 
           { merge: true }
         );
 
-        // 2) Build SMS bodies
+        // 2) DISPATCH LOGIC: Find an available driver in the same zone & vehicle
+        console.log(`[Dispatch] Searching for driver... Zone: ${booking.zone}, Vehicle: ${booking.vehicleType}`);
+        
+        const driversSnap = await db.collection('drivers')
+          .where('status', '==', 'online')
+          .where('zone', '==', booking.zone)
+          .where('vehicleType', '==', booking.vehicleType)
+          .get();
+
+        let assignedDriver = null;
+        let shortestDistance = Infinity;
+
+        if (!driversSnap.empty) {
+          driversSnap.forEach(doc => {
+            const d = doc.data();
+            // If you add lat/lng to the booking later, use this:
+            // if (booking.lat && booking.lng && d.lat && d.lng) {
+            //   const dist = getDistanceFromLatLonInKm(booking.lat, booking.lng, d.lat, d.lng);
+            //   if (dist < shortestDistance) { shortestDistance = dist; assignedDriver = { id: doc.id, ...d }; }
+            // } else {
+              if (!assignedDriver) assignedDriver = { id: doc.id, ...d };
+            // }
+          });
+        }
+
+        let driverPhone = "0658177124"; // Fallback admin phone if no driver found
+
+        if (assignedDriver) {
+          console.log(`[Dispatch] Assigned to driver: ${assignedDriver.name} (${assignedDriver.phone})`);
+          driverPhone = assignedDriver.phone;
+
+          // 3) Auto-assign the driver to the booking
+          await bookingDoc.ref.update({
+            status: 'Assigned',
+            driverId: assignedDriver.id,
+            driverName: assignedDriver.name,
+            vehiclePlate: assignedDriver.plate,
+            driverPhone: assignedDriver.phone,
+            assignedAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+
+          // 4) Mark driver as busy so they don't get double-booked
+          await db.collection('drivers').doc(assignedDriver.id).update({
+            status: 'busy'
+          });
+        } else {
+          console.log(`[Dispatch] No available driver found. Alerting admin.`);
+        }
+
+        // 5) Build SMS bodies
         const customerMsg =
           `KP-Logistics: Paid! Ref: ${bookingRef}. ` +
           `From: ${booking.pickup} To: ${booking.dropoff} ` +
           `(${booking.vehicleType}). Fare: ${booking.estimatedFare}. ` +
-          `Driver assigned shortly. Track: kplogistics.online/track.html?ref=${bookingId}`;
+          `${assignedDriver ? `Driver ${assignedDriver.name} assigned. ` : 'Assigning driver shortly. '}` +
+          `Track: kplogistics.online/track.html?ref=${bookingId}`;
 
         const driverMsg =
           `NEW LOAD! Ref:${bookingRef}. ` +
@@ -163,13 +223,13 @@ app.post('/api/webhooks/yoco', express.raw({ type: 'application/json' }), async 
           `Client:${booking.phone}. Fare:${booking.estimatedFare}. ` +
           `Open: kplogistics.online/driver-update.html?ref=${bookingId}`;
 
-        // 3) Fire customer + driver SMS in parallel
+        // 6) Fire customer + driver SMS in parallel
         await Promise.allSettled([
           sendSmsInternal(booking.phone, customerMsg, bookingId, 'customer'),
-          sendSmsInternal(ACTIVE_DRIVER_PHONE, driverMsg, bookingId, 'driver'),
+          sendSmsInternal(driverPhone, driverMsg, bookingId, 'driver'),
         ]);
 
-        // 4) Fire confirmation email (best-effort)
+        // 7) Fire confirmation email (best-effort)
         if (booking.clientEmail) {
           sendConfirmationEmail(booking.clientEmail, {
             paymentReference: bookingRef,
