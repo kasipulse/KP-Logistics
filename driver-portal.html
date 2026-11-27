@@ -2,66 +2,157 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Driver Portal | KP Logistics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Driver Dashboard | KP Logistics</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Hide scrollbar for a cleaner app feel */
+    ::-webkit-scrollbar { display: none; }
+  </style>
 </head>
-<body class="bg-slate-900 text-white font-sans antialiased min-h-screen">
+<body class="bg-slate-100 text-slate-900 font-sans antialiased min-h-screen pb-20">
 
-  <header class="bg-slate-950 px-4 py-4 border-b border-slate-800 flex justify-between items-center">
-    <div class="flex items-center space-x-3">
-      <div class="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center font-black text-xs">KP</div>
-      <h1 class="text-sm font-extrabold uppercase tracking-wider">Driver Portal</h1>
-    </div>
-    <span id="connectionStatus" class="text-[10px] font-bold uppercase tracking-widest text-red-400">Offline</span>
-  </header>
-
-  <main class="max-w-md mx-auto p-4 space-y-6">
+  <!-- Header -->
+  <header class="bg-slate-900 text-white px-5 pt-8 pb-16 rounded-b-3xl shadow-lg relative overflow-hidden">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
     
-    <!-- Profile Section -->
-    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-5 space-y-4">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Your Profile</h2>
-      <div class="space-y-3">
-        <input type="text" id="regName" placeholder="Full Name" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 outline-none">
-        <input type="tel" id="regPhone" placeholder="Phone Number (e.g. 0821234567)" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 outline-none">
-        <input type="text" id="regPlate" placeholder="Vehicle Plate (e.g. JHB 123 GP)" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 outline-none">
-        <select id="regVehicle" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 outline-none text-white">
-          <option value="bakkie">Light Bakkie (1-Ton)</option>
-          <option value="closedbakkie">Canopy Bakkie</option>
-          <option value="panelvan">Panel Van</option>
-          <option value="medtruck">Medium Truck (4-Ton)</option>
-          <option value="8ton">8-Ton Heavy Truck</option>
-        </select>
-        <select id="regZone" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 outline-none text-white">
-          <option value="East Rand">East Rand</option>
-          <option value="Johannesburg">Johannesburg</option>
-          <option value="Pretoria">Pretoria</option>
-          <option value="West Rand">West Rand</option>
-          <option value="Vaal">Vaal</option>
-        </select>
-        <button id="saveProfileBtn" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition">
-          Save Profile
-        </button>
+    <div class="relative z-10 flex justify-between items-start">
+      <div class="flex items-center space-x-3">
+        <!-- Profile Pic -->
+        <div class="relative">
+          <img src="https://ui-avatars.com/api/?name=Mpho+M&background=f97316&color=fff&size=128" alt="Profile" class="w-14 h-14 rounded-full border-2 border-orange-500 object-cover">
+          <div class="absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-slate-900" id="statusIndicator"></div>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Welcome back,</p>
+          <h1 id="headerDriverName" class="text-xl font-bold tracking-tight">Mpho M.</h1>
+          <div class="flex items-center text-orange-400 text-xs mt-0.5">
+            <i class="fa-solid fa-star mr-1 text-[10px]"></i>
+            <span class="font-bold">4.92</span>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <!-- Online Toggle -->
-    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-5 text-center space-y-4">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Availability</h2>
-      <p class="text-xs text-slate-500">Go online to receive dispatch requests. Your location is only captured when you go online.</p>
-      <button id="toggleOnlineBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl text-sm uppercase tracking-wider shadow-lg shadow-emerald-600/20 transition">
+      
+      <!-- Online Toggle -->
+      <button id="toggleOnlineBtn" class="bg-slate-800 border border-slate-700 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition">
         Go Online
       </button>
     </div>
+  </header>
 
-    <!-- Toast -->
-    <div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-950 border border-slate-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow-xl z-50"></div>
+  <main class="max-w-md mx-auto px-4 -mt-8 relative z-20 space-y-4">
+
+    <!-- Active Trip Alert (Hidden by default) -->
+    <div id="activeTripAlert" class="hidden bg-orange-500 text-white p-4 rounded-2xl shadow-lg flex justify-between items-center cursor-pointer transform transition hover:scale-[1.02]" onclick="window.location.href='driver-update.html'">
+      <div>
+        <p class="text-[10px] font-bold uppercase tracking-wider text-orange-200">Active Trip</p>
+        <p class="font-black text-lg">Tap to view details</p>
+      </div>
+      <i class="fa-solid fa-arrow-right text-xl"></i>
+    </div>
+
+    <!-- Earnings Card -->
+    <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200/60 flex items-center justify-between">
+      <div>
+        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Wallet Balance</p>
+        <p class="text-3xl font-black text-slate-900 mt-1">R 2 450.00</p>
+        <p class="text-xs text-emerald-500 font-semibold mt-1"><i class="fa-solid fa-arrow-trend-up mr-1"></i> R450 earned today</p>
+      </div>
+      <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+        <i class="fa-solid fa-wallet text-xl"></i>
+      </div>
+    </div>
+
+    <!-- Next Payout -->
+    <div class="bg-slate-900 text-white rounded-3xl p-5 shadow-lg flex items-center justify-between">
+      <div>
+        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Next Payout</p>
+        <p class="text-xl font-black text-white mt-0.5">Friday, 28 Nov</p>
+      </div>
+      <div class="text-right">
+        <p class="text-sm font-bold text-orange-400">R 1 800.00</p>
+        <p class="text-[10px] text-slate-400">To Capitec Bank</p>
+      </div>
+    </div>
+
+    <!-- Profile & Vehicle Details (Collapsible) -->
+    <details class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden group">
+      <summary class="p-5 flex items-center justify-between cursor-pointer list-none">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
+            <i class="fa-solid fa-user-gear"></i>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-slate-900">My Profile & Vehicle</p>
+            <p class="text-[10px] text-slate-500">Update details and verification</p>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i>
+      </summary>
+      <div class="p-5 pt-0 border-t border-slate-100 space-y-4">
+        <!-- Verification Badge -->
+        <div class="flex items-center space-x-2 bg-emerald-50 text-emerald-700 px-3 py-2 rounded-xl text-xs font-bold">
+          <i class="fa-solid fa-shield-check"></i>
+          <span>Fully Verified Driver</span>
+        </div>
+        
+        <!-- Vehicle Info -->
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Vehicle Details</label>
+          <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div>
+              <p class="text-sm font-bold text-slate-900">Light Bakkie (1-Ton)</p>
+              <p class="text-xs text-slate-500">Toyota Hilux - White</p>
+            </div>
+            <span class="bg-slate-900 text-white text-xs font-bold px-2 py-1 rounded">JHB 123 GP</span>
+          </div>
+        </div>
+        
+        <!-- Edit Profile Button -->
+        <button class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition">
+          Edit Profile Details
+        </button>
+      </div>
+    </details>
+
+    <!-- Support -->
+    <a href="https://wa.me/27821234567" class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200/60 flex items-center justify-between cursor-pointer block">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
+          <i class="fa-solid fa-headset"></i>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-slate-900">Driver Support</p>
+          <p class="text-[10px] text-slate-500">Chat with dispatch on WhatsApp</p>
+        </div>
+      </div>
+      <i class="fa-brands fa-whatsapp text-emerald-500 text-xl"></i>
+    </a>
+
   </main>
 
+  <!-- Bottom Nav -->
+  <nav class="fixed bottom-0 w-full bg-white border-t border-slate-200 py-2 pb-safe flex justify-around items-center z-50">
+    <a href="driver-portal.html" class="flex flex-col items-center p-2 text-orange-500">
+      <i class="fa-solid fa-house text-lg"></i>
+      <span class="text-[9px] font-bold mt-1 uppercase">Home</span>
+    </a>
+    <a href="#" class="flex flex-col items-center p-2 text-slate-400 hover:text-slate-600">
+      <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+      <span class="text-[9px] font-bold mt-1 uppercase">History</span>
+    </a>
+    <a href="#" class="flex flex-col items-center p-2 text-slate-400 hover:text-slate-600">
+      <i class="fa-solid fa-wallet text-lg"></i>
+      <span class="text-[9px] font-bold mt-1 uppercase">Earnings</span>
+    </a>
+  </nav>
+
+  <!-- Scripts -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, updateDoc, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyABtMzUk8hZ0fJgPG3Osz2lQ64RkmBS3kw",
@@ -74,135 +165,68 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // For MVP, we use the driver's phone number as their unique ID
-    // In a full app, this would come from Firebase Auth
-    let driverId = localStorage.getItem('kp_driver_id'); 
+    // MVP: Use localStorage for driver session (In production, use Firebase Auth)
+    const driverId = localStorage.getItem('kp_driver_id') || "27658177124"; // Fallback for testing
     let isOnline = false;
 
     const toggleBtn = document.getElementById('toggleOnlineBtn');
-    const statusText = document.getElementById('connectionStatus');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const activeTripAlert = document.getElementById('activeTripAlert');
 
-    function showToast(msg, isError = false) {
-      const el = document.getElementById('toast');
-      el.textContent = msg;
-      el.className = `fixed bottom-5 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-xl text-xs font-semibold shadow-xl z-50 border ${isError ? 'bg-red-600 border-red-500' : 'bg-emerald-600 border-emerald-500'}`;
-      setTimeout(() => el.classList.add('hidden'), 3000);
-    }
-
-    // Load existing profile
-    async function loadProfile() {
-      if (!driverId) return;
-      const snap = await getDoc(doc(db, 'drivers', driverId));
-      if (snap.exists()) {
-        const data = snap.data();
-        document.getElementById('regName').value = data.name || '';
-        document.getElementById('regPhone').value = data.phone || '';
-        document.getElementById('regPlate').value = data.plate || '';
-        document.getElementById('regVehicle').value = data.vehicleType || 'bakkie';
-        document.getElementById('regZone').value = data.zone || 'East Rand';
-        
-        isOnline = data.status === 'online';
-        updateToggleUI();
-      }
-    }
-
-    function updateToggleUI() {
-      if (isOnline) {
-        statusText.textContent = 'Online';
-        statusText.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
-        toggleBtn.textContent = 'Go Offline';
-        toggleBtn.className = 'w-full bg-red-600 hover:bg-red-500 text-white font-black py-4 rounded-2xl text-sm uppercase tracking-wider shadow-lg shadow-red-600/20 transition';
-      } else {
-        statusText.textContent = 'Offline';
-        statusText.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
-        toggleBtn.textContent = 'Go Online';
-        toggleBtn.className = 'w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl text-sm uppercase tracking-wider shadow-lg shadow-emerald-600/20 transition';
-      }
-    }
-
-    // Save Profile
-    document.getElementById('saveProfileBtn').addEventListener('click', async () => {
-      const name = document.getElementById('regName').value.trim();
-      const phone = document.getElementById('regPhone').value.trim();
-      const plate = document.getElementById('regPlate').value.trim();
-      const vehicleType = document.getElementById('regVehicle').value;
-      const zone = document.getElementById('regZone').value;
-
-      if (!name || !phone || !plate) {
-        showToast('Please fill all fields', true);
-        return;
-      }
-
-      // Normalize phone to be the ID
-      let cleanPhone = phone.replace(/\s+/g, '').replace(/^0/, '27');
-      driverId = cleanPhone;
-      localStorage.setItem('kp_driver_id', driverId);
-
-      try {
-        await setDoc(doc(db, 'drivers', driverId), {
-          name, phone, plate, vehicleType, zone,
-          status: isOnline ? 'online' : 'offline',
-          updatedAt: new Date()
-        }, { merge: true });
-        showToast('Profile saved!');
-      } catch (e) {
-        showToast('Error: ' + e.message, true);
-      }
-    });
-
-    // Toggle Online/Offline with GPS Grab
-    toggleBtn.addEventListener('click', () => {
-      if (!driverId) {
-        showToast('Save your profile first', true);
-        return;
-      }
-
-      if (isOnline) {
-        // Go Offline
-        isOnline = false;
-        updateDoc(doc(db, 'drivers', driverId), { status: 'offline' });
-        updateToggleUI();
-        showToast('You are now offline');
-      } else {
-        // Go Online - Request GPS
-        toggleBtn.textContent = 'Getting GPS...';
-        toggleBtn.disabled = true;
-
-        if (!navigator.geolocation) {
-          showToast('GPS not supported by browser', true);
-          toggleBtn.disabled = false;
-          toggleBtn.textContent = 'Go Online';
-          return;
+    // Check for active trips
+    if (driverId) {
+      const q = query(collection(db, "bookings"), where("driverId", "==", driverId), where("status", "in", ["Assigned", "En Route", "Arrived"]));
+      onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+          const trip = snapshot.docs[0].data();
+          activeTripAlert.classList.remove('hidden');
+          activeTripAlert.onclick = () => window.location.href = `driver-update.html?ref=${snapshot.docs[0].id}`;
+        } else {
+          activeTripAlert.classList.add('hidden');
         }
+      });
+    }
 
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            
-            isOnline = true;
-            await updateDoc(doc(db, 'drivers', driverId), {
-              status: 'online',
-              lat: lat,
-              lng: lng,
-              lastPing: new Date()
-            });
-            
-            updateToggleUI();
-            toggleBtn.disabled = false;
-            showToast('You are online and visible for dispatch!');
-          },
-          (error) => {
-            showToast('Please allow GPS to go online.', true);
-            toggleBtn.disabled = false;
-            updateToggleUI();
-          },
-          { enableHighAccuracy: true, timeout: 10000 }
-        );
+    // Toggle Online Status
+    toggleBtn.addEventListener('click', async () => {
+      if (!driverId) {
+        alert("Please set up your profile first.");
+        return;
+      }
+
+      if (isOnline) {
+        isOnline = false;
+        await updateDoc(doc(db, 'drivers', driverId), { status: 'offline' });
+        updateUI();
+      } else {
+        toggleBtn.textContent = 'Locating...';
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          isOnline = true;
+          await updateDoc(doc(db, 'drivers', driverId), {
+            status: 'online',
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            lastPing: new Date()
+          });
+          updateUI();
+        }, (error) => {
+          alert("Please allow location access to go online.");
+          toggleBtn.textContent = 'Go Online';
+        }, { enableHighAccuracy: true });
       }
     });
 
-    loadProfile();
+    function updateUI() {
+      if (isOnline) {
+        toggleBtn.textContent = 'Go Offline';
+        toggleBtn.className = 'bg-slate-800 border border-slate-700 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition';
+        statusIndicator.className = 'absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-slate-900 bg-emerald-500';
+      } else {
+        toggleBtn.textContent = 'Go Online';
+        toggleBtn.className = 'bg-orange-600 hover:bg-orange-500 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-lg shadow-orange-600/30';
+        statusIndicator.className = 'absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-slate-900 bg-slate-500';
+      }
+    }
   </script>
 </body>
 </html>
